@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AccountNav from "../../components/AccountNav";
-import { authApi, subscriptionApi } from "../../lib/api";
+import { authApi, subscriptionApi, apiRequest } from "../../lib/api";
 
 const plans = [
   {
@@ -45,6 +45,31 @@ const plans = [
   },
 ];
 
+function loadRazorpayScript() {
+  return new Promise((resolve, reject) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const existing = document.querySelector('script[data-razorpay="checkout"]');
+
+    if (existing) {
+      existing.addEventListener("load", () => resolve(true), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Unable to load Razorpay checkout.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.dataset.razorpay = "checkout";
+    script.onload = () => resolve(true);
+    script.onerror = () => reject(new Error("Unable to load Razorpay checkout."));
+    document.body.appendChild(script);
+  });
+}
+
 export default function Subscription() {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -62,7 +87,6 @@ export default function Subscription() {
           setCurrentPlan(data.user.currentPlan || "Starter");
         }
       } catch {
-        // User not logged in
         setUser(null);
       } finally {
         setLoading(false);
@@ -71,22 +95,14 @@ export default function Subscription() {
     loadData();
   }, []);
 
-  async function handleSelectPlan(planName) {
-    if (planName === "Business") {
-      router.push("/contact");
-      return;
-    }
-
+  async function activateStarter() {
     if (!user) {
       router.push("/login?redirect=/subscription");
       return;
     }
 
-    if (currentPlan === planName) {
-      setMessage({
-        text: `You are already subscribed to the ${planName} plan.`,
-        type: "info",
-      });
+    if (currentPlan === "Starter") {
+      setMessage({ text: "You are already on the Starter plan.", type: "info" });
       return;
     }
 
@@ -94,20 +110,139 @@ export default function Subscription() {
     setMessage({ text: "", type: "" });
 
     try {
-      const res = await subscriptionApi.choosePlan({ plan: planName });
-      setCurrentPlan(planName);
-      setMessage({
-        text: res.message || `Successfully switched to ${planName} plan!`,
-        type: "success",
-      });
+      const res = await subscriptionApi.choosePlan({ plan: "Starter" });
+      setCurrentPlan("Starter");
+      setMessage({ text: res.message || "Starter plan activated.", type: "success" });
     } catch (err) {
-      setMessage({
-        text: err.message || "Failed to update subscription.",
-        type: "error",
-      });
+      setMessage({ text: err.message || "Failed to activate Starter.", type: "error" });
     } finally {
       setActionLoading(false);
     }
+  }
+
+  async function startGrowthPayment() {
+    if (!user) {
+      router.push("/login?redirect=/subscription");
+      return;
+    }
+
+    if (currentPlan === "Growth") {
+      setMessage({ text: "You are already subscribed to the Growth plan.", type: "info" });
+      return;
+    }
+
+    setActionLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      await loadRazorpayScript();
+
+      const orderData = await apiRequest("/subscription/create-order", {
+        method: "POST",
+        body: JSON.stringify({ plan: "Growth" }),
+      });
+
+      if (orderData.alreadyActive) {
+        setCurrentPlan("Growth");
+        setMessage({ text: "Growth plan is already active.", type: "success" });
+        return;
+      }
+
+      if (!window.Razorpay) {
+        throw new Error("Razorpay checkout is unavailable.");
+      }
+
+      const options = {
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: "WEBXWHALE",
+        description: "Growth Plan — ₹499/month",
+        order_id: orderData.order.id,
+        prefill: {
+          name: orderData.customer?.name || user.name || "",
+          email: orderData.customer?.email || user.email || "",
+          contact: orderData.customer?.phone || user.phone || "",
+        },
+        notes: {
+          plan: "Growth",
+          subscriptionId: String(orderData.subscriptionId),
+        },
+        theme: {
+          color: "#111111",
+        },
+        handler: async function (response) {
+          try {
+            setMessage({ text: "Payment received. Verifying transaction…", type: "info" });
+
+            const verification = await apiRequest("/subscription/verify-payment", {
+              method: "POST",
+              body: JSON.stringify({
+                ...response,
+                subscriptionId: String(orderData.subscriptionId),
+              }),
+            });
+
+            if (!verification.success) {
+              throw new Error(verification.message || "Payment verification failed.");
+            }
+
+            setCurrentPlan("Growth");
+            setMessage({
+              text: verification.message || "Growth plan activated successfully.",
+              type: "success",
+            });
+          } catch (err) {
+            setMessage({
+              text:
+                err.message ||
+                "Payment was received, but verification could not be completed. Please contact support.",
+              type: "error",
+            });
+          } finally {
+            setActionLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setActionLoading(false);
+            setMessage({ text: "Payment window closed.", type: "info" });
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+
+      razorpay.on("payment.failed", function (response) {
+        setActionLoading(false);
+        setMessage({
+          text: response?.error?.description || "Payment failed. Please try again.",
+          type: "error",
+        });
+      });
+
+      razorpay.open();
+    } catch (err) {
+      setActionLoading(false);
+      setMessage({
+        text: err.message || "Unable to start payment.",
+        type: "error",
+      });
+    }
+  }
+
+  function handleSelectPlan(planName) {
+    if (planName === "Business") {
+      router.push("/contact");
+      return;
+    }
+
+    if (planName === "Growth") {
+      startGrowthPayment();
+      return;
+    }
+
+    activateStarter();
   }
 
   return (
@@ -119,7 +254,7 @@ export default function Subscription() {
           <h1>
             Choose your <em>path.</em>
           </h1>
-          <p>Start free and upgrade when you need more from WEBWHALE.</p>
+          <p>Start free and upgrade when you need more from WEBXWHALE.</p>
           {user && (
             <p style={{ marginTop: "12px", fontSize: "14px", color: "var(--cyan)" }}>
               Logged in as <strong>{user.email}</strong> • Active Plan:{" "}
@@ -167,10 +302,7 @@ export default function Subscription() {
           {plans.map((p) => {
             const isCurrent = currentPlan === p.name;
             return (
-              <article
-                key={p.name}
-                className={`price-card ${p.featured ? "featured" : ""}`}
-              >
+              <article key={p.name} className={`price-card ${p.featured ? "featured" : ""}`}>
                 {p.featured && <span className="price-badge">MOST POPULAR</span>}
                 {isCurrent && (
                   <span
@@ -211,8 +343,8 @@ export default function Subscription() {
                     ? "Contact us"
                     : isCurrent
                     ? "Active Plan ✓"
-                    : actionLoading
-                    ? "Updating…"
+                    : actionLoading && p.name === "Growth"
+                    ? "Processing…"
                     : "Choose plan"}
                 </button>
               </article>
@@ -221,13 +353,12 @@ export default function Subscription() {
         </div>
 
         <p className="billing-note">
-          Subscriptions are stored and managed through your MongoDB backend. For live
-          payments, payment gateway webhooks (such as Razorpay or Stripe) can be
-          attached to verify transactions.
+          Growth payments are processed through Razorpay. Your paid plan is activated
+          only after server-side payment and signature verification.
         </p>
 
         <Link className="text-link dark" href="/contact">
-          Talk to WEBWHALE ↗
+          Talk to WEBXWHALE ↗
         </Link>
       </div>
     </main>
