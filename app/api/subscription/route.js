@@ -3,6 +3,7 @@ import connectToDatabase from "@/lib/mongodb";
 import { getAuthUser } from "@/lib/auth";
 import Subscription from "@/models/Subscription";
 import User from "@/models/User";
+import { getPlanEntitlements } from "@/lib/entitlements";
 
 const PLAN_DEFINITIONS = {
   Starter: {
@@ -42,12 +43,16 @@ const PLAN_DEFINITIONS = {
   },
 };
 
-/**
- * GET: Retrieve active subscription and subscription history for authenticated user
- */
+function isSubscriptionCurrentlyActive(subscription) {
+  if (!subscription || subscription.status !== "active") return false;
+  if (!subscription.endDate) return true;
+  return new Date(subscription.endDate).getTime() > Date.now();
+}
+
 export async function GET(request) {
   try {
     const user = await getAuthUser(request);
+
     if (!user) {
       return NextResponse.json(
         { success: false, message: "Please sign in to view subscription." },
@@ -61,30 +66,41 @@ export async function GET(request) {
       .sort({ createdAt: -1 })
       .lean();
 
-    const activeSubscription =
-      subscriptions.find((s) => s.status === "active") || subscriptions[0] || null;
+    const activeSubscription = subscriptions.find(
+      isSubscriptionCurrentlyActive
+    ) || null;
+
+    const currentPlan = activeSubscription?.plan || "Starter";
 
     return NextResponse.json({
       success: true,
-      currentPlan: user.currentPlan || activeSubscription?.plan || "Starter",
+      currentPlan,
+      entitlements: getPlanEntitlements(currentPlan),
       subscription: activeSubscription,
       history: subscriptions,
     });
   } catch (error) {
     console.error("Fetch subscription error:", error);
+
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to fetch subscription." },
+      {
+        success: false,
+        message: "Failed to fetch subscription.",
+      },
       { status: 500 }
     );
   }
 }
 
 /**
- * POST: Subscribe to a plan or change plan
+ * POST currently supports only free Starter activation.
+ * Paid Growth/Business subscriptions must be created after
+ * successful payment verification/webhook processing.
  */
 export async function POST(request) {
   try {
     const user = await getAuthUser(request);
+
     if (!user) {
       return NextResponse.json(
         { success: false, message: "Please sign in to manage your subscription." },
@@ -99,69 +115,89 @@ export async function POST(request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid plan selected. Choose Starter, Growth, or Business.",
+          message: "Invalid plan selected.",
         },
         { status: 400 }
       );
     }
 
+    if (plan !== "Starter") {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "PAYMENT_REQUIRED",
+          message:
+            "Paid plans require verified payment. Please complete the payment flow before activating this plan.",
+        },
+        { status: 402 }
+      );
+    }
+
     await connectToDatabase();
 
-    const planConfig = PLAN_DEFINITIONS[plan];
+    const existingActiveStarter = await Subscription.findOne({
+      userId: user._id,
+      plan: "Starter",
+      status: "active",
+    });
 
-    // Deactivate previous active subscriptions
+    if (existingActiveStarter) {
+      await User.findByIdAndUpdate(user._id, {
+        currentPlan: "Starter",
+        subscription: existingActiveStarter._id,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Starter plan is already active.",
+        currentPlan: "Starter",
+        entitlements: getPlanEntitlements("Starter"),
+        subscription: existingActiveStarter,
+      });
+    }
+
     await Subscription.updateMany(
       { userId: user._id, status: "active" },
       { status: "cancelled", endDate: new Date() }
     );
 
-    // Calculate dates
-    const startDate = new Date();
-    let endDate = null;
-    if (plan === "Growth") {
-      endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1); // 1 month validity
-    } else if (plan === "Business") {
-      endDate = new Date();
-      endDate.setFullYear(endDate.getFullYear() + 1); // 1 year
-    }
+    const planConfig = PLAN_DEFINITIONS.Starter;
 
-    // Create new subscription in MongoDB
-    const newSubscription = new Subscription({
+    const newSubscription = await Subscription.create({
       userId: user._id,
-      plan: planConfig.plan,
+      plan: "Starter",
       status: "active",
       price: planConfig.price,
       currency: planConfig.currency,
       billingPeriod: planConfig.billingPeriod,
       features: planConfig.features,
-      startDate,
-      endDate,
+      startDate: new Date(),
       paymentDetails: {
-        gateway: plan === "Starter" ? "free" : "direct",
-        paidAmount: planConfig.price,
-        paidAt: new Date(),
+        gateway: "none",
+        paidAmount: 0,
       },
     });
 
-    await newSubscription.save();
-
-    // Update user's current plan and link
     await User.findByIdAndUpdate(user._id, {
-      currentPlan: plan,
+      currentPlan: "Starter",
       subscription: newSubscription._id,
     });
 
     return NextResponse.json({
       success: true,
-      message: `Your subscription has been updated to the ${plan} plan!`,
-      currentPlan: plan,
+      message: "Starter plan activated.",
+      currentPlan: "Starter",
+      entitlements: getPlanEntitlements("Starter"),
       subscription: newSubscription,
     });
   } catch (error) {
     console.error("Update subscription error:", error);
+
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to update subscription." },
+      {
+        success: false,
+        message: "Failed to update subscription.",
+      },
       { status: 500 }
     );
   }
