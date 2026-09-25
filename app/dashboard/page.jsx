@@ -54,74 +54,75 @@ export default function Dashboard() {
     <main className="account-page">
       <AccountNav dark />
       <div className="account-container">
-        <div className="dashboard-hero">
-          <div>
+        <section className="dashboard-welcome">
+          <div className="dashboard-heading">
             <p className="eyebrow">YOUR WORKSPACE</p>
             <h1>
-              Welcome{user?.name ? `, ${user.name}` : ""}.
+              Welcome{user?.name ? ", " + user.name.split(" ")[0] : ""}.
               <br />
-              <em>WEBWHALE</em> dashboard.
+              <em>Your WEBWHALE space.</em>
             </h1>
-            <p>
-              Signed in as <strong>{user?.email}</strong>
-              {user?.currentPlan && (
-                <span>
-                  {" "}
-                  • Active Plan:{" "}
-                  <strong style={{ color: "var(--cyan)" }}>
-                    {user.currentPlan}
-                  </strong>
-                </span>
-              )}
+            <p className="dashboard-subtitle">
+              Manage your account, membership, and access to WEBWHALE products from one place.
             </p>
           </div>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <Link className="account-primary" href="/subscription">
-              Manage plans ↗
+
+          <div className="dashboard-actions">
+            <Link className="account-primary" href="/products">
+              Explore products ↗
             </Link>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: "transparent",
-                border: "1px solid var(--ink)",
-                padding: "14px 19px",
-                borderRadius: "999px",
-                fontSize: "14px",
-                fontWeight: 700,
-                cursor: "pointer",
-                color: "var(--ink)",
-              }}
-            >
+            <button className="dashboard-signout" onClick={handleLogout}>
               Sign out
             </button>
           </div>
+        </section>
+
+        <section className="dashboard-overview">
+          <div className="overview-item">
+            <span>ACCOUNT</span>
+            <strong>{user?.name || "Member"}</strong>
+            <small>{user?.email}</small>
+          </div>
+          <div className="overview-item">
+            <span>ACTIVE PLAN</span>
+            <strong className="overview-plan">{user?.currentPlan || "Starter"}</strong>
+            <small>Manage your membership anytime.</small>
+          </div>
+          <div className="overview-item">
+            <span>STATUS</span>
+            <strong>Active</strong>
+            <small>Your account is ready to use.</small>
+          </div>
+        </section>
+
+        <div className="dashboard-section-head">
+          <div>
+            <p className="eyebrow">QUICK ACCESS</p>
+            <h2>Make a move.</h2>
+          </div>
+          <p>Jump directly to the areas you use most.</p>
         </div>
 
         <div className="dashboard-grid">
           <Link href="/profile" className="dashboard-card">
-            <span>01</span>
+            <div className="dashboard-card-top"><span>01</span><b>↗</b></div>
             <h3>Profile</h3>
-            <p>
-              {user?.company
-                ? `${user.company} • Manage account details.`
-                : "Update your personal and account information."}
-            </p>
+            <p>Update your name, phone, company, and bio.</p>
+            <strong>Manage profile</strong>
           </Link>
-          <Link href="/subscription" className="dashboard-card">
-            <span>02</span>
+          <Link href="/subscription" className="dashboard-card dashboard-card-dark">
+            <div className="dashboard-card-top"><span>02</span><b>↗</b></div>
             <h3>Subscription</h3>
-            <p>
-              Current plan: <strong>{user?.currentPlan || "Starter"}</strong>.
-              Compare plans and manage your membership.
-            </p>
+            <p>Review your {user?.currentPlan || "Starter"} plan and membership options.</p>
+            <strong>Manage plan</strong>
           </Link>
           <Link href="/products" className="dashboard-card">
-            <span>03</span>
+            <div className="dashboard-card-top"><span>03</span><b>↗</b></div>
             <h3>Products</h3>
-            <p>Explore tools built by the WEBWHALE ecosystem.</p>
+            <p>Explore SQLwhale, Webchat, and other WEBWHALE products.</p>
+            <strong>Explore products</strong>
           </Link>
-        </div>
-      </div>
+        </div>div>
     </main>
   );
 }
