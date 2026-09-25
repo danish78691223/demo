@@ -75,36 +75,50 @@ export async function POST(request) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user
-    const newUser = new User({
-      name: name.trim(),
-      email: normalizedEmail,
-      password: hashedPassword,
-      currentPlan: "Starter",
-    });
+    const session = await User.startSession();
 
-    await newUser.save();
+    let newUser;
+    let defaultSubscription;
 
-    // Create default Starter subscription in MongoDB
-    const defaultSubscription = new Subscription({
-      userId: newUser._id,
-      plan: "Starter",
-      status: "active",
-      price: 0,
-      currency: "INR",
-      billingPeriod: "forever",
-      features: [
-        "Account & profile",
-        "Access to free resources",
-        "Product updates",
-      ],
-    });
+    try {
+      await session.withTransaction(async () => {
+        newUser = await User.create(
+          [
+            {
+              name: name.trim(),
+              email: normalizedEmail,
+              password: hashedPassword,
+              currentPlan: "Starter",
+            },
+          ],
+          { session }
+        ).then((users) => users[0]);
 
-    await defaultSubscription.save();
+        defaultSubscription = await Subscription.create(
+          [
+            {
+              userId: newUser._id,
+              plan: "Starter",
+              status: "active",
+              price: 0,
+              currency: "INR",
+              billingPeriod: "forever",
+              features: [
+                "Account & profile",
+                "Access to free resources",
+                "Product updates",
+              ],
+            },
+          ],
+          { session }
+        ).then((subscriptions) => subscriptions[0]);
 
-    // Link subscription to user
-    newUser.subscription = defaultSubscription._id;
-    await newUser.save();
+        newUser.subscription = defaultSubscription._id;
+        await newUser.save({ session });
+      });
+    } finally {
+      await session.endSession();
+    }
 
     // Construct response - session cookie will be established upon login
     return NextResponse.json(
