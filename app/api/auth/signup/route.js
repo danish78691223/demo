@@ -4,11 +4,29 @@ import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
 import { signToken, AUTH_COOKIE_NAME, getCookieOptions } from "@/lib/auth";
+import { rateLimit } from "@/lib/security";
 
 export async function POST(request) {
+  const limited = rateLimit(request, "signup", 5, 60 * 60 * 1000);
+  if (limited) return limited;
+
   try {
     const body = await request.json().catch(() => ({}));
     const { name, email, password } = body;
+
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      name.length > 60 ||
+      email.length > 254 ||
+      password.length > 128
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Invalid account details." },
+        { status: 400 }
+      );
+    }
 
     // Validate input fields
     if (!name || !name.trim()) {
@@ -108,7 +126,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to create account. Please try again.",
+        message: "Unable to create your account. Please try again later.",
       },
       { status: 500 }
     );
