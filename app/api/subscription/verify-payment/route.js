@@ -42,12 +42,30 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    const subscription = await Subscription.findOne({
+    const pendingSubscription = await Subscription.findOne({
       _id: subscriptionId, userId: user._id, status: "pending", plan: "Growth",
       "paymentDetails.orderId": orderId,
     });
 
-    if (!subscription) {
+    if (!pendingSubscription) {
+      const alreadyApplied = await Subscription.findOne({
+        userId: user._id,
+        plan: "Growth",
+        status: "active",
+        "paymentDetails.orderId": orderId,
+        "paymentDetails.paymentId": paymentId,
+      });
+
+      if (alreadyApplied) {
+        return NextResponse.json({
+          success: true,
+          alreadyProcessed: true,
+          message: "Payment was already applied.",
+          currentPlan: "Growth",
+          subscription: alreadyApplied,
+        });
+      }
+
       return NextResponse.json({ success: false, message: "Payment order could not be matched to your account." }, { status: 400 });
     }
 
@@ -78,20 +96,76 @@ export async function POST(request) {
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
 
-    await Subscription.updateMany({ userId: user._id, status: "active" }, { status: "cancelled", endDate: startDate });
+    const activatedSubscription = await Subscription.findOneAndUpdate(
+      {
+        _id: pendingSubscription._id,
+        userId: user._id,
+        status: "pending",
+        plan: "Growth",
+        "paymentDetails.orderId": orderId,
+      },
+      {
+        $set: {
+          status: "active",
+          startDate,
+          endDate,
+          paymentDetails: {
+            gateway: "razorpay",
+            orderId,
+            paymentId,
+            paidAmount: GROWTH_PRICE,
+            paidAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
 
-    subscription.status = "active";
-    subscription.startDate = startDate;
-    subscription.endDate = endDate;
-    subscription.paymentDetails = {
-      gateway: "razorpay", orderId, paymentId,
-      paidAmount: GROWTH_PRICE, paidAt: new Date(),
-    };
-    await subscription.save();
+    if (!activatedSubscription) {
+      const alreadyApplied = await Subscription.findOne({
+        userId: user._id,
+        plan: "Growth",
+        status: "active",
+        "paymentDetails.orderId": orderId,
+        "paymentDetails.paymentId": paymentId,
+      });
 
-    await User.findByIdAndUpdate(user._id, { currentPlan: "Growth", subscription: subscription._id });
+      if (alreadyApplied) {
+        return NextResponse.json({
+          success: true,
+          alreadyProcessed: true,
+          message: "Payment was already applied.",
+          currentPlan: "Growth",
+          subscription: alreadyApplied,
+        });
+      }
 
-    return NextResponse.json({ success: true, message: "Growth plan activated successfully.", currentPlan: "Growth", subscription });
+      return NextResponse.json(
+        { success: false, message: "Payment is being processed. Please refresh your subscription shortly." },
+        { status: 409 }
+      );
+    }
+
+    await Subscription.updateMany(
+      {
+        userId: user._id,
+        status: "active",
+        _id: { $ne: activatedSubscription._id },
+      },
+      { status: "cancelled", endDate: startDate }
+    );
+
+    await User.findByIdAndUpdate(user._id, {
+      currentPlan: "Growth",
+      subscription: activatedSubscription._id,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Growth plan activated successfully.",
+      currentPlan: "Growth",
+      subscription: activatedSubscription,
+    });
   } catch (error) {
     console.error("Verify Razorpay payment error:", error);
     return NextResponse.json({ success: false, message: "Payment verification failed. Please try again later." }, { status: 500 });
