@@ -60,7 +60,7 @@ export default function AccountNav({ dark = false }) {
         {user ? (
           <>
             <Link href="/dashboard">Dashboard</Link>
-            {user.role === "admin" && <Link href="/admin">Admin</Link>}
+            {user.role === "admin" && <Link href="/admin">Control Center</Link>}
             <Link href="/profile" className="account-profile-link">
               Profile ({user.name?.split(" ")[0] || "User"})
             </Link>
