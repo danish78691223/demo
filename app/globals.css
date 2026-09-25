@@ -3167,3 +3167,67 @@ footer p {
     flex-wrap: wrap;
   }
 }
+
+
+/* =========================================
+   CONTROL CENTER SIDEBAR + LEAD MANAGEMENT
+========================================= */
+.admin-shell{max-width:1440px;margin:0 auto;padding:34px 24px 90px;display:grid;grid-template-columns:235px minmax(0,1fr);gap:34px}
+.admin-sidebar{position:sticky;top:104px;align-self:start;min-height:calc(100vh - 145px);display:flex;flex-direction:column;border:1px solid var(--line);background:#fff;padding:18px}
+.admin-sidebar-brand{padding:10px 10px 22px;border-bottom:1px solid #d7dbd8}
+.admin-sidebar-brand span{display:block;font-weight:800;letter-spacing:-.04em}
+.admin-sidebar-brand small{display:block;margin-top:5px;font:500 8px "DM Mono",monospace;letter-spacing:.12em;color:#078eaf}
+.admin-sidebar-nav{display:grid;gap:4px;padding:18px 0}
+.admin-sidebar-nav button{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;padding:12px 11px;border-radius:7px;color:var(--muted);font:600 13px "DM Sans";cursor:pointer;text-align:left}
+.admin-sidebar-nav button:hover,.admin-sidebar-nav button.active{background:#e9f8fa;color:var(--ink)}
+.admin-sidebar-nav i{width:24px;font-style:normal;text-align:center;font-size:15px}
+.admin-sidebar-nav b{margin-left:auto;min-width:20px;height:20px;padding:0 6px;display:grid;place-items:center;border-radius:999px;background:#078eaf;color:#fff;font:700 9px "DM Mono",monospace}
+.admin-sidebar-foot{margin-top:auto;border-top:1px solid #d7dbd8;padding-top:14px;display:grid;gap:5px}
+.admin-sidebar-foot a,.admin-sidebar-foot button{padding:9px 10px;color:var(--muted);background:transparent;border:0;text-align:left;font:500 11px "DM Sans";cursor:pointer}
+.admin-sidebar-foot a:hover,.admin-sidebar-foot button:hover{color:var(--ink)}
+.admin-main{min-width:0}
+.admin-main-header{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:38px}
+.admin-main-header h1{font-size:clamp(44px,5vw,70px);line-height:.92;letter-spacing:-.06em;margin:12px 0 17px}
+.admin-main-header h1 em{font-family:"Playfair Display",serif;color:#078eaf;font-weight:400}
+.admin-main-header>div>p:last-child{max-width:650px;color:var(--muted);font-size:13px;line-height:1.6}
+.admin-content{min-width:0}
+.admin-overview-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}
+.admin-text-button{border:0;background:transparent;color:#078eaf;font-weight:700;cursor:pointer}
+.pipeline-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pipeline-grid>div{padding:15px;background:#faf9f5;border:1px solid #d7dbd8}
+.pipeline-grid span{display:block;text-transform:capitalize;color:var(--muted);font:500 9px "DM Mono",monospace}
+.pipeline-grid strong{display:block;font-size:24px;margin-top:8px}
+.quick-actions{display:grid;gap:8px}
+.quick-actions button{display:grid;grid-template-columns:32px 1fr;column-gap:10px;text-align:left;padding:12px;border:1px solid #d7dbd8;background:#faf9f5;cursor:pointer}
+.quick-actions button:hover{background:#e9f8fa}
+.quick-actions b{grid-row:span 2;font-size:20px;color:#078eaf}
+.quick-actions span{font-weight:700;font-size:12px}
+.quick-actions small{color:var(--muted);font-size:10px;margin-top:3px}
+.admin-products-modern,.admin-leads-modern{margin-top:0}
+.lead-toolbar{display:grid;grid-template-columns:1fr 180px;gap:10px;margin:18px 0 10px}
+.lead-toolbar input,.lead-toolbar select{width:100%;padding:12px 13px;border:1px solid var(--line);background:#fff;font:inherit;border-radius:6px}
+.lead-filter-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.lead-filter-pills button{border:1px solid #d7dbd8;background:#fff;padding:7px 10px;border-radius:999px;text-transform:capitalize;font:600 10px "DM Sans";cursor:pointer;color:var(--muted)}
+.lead-filter-pills button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lead-filter-pills b{margin-left:6px;font:700 9px "DM Mono",monospace}
+.lead-table tbody tr{cursor:pointer}
+.lead-table tbody tr.selected,.lead-table tbody tr:hover{background:#f0fbfb}
+.lead-view-button{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:5px;font-weight:700;font-size:10px;cursor:pointer}
+.lead-view-button:hover{border-color:#078eaf;color:#078eaf}
+.lead-drawer-backdrop{position:fixed;inset:0;z-index:300;background:rgba(7,21,27,.45);display:flex;justify-content:flex-end}
+.lead-drawer{width:min(520px,100%);height:100%;background:var(--cream);box-shadow:-12px 0 40px rgba(0,0,0,.16);overflow:auto}
+.lead-drawer-head{display:flex;justify-content:space-between;gap:20px;padding:30px;border-bottom:1px solid #c8cec9;background:#fff}
+.lead-drawer-head h2{font-size:34px;letter-spacing:-.05em;margin:7px 0 5px}
+.lead-drawer-head span{color:var(--muted);font-size:12px}
+.lead-drawer-head button{width:38px;height:38px;border:1px solid var(--line);background:transparent;border-radius:50%;font-size:25px;cursor:pointer}
+.lead-drawer-body{padding:26px 30px}
+.lead-detail-status{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid #d7dbd8}
+.lead-detail-status>span,.lead-detail-block>span{display:block;text-transform:uppercase;letter-spacing:.1em;color:#7a837d;font:500 9px "DM Mono",monospace}
+.lead-detail-actions{margin:20px 0}
+.lead-detail-actions a{display:inline-flex;padding:10px 14px;background:var(--ink);color:#fff;border-radius:999px;font-size:11px;font-weight:700}
+.lead-detail-block{padding:18px 0;border-bottom:1px solid #d7dbd8}
+.lead-detail-block strong,.lead-detail-block a{display:block;margin-top:7px;font-size:13px}
+.lead-detail-block a{color:#078eaf}
+.lead-detail-message p{margin-top:10px;white-space:pre-wrap;color:var(--muted);font-size:13px;line-height:1.7}
+@media(max-width:1000px){.admin-shell{grid-template-columns:1fr;padding-top:20px}.admin-sidebar{position:static;min-height:0;display:block}.admin-sidebar-brand{display:none}.admin-sidebar-nav{display:flex;overflow-x:auto;padding:0}.admin-sidebar-nav button{min-width:max-content}.admin-sidebar-foot{display:none}.admin-overview-grid{grid-template-columns:1fr}.admin-main-header{display:block}.admin-main-header .admin-refresh{margin-top:18px}}
+@media(max-width:600px){.admin-shell{padding:16px 14px 60px}.admin-stats{grid-template-columns:1fr 1fr}.lead-toolbar{grid-template-columns:1fr}.pipeline-grid{grid-template-columns:1fr 1fr}.lead-drawer-head,.lead-drawer-body{padding:22px}.admin-section-title h2{font-size:32px}}
