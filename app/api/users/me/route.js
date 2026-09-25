@@ -49,6 +49,18 @@ export async function PATCH(request) {
     const body = await request.json().catch(() => ({}));
     const { name, phone, company, bio } = body;
 
+    if (
+      (name !== undefined && (typeof name !== "string" || name.length > 60)) ||
+      (phone !== undefined && (typeof phone !== "string" || phone.length > 30)) ||
+      (company !== undefined && (typeof company !== "string" || company.length > 120)) ||
+      (bio !== undefined && (typeof bio !== "string" || bio.length > 1000))
+    ) {
+      return NextResponse.json(
+        { success: false, message: "One or more profile fields are invalid or too long." },
+        { status: 400 }
+      );
+    }
+
     await connectToDatabase();
 
     const updateFields = {};
@@ -81,7 +93,7 @@ export async function PATCH(request) {
   } catch (error) {
     console.error("Update profile error:", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to update profile." },
+      { success: false, message: "Failed to update profile. Please try again later." },
       { status: 500 }
     );
   }
