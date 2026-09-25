@@ -38,6 +38,26 @@ const Spark = () => (
   </svg>
 );
 
+const trackContentClick = (item, category) => {
+  if (category !== "product") return;
+  try {
+    const visitorId = localStorage.getItem("webwhale_visitor_id");
+    if (!visitorId) return;
+    fetch("/api/analytics/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        visitorId,
+        page: window.location.pathname,
+        eventType: "click",
+        targetId: String(item.id || item.title),
+        targetName: item.title,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+};
+
 const defaultCardGroups = [
   {
     number: "01",
@@ -398,6 +418,7 @@ export default function Home() {
                     target={item.href ? "_blank" : undefined}
                     rel={item.href ? "noopener noreferrer" : undefined}
                     key={item.title}
+                    onClick={() => trackContentClick(item, group.title === "Products" ? "product" : group.title)}
                   >
                     <span className="mini-icon">
                       <Spark />
