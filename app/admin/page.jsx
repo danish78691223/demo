@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [productForm, setProductForm] = useState({ name: "", category: "product", description: "", href: "", status: "LIVE", tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0 });
 
   async function loadLeads() {
@@ -77,14 +78,81 @@ export default function AdminPage() {
     loadAdminData();
   }, []);
 
+  const resetProductForm = () => {
+    setProductForm({ name: "", category: "product", description: "", href: "", status: "LIVE", tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0 });
+    setEditingProduct(null);
+  };
+
   async function createProduct(event) {
     event.preventDefault();
     setError("");
-    const response = await fetch("/api/admin/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...productForm, tags: productForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }) });
+    const response = await fetch("/api/admin/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...productForm, tags: productForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }),
+    });
     const result = await response.json();
     if (!response.ok) { setError(result.message || "Unable to create product."); return; }
     setProducts((items) => [...items, result.product]);
-    setProductForm({ name: "", category: "product", description: "", href: "", status: "LIVE", tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0 });
+    resetProductForm();
+  }
+
+  function startEdit(product) {
+    setEditingProduct(product._id);
+    setProductForm({
+      name: product.name || "",
+      category: product.category || "product",
+      description: product.description || "",
+      href: product.href || "",
+      status: product.status || "LIVE",
+      tags: Array.isArray(product.tags) ? product.tags.join(", ") : "",
+      showOnHome: product.showOnHome !== false,
+      showOnProducts: product.showOnProducts !== false,
+      sortOrder: product.sortOrder || 0,
+    });
+    window.scrollTo({ top: document.querySelector(".admin-products")?.offsetTop - 90 || 0, behavior: "smooth" });
+  }
+
+  async function saveProduct(event) {
+    event.preventDefault();
+    if (!editingProduct) return createProduct(event);
+    setError("");
+    const response = await fetch("/api/admin/products/" + editingProduct, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...productForm, tags: productForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setError(result.message || "Unable to update product."); return; }
+    setProducts((items) => items.map((item) => item._id === editingProduct ? result.product : item));
+    resetProductForm();
+  }
+
+  async function moveProduct(product, direction) {
+    const siblings = products
+      .filter((item) => item.category === product.category)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    const index = siblings.findIndex((item) => item._id === product._id);
+    const target = siblings[index + direction];
+    if (!target) return;
+
+    const response = await Promise.all([
+      fetch("/api/admin/products/" + product._id, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: target.sortOrder || 0 }),
+      }),
+      fetch("/api/admin/products/" + target._id, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sortOrder: product.sortOrder || 0 }),
+      }),
+    ]);
+    if (response.some((item) => !item.ok)) {
+      setError("Unable to reorder products.");
+      return;
+    }
+    await loadAdminData();
   }
 
   async function toggleProduct(id, field, value) {
@@ -144,8 +212,8 @@ export default function AdminPage() {
         <section className="admin-header">
           <div>
             <p className="eyebrow">WEBWHALE ADMIN</p>
-            <h1>Lead <em>workspace.</em></h1>
-            <p>Track incoming enquiries and move each opportunity through your sales pipeline.</p>
+            <h1>Control <em>center.</em></h1>
+            <p>Manage WEBWHALE content, homepage visibility, traffic, product activity and incoming enquiries from one workspace.</p>
           </div>
           <button className="admin-refresh" onClick={loadLeads}>Refresh ↻</button>
         </section>
@@ -161,6 +229,7 @@ export default function AdminPage() {
           <div><span>NEW</span><strong>{data.summary.new || 0}</strong></div>
           <div><span>DISCUSSION</span><strong>{data.summary.discussion || 0}</strong></div>
           <div><span>WON</span><strong>{data.summary.won || 0}</strong></div>
+          <div><span>ACTIVE PRODUCTS</span><strong>{products.filter((item) => String(item.status).toUpperCase() === "LIVE").length}</strong></div>
         </section>
 
         <section className="admin-products">
@@ -168,7 +237,7 @@ export default function AdminPage() {
             <div><p className="eyebrow">CONTENT CONTROL</p><h2>Products & visibility.</h2></div>
             <span>{products.length} items</span>
           </div>
-          <form className="admin-product-form" onSubmit={createProduct}>
+          <form className="admin-product-form" onSubmit={saveProduct}>
             <input placeholder="Name" value={productForm.name} onChange={(e) => setProductForm({ ...productForm, name: e.target.value })} required />
             <select value={productForm.category} onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}>
               <option value="learning">Learning platform</option><option value="product">Product</option><option value="service">Service</option>
@@ -179,7 +248,8 @@ export default function AdminPage() {
             <input placeholder="Tags: SQL, AI, Learning" value={productForm.tags} onChange={(e) => setProductForm({ ...productForm, tags: e.target.value })} />
             <label><input type="checkbox" checked={productForm.showOnHome} onChange={(e) => setProductForm({ ...productForm, showOnHome: e.target.checked })} /> Show on Home</label>
             <label><input type="checkbox" checked={productForm.showOnProducts} onChange={(e) => setProductForm({ ...productForm, showOnProducts: e.target.checked })} /> Show on Products</label>
-            <button className="admin-refresh" type="submit">Add item +</button>
+            <button className="admin-refresh" type="submit">{editingProduct ? "Save changes" : "Add item +"}</button>
+            {editingProduct && <button className="admin-cancel" type="button" onClick={resetProductForm}>Cancel</button>}
           </form>
           <div className="admin-product-list">
             {products.map((product) => (
@@ -187,9 +257,65 @@ export default function AdminPage() {
                 <div><strong>{product.name}</strong><span>{product.category}</span><small>{product.description}</small></div>
                 <label><input type="checkbox" checked={product.showOnHome} onChange={(e) => toggleProduct(product._id, "showOnHome", e.target.checked)} /> Home</label>
                 <label><input type="checkbox" checked={product.showOnProducts} onChange={(e) => toggleProduct(product._id, "showOnProducts", e.target.checked)} /> Products</label>
-                <button onClick={() => deleteProduct(product._id)} className="admin-delete">Delete</button>
+                <div className="admin-product-actions">
+                  <button onClick={() => moveProduct(product, -1)} className="admin-icon-button" title="Move up" aria-label="Move up">↑</button>
+                  <button onClick={() => moveProduct(product, 1)} className="admin-icon-button" title="Move down" aria-label="Move down">↓</button>
+                  <button onClick={() => startEdit(product)} className="admin-edit">Edit</button>
+                  <button onClick={() => deleteProduct(product._id)} className="admin-delete">Delete</button>
+                </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="admin-analytics">
+          <div className="admin-section-title">
+            <div><p className="eyebrow">TRAFFIC INTELLIGENCE</p><h2>Visitors & activity.</h2></div>
+            <span>Last 14 days</span>
+          </div>
+
+          <div className="admin-analytics-grid">
+            <div className="admin-panel admin-traffic-panel">
+              <div className="admin-panel-head">
+                <div><strong>Visitor trend</strong><span>Visits per day</span></div>
+                <b>{analytics?.totalClicks ?? 0} clicks</b>
+              </div>
+              <div className="admin-bars">
+                {(analytics?.dailyTrend || []).map((item) => {
+                  const max = Math.max(...(analytics?.dailyTrend || []).map((entry) => entry.visits), 1);
+                  return (
+                    <div className="admin-bar-item" key={item.date} title={item.date + " · " + item.visits + " visits"}>
+                      <div className="admin-bar-track"><i style={{ height: `${Math.max((item.visits / max) * 100, item.visits ? 8 : 2)}%` }} /></div>
+                      <span>{new Date(item.date + "T00:00:00").toLocaleDateString(undefined, { day: "numeric" })}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="admin-panel">
+              <div className="admin-panel-head"><div><strong>Page performance</strong><span>Most visited pages</span></div></div>
+              <div className="admin-page-list">
+                {(analytics?.pages || []).slice(0, 8).map((page) => (
+                  <div className="admin-page-row" key={page.page}>
+                    <span>{page.page}</span><b>{page.visits}</b><small>{page.unique} unique</small>
+                  </div>
+                ))}
+                {(!analytics?.pages || analytics.pages.length === 0) && <p className="admin-muted">No page visits recorded yet.</p>}
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-panel admin-click-panel">
+            <div className="admin-panel-head"><div><strong>Product clicks</strong><span>Which products visitors are exploring</span></div></div>
+            <div className="admin-click-grid">
+              {(analytics?.productClicks || []).map((item) => (
+                <div className="admin-click-card" key={item.targetId}>
+                  <span>{item.name || item.targetId}</span><strong>{item.clicks}</strong><small>clicks</small>
+                </div>
+              ))}
+              {(!analytics?.productClicks || analytics.productClicks.length === 0) && <p className="admin-muted">Product click data will appear after visitors interact with a product.</p>}
+            </div>
           </div>
         </section>
 
