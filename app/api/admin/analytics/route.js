@@ -17,21 +17,23 @@ export async function GET(request) {
     const trendStart = new Date(startToday);
     trendStart.setDate(trendStart.getDate() - 13);
 
+    const visitMatch = { $or: [{ eventType: "visit" }, { eventType: { $exists: false } }] };
+
     const [totalVisits, uniqueVisitors, todayVisits, todayVisitors, pages, daily, productClicks, totalClicks] =
       await Promise.all([
-        Visitor.countDocuments({ eventType: "visit" }),
-        Visitor.distinct("visitorId", { eventType: "visit" }),
-        Visitor.countDocuments({ eventType: "visit", createdAt: { $gte: startToday } }),
-        Visitor.distinct("visitorId", { eventType: "visit", createdAt: { $gte: startToday } }),
+        Visitor.countDocuments(visitMatch),
+        Visitor.distinct("visitorId", visitMatch),
+        Visitor.countDocuments({ ...visitMatch, createdAt: { $gte: startToday } }),
+        Visitor.distinct("visitorId", { ...visitMatch, createdAt: { $gte: startToday } }),
         Visitor.aggregate([
-          { $match: { eventType: "visit" } },
+          { $match: visitMatch },
           { $group: { _id: "$page", visits: { $sum: 1 }, unique: { $addToSet: "$visitorId" } } },
           { $project: { _id: 0, page: "$_id", visits: 1, unique: { $size: "$unique" } } },
           { $sort: { visits: -1 } },
           { $limit: 20 },
         ]),
         Visitor.aggregate([
-          { $match: { eventType: "visit", createdAt: { $gte: trendStart } } },
+          { $match: { ...visitMatch, createdAt: { $gte: trendStart } } },
           {
             $group: {
               _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
