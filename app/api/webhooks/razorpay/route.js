@@ -68,21 +68,6 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    const existingEvent = await WebhookEvent.findOne({ eventId }).lean();
-
-    if (existingEvent) {
-      return NextResponse.json({
-        success: true,
-        duplicate: true,
-        message: "Webhook already processed.",
-      });
-    }
-
-    await WebhookEvent.create({
-      eventId,
-      event: eventName || "unknown",
-    });
-
     if (eventName === "payment.captured") {
       const payment = payload?.payload?.payment?.entity;
 
@@ -107,13 +92,34 @@ export async function POST(request) {
         });
       }
 
-      const subscription = await Subscription.findOne({
+      const pendingSubscription = await Subscription.findOne({
         status: "pending",
         plan: "Growth",
         "paymentDetails.orderId": orderId,
       });
 
-      if (!subscription) {
+      if (!pendingSubscription) {
+        const alreadyApplied = await Subscription.findOne({
+          plan: "Growth",
+          status: "active",
+          "paymentDetails.orderId": orderId,
+          "paymentDetails.paymentId": paymentId,
+        });
+
+        if (alreadyApplied) {
+          await WebhookEvent.updateOne(
+            { eventId },
+            { $setOnInsert: { eventId, event: eventName || "payment.captured" } },
+            { upsert: true }
+          );
+          return NextResponse.json({
+            success: true,
+            processed: true,
+            duplicate: true,
+            message: "Payment was already applied.",
+          });
+        }
+
         return NextResponse.json({
           success: true,
           processed: false,
@@ -121,23 +127,68 @@ export async function POST(request) {
         });
       }
 
-      if (subscription.paymentDetails?.paymentId === paymentId) {
-        return NextResponse.json({
-          success: true,
-          processed: true,
-          message: "Payment was already applied.",
-        });
-      }
-
       const startDate = new Date();
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + 1);
 
+      const activatedSubscription = await Subscription.findOneAndUpdate(
+        {
+          _id: pendingSubscription._id,
+          status: "pending",
+          plan: "Growth",
+          "paymentDetails.orderId": orderId,
+        },
+        {
+          $set: {
+            status: "active",
+            startDate,
+            endDate,
+            paymentDetails: {
+              gateway: "razorpay",
+              orderId,
+              paymentId,
+              paidAmount: 499,
+              paidAt: new Date(),
+            },
+          },
+        },
+        { new: true }
+      );
+
+      if (!activatedSubscription) {
+        const alreadyApplied = await Subscription.findOne({
+          plan: "Growth",
+          status: "active",
+          "paymentDetails.orderId": orderId,
+          "paymentDetails.paymentId": paymentId,
+        });
+
+        if (alreadyApplied) {
+          await WebhookEvent.updateOne(
+            { eventId },
+            { $setOnInsert: { eventId, event: eventName || "payment.captured" } },
+            { upsert: true }
+          );
+          return NextResponse.json({
+            success: true,
+            processed: true,
+            duplicate: true,
+            message: "Payment was already applied.",
+          });
+        }
+
+        return NextResponse.json({
+          success: false,
+          processed: false,
+          message: "Payment is being processed. Please retry the webhook.",
+        }, { status: 409 });
+      }
+
       await Subscription.updateMany(
         {
-          userId: subscription.userId,
+          userId: activatedSubscription.userId,
           status: "active",
-          _id: { $ne: subscription._id },
+          _id: { $ne: activatedSubscription._id },
         },
         {
           status: "cancelled",
@@ -145,23 +196,16 @@ export async function POST(request) {
         }
       );
 
-      subscription.status = "active";
-      subscription.startDate = startDate;
-      subscription.endDate = endDate;
-      subscription.paymentDetails = {
-        gateway: "razorpay",
-        orderId,
-        paymentId,
-        paidAmount: 499,
-        paidAt: new Date(),
-      };
-
-      await subscription.save();
-
-      await User.findByIdAndUpdate(subscription.userId, {
+      await User.findByIdAndUpdate(activatedSubscription.userId, {
         currentPlan: "Growth",
-        subscription: subscription._id,
+        subscription: activatedSubscription._id,
       });
+
+      await WebhookEvent.updateOne(
+        { eventId },
+        { $setOnInsert: { eventId, event: eventName || "payment.captured" } },
+        { upsert: true }
+      );
 
       return NextResponse.json({
         success: true,
@@ -169,6 +213,12 @@ export async function POST(request) {
         message: "Growth subscription activated from webhook.",
       });
     }
+
+    await WebhookEvent.updateOne(
+      { eventId },
+      { $setOnInsert: { eventId, event: eventName || "unknown" } },
+      { upsert: true }
+    );
 
     return NextResponse.json({
       success: true,
