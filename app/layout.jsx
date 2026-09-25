@@ -1,4 +1,5 @@
 import "./globals.css";
+import VisitorTracker from "../components/VisitorTracker";
 
 export const metadata = {
   title: "WEBXWHALE — Learn. Build. Scale.",
@@ -13,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{children}<VisitorTracker /></body>
     </html>
   );
 }
