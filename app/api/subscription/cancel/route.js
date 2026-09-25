@@ -3,8 +3,12 @@ import connectToDatabase from "@/lib/mongodb";
 import { getAuthUser } from "@/lib/auth";
 import Subscription from "@/models/Subscription";
 import User from "@/models/User";
+import { rateLimit } from "@/lib/security";
 
 export async function POST(request) {
+  const limited = rateLimit(request, "cancel-subscription", 5, 10 * 60 * 1000);
+  if (limited) return limited;
+
   try {
     const user = await getAuthUser(request);
     if (!user) {
@@ -52,7 +56,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Cancel subscription error:", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Failed to cancel subscription." },
+      { success: false, message: "Failed to cancel subscription. Please try again later." },
       { status: 500 }
     );
   }
