@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "../../../../lib/mongodb";
+import connectToDatabase from "../../../../../lib/mongodb";
 import Product from "../../../../models/Product";
-import { requireAdmin } from "../../../../lib/admin";
+import { requireAdmin } from "../../../../../lib/admin";
 
 const DEFAULTS = [
   { name:"SQLwhale", category:"learning", description:"Master data skills through hands-on SQL practice.", status:"Explore", href:"https://sqlwhalefrontend.vercel.app/", accent:"blue", icon:"database", tags:["SQL","Database","Learning"], sortOrder:1 },
