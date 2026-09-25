@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AccountNav from "../../components/AccountNav";
+import { authApi } from "../../lib/api";
 
 const STATUS_OPTIONS = [
   "new",
@@ -33,48 +34,72 @@ export default function AdminPage() {
   const [productForm, setProductForm] = useState({ name: "", category: "product", description: "", href: "", status: "LIVE", tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0 });
 
   async function loadLeads() {
+    const response = await fetch("/api/admin/leads", {
+      cache: "no-store",
+      credentials: "include",
+    });
+    const result = await response.json();
+
+    if (response.status === 401) {
+      router.push("/login?redirect=/admin");
+      return false;
+    }
+    if (response.status === 403) {
+      router.push("/dashboard");
+      return false;
+    }
+    if (!response.ok) throw new Error(result.message || "Unable to load leads.");
+    setData(result);
+    return true;
+  }
+
+  async function loadAdminData() {
+    await fetch("/api/admin/products/seed", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const [productsResponse, analyticsResponse] = await Promise.all([
+      fetch("/api/admin/products", { cache: "no-store", credentials: "include" }),
+      fetch("/api/admin/analytics", { cache: "no-store", credentials: "include" }),
+    ]);
+
+    if (productsResponse.status === 401 || analyticsResponse.status === 401) {
+      router.push("/login?redirect=/admin");
+      return false;
+    }
+    if (productsResponse.status === 403 || analyticsResponse.status === 403) {
+      router.push("/dashboard");
+      return false;
+    }
+
+    const productData = await productsResponse.json();
+    const analyticsData = await analyticsResponse.json();
+    if (productsResponse.ok) setProducts(productData.products || []);
+    if (analyticsResponse.ok) setAnalytics(analyticsData);
+    return true;
+  }
+
+  async function refreshAll() {
     setError("");
     try {
-      const response = await fetch("/api/admin/leads", { cache: "no-store" });
-      const result = await response.json();
-
-      if (response.status === 401) {
+      // Validate the existing session once before loading all admin resources.
+      const auth = await authApi.me();
+      if (!auth?.user) {
         router.push("/login?redirect=/admin");
         return;
       }
-
-      if (response.status === 403) {
+      if (auth.user.role !== "admin") {
         router.push("/dashboard");
         return;
       }
 
-      if (!response.ok) throw new Error(result.message || "Unable to load leads.");
-
-      setData(result);
+      await Promise.all([loadLeads(), loadAdminData()]);
     } catch (err) {
       setError(err.message || "Unable to load admin data.");
     } finally {
       setLoading(false);
     }
-  }
-
-  async function loadAdminData() {
-    try {
-      await fetch("/api/admin/products/seed", { method: "POST" });
-      const [productsResponse, analyticsResponse] = await Promise.all([
-        fetch("/api/admin/products", { cache: "no-store" }),
-        fetch("/api/admin/analytics", { cache: "no-store" }),
-      ]);
-      if (productsResponse.status === 401 || productsResponse.status === 403) { router.push("/dashboard"); return; }
-      const productData = await productsResponse.json();
-      const analyticsData = await analyticsResponse.json();
-      if (productsResponse.ok) setProducts(productData.products || []);
-      if (analyticsResponse.ok) setAnalytics(analyticsData);
-    } catch {}
-  }
-
-  async function refreshAll() {
-    await Promise.all([loadLeads(), loadAdminData()]);
   }
 
   useEffect(() => {
