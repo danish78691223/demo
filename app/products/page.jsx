@@ -946,7 +946,7 @@ export default function ProductsPage() {
                       onClick={() => {
                         trackProductClick(product);
                         setSelectedProduct(product);
-                      }
+                      }}
                       aria-label={`Explore ${product.name}`}
                     >
                       <ArrowUpRight />
