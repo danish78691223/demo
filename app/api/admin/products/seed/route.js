@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "../../../../../lib/mongodb";
-import Product from "../../../../models/Product";
+import Product from "../../../../../models/Product";
 import { requireAdmin } from "../../../../../lib/admin";
 
 const DEFAULTS = [
