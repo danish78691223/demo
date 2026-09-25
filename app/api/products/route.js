@@ -9,11 +9,11 @@ export async function GET(request) {
     const category = searchParams.get("category");
     const homeOnly = searchParams.get("home") === "true";
 
-    const query = { showOnProducts: true };
+    const query = homeOnly ? { showOnHome: true } : { showOnProducts: true };
     if (category && ["learning", "product", "service"].includes(category)) {
       query.category = category;
     }
-    if (homeOnly) query.showOnHome = true;
+
 
     const products = await Product.find(query)
       .sort({ sortOrder: 1, createdAt: 1 })
