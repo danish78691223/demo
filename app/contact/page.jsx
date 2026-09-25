@@ -20,6 +20,8 @@ const ArrowUpRight = () => (
 
 export default function ContactPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [formMessage, setFormMessage] = useState("");
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -183,9 +185,42 @@ export default function ContactPage() {
 
             <form
               className="contact-form"
-              action="mailto:hello@webwhale.in"
-              method="POST"
-              encType="text/plain"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (sending) return;
+
+                setSending(true);
+                setFormMessage("");
+
+                const formData = new FormData(event.currentTarget);
+                const payload = {
+                  name: formData.get("name"),
+                  email: formData.get("email"),
+                  service: formData.get("subject"),
+                  message: formData.get("message"),
+                };
+
+                try {
+                  const response = await fetch("/api/contact", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+
+                  const result = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(result.message || "Unable to send your enquiry.");
+                  }
+
+                  event.currentTarget.reset();
+                  setFormMessage("Thanks — your enquiry has been received. We’ll get back to you soon.");
+                } catch (error) {
+                  setFormMessage(error.message || "Unable to send your enquiry. Please try again.");
+                } finally {
+                  setSending(false);
+                }
+              }}
             >
 
               <div className="form-row">
@@ -272,13 +307,21 @@ export default function ContactPage() {
                   to respond to your request.
                 </p>
 
-                <button
-                  type="submit"
-                  className="button button-dark contact-submit"
-                >
-                  Send message
-                  <ArrowUpRight />
-                </button>
+                <div className="contact-submit-area">
+                  {formMessage && (
+                    <p className="contact-form-message" role="status">
+                      {formMessage}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    className="button button-dark contact-submit"
+                    disabled={sending}
+                  >
+                    {sending ? "Sending…" : "Send message"}
+                    <ArrowUpRight />
+                  </button>
+                </div>
 
               </div>
 
