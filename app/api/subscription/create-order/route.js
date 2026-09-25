@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import { getAuthUser } from "@/lib/auth";
 import Subscription from "@/models/Subscription";
+import { rateLimit } from "@/lib/security";
 
 const PLAN_PRICES = { Growth: 499 };
 
@@ -13,6 +14,9 @@ function getRazorpayCredentials() {
 }
 
 export async function POST(request) {
+  const limited = rateLimit(request, "create-order", 8, 10 * 60 * 1000);
+  if (limited) return limited;
+
   try {
     const user = await getAuthUser(request);
     if (!user) return NextResponse.json({ success: false, message: "Please sign in before starting payment." }, { status: 401 });
@@ -75,6 +79,6 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error("Create Razorpay order error:", error);
-    return NextResponse.json({ success: false, message: error.message || "Failed to create payment order." }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Unable to create payment order. Please try again later." }, { status: 500 });
   }
 }
