@@ -197,7 +197,7 @@ const GameIcon = () => (
    PRODUCT DATA
 ========================================================= */
 
-const currentProducts = [
+const defaultCurrentProducts = [
   {
     id: "01",
     name: "SQLwhale",
@@ -311,8 +311,29 @@ export default function ProductsPage() {
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [selectedProduct, setSelectedProduct] =
     useState(null);
+  const [currentProducts, setCurrentProducts] = useState(defaultCurrentProducts);
 
   const cursorGlow = useRef(null);
+
+  useEffect(() => {
+    fetch("/api/products", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data.products)) return;
+        const icons = { database: DatabaseIcon, resume: ResumeIcon, music: MusicIcon, shield: ShieldIcon, game: GameIcon, spark: SparkIcon };
+        const mapped = data.products.map((item, index) => ({
+          ...item,
+          id: String(index + 1).padStart(2, "0"),
+          icon: icons[item.icon] || SparkIcon,
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          featured: index === 0,
+        }));
+        setCurrentProducts(mapped);
+      })
+      .catch(() => {});
+  }, []);
+
+
 
   /* =======================================================
      SCROLL REVEAL
@@ -791,13 +812,7 @@ export default function ProductsPage() {
 
         <div className="product-filters product-reveal">
 
-          {[
-            "ALL",
-            "DEVELOPER",
-            "CAREER",
-            "CREATIVE",
-            "COMMUNICATION",
-          ].map((filter) => (
+          {["ALL", ...Array.from(new Set(currentProducts.map((product) => product.category.toUpperCase())))].map((filter) => (
             <button
               key={filter}
               className={
