@@ -56,6 +56,25 @@ const ExternalIcon = () => (
   </svg>
 );
 
+const trackProductClick = (product) => {
+  try {
+    const visitorId = localStorage.getItem("webwhale_visitor_id");
+    if (!visitorId) return;
+    fetch("/api/analytics/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        visitorId,
+        page: window.location.pathname,
+        eventType: "click",
+        targetId: String(product._id || product.id || product.name),
+        targetName: product.name,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+};
+
 const SparkIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -924,10 +943,9 @@ export default function ProductsPage() {
 
                     <button
                       className="product-open"
-                      onClick={() =>
-                        setSelectedProduct(
-                          product
-                        )
+                      onClick={() => {
+                        trackProductClick(product);
+                        setSelectedProduct(product);
                       }
                       aria-label={`Explore ${product.name}`}
                     >
