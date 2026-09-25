@@ -38,7 +38,7 @@ const Spark = () => (
   </svg>
 );
 
-const cardGroups = [
+const defaultCardGroups = [
   {
     number: "01",
     title: "Learning platforms",
@@ -174,6 +174,7 @@ const focusAreas = [
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [cardGroups, setCardGroups] = useState(defaultCardGroups);
 
   useEffect(() => {
     let isMounted = true;
@@ -190,6 +191,28 @@ export default function Home() {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/products?home=true", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!Array.isArray(data.products) || data.products.length === 0) return;
+        const groups = [
+          { number: "01", title: "Learning platforms", eyebrow: "Learn with intent", items: [] },
+          { number: "02", title: "Products", eyebrow: "Tools that move work", items: [] },
+          { number: "03", title: "Services", eyebrow: "Partners for progress", items: [] },
+        ];
+        const map = { learning: 0, product: 1, service: 2 };
+        data.products.forEach((item) => {
+          groups[map[item.category]].items.push({
+            title: item.name, copy: item.description, status: item.status || "Explore",
+            accent: item.accent || "cyan", href: item.href || "#contact",
+          });
+        });
+        setCardGroups(groups);
+      })
+      .catch(() => {});
   }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
