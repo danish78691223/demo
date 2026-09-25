@@ -94,10 +94,6 @@ export default function Profile() {
           <h1>
             Your <em>profile.</em>
           </h1>
-          <p>
-            Keep your account information current. All fields are securely persisted
-            to MongoDB.
-          </p>
         </div>
 
         {message.text && (
@@ -117,8 +113,16 @@ export default function Profile() {
         )}
 
         <section className="profile-card">
-          <div className="avatar">
-            {form.name?.[0]?.toUpperCase() || "W"}
+          <div className="profile-card-head">
+            <div className="avatar">
+              {form.name?.[0]?.toUpperCase() || "W"}
+            </div>
+            <div>
+              <span className="profile-card-label">ACCOUNT PROFILE</span>
+              <h2>{form.name || "Your profile"}</h2>
+              <p>{form.email}</p>
+            </div>
+            <span className="profile-plan">{form.currentPlan}</span>
           </div>
 
           <form className="profile-form" onSubmit={handleSave}>
@@ -171,9 +175,14 @@ export default function Profile() {
               />
             </label>
 
+            <div className="profile-form-note">
+              <span>ACCOUNT DETAILS</span>
+              <p>Update your details below. Changes are saved to your account.</p>
+            </div>
+
             <button
               type="submit"
-              className="auth-submit"
+              className="auth-submit profile-save"
               disabled={saving}
             >
               {saving ? "Saving…" : "Save profile"}
