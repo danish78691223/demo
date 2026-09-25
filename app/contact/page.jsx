@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const ArrowUpRight = () => (
   <svg
@@ -22,6 +22,7 @@ export default function ContactPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [formMessage, setFormMessage] = useState("");
+  const formRef = useRef(null);
 
   const closeMenu = () => setIsMenuOpen(false);
 
@@ -184,6 +185,7 @@ export default function ContactPage() {
           <div className="contact-form-wrapper">
 
             <form
+              ref={formRef}
               className="contact-form"
               onSubmit={async (event) => {
                 event.preventDefault();
@@ -214,7 +216,7 @@ export default function ContactPage() {
                     throw new Error(result.message || "Unable to send your enquiry.");
                   }
 
-                  form.reset();
+                  formRef.current?.reset();
                   setFormMessage("Thanks — your enquiry has been received. We’ll get back to you soon.");
                 } catch (error) {
                   setFormMessage(error.message || "Unable to send your enquiry. Please try again.");
