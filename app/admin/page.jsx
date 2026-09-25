@@ -73,9 +73,12 @@ export default function AdminPage() {
     } catch {}
   }
 
+  async function refreshAll() {
+    await Promise.all([loadLeads(), loadAdminData()]);
+  }
+
   useEffect(() => {
-    loadLeads();
-    loadAdminData();
+    refreshAll();
   }, []);
 
   const resetProductForm = () => {
@@ -215,7 +218,7 @@ export default function AdminPage() {
             <h1>Control <em>center.</em></h1>
             <p>Manage WEBWHALE content, homepage visibility, traffic, product activity and incoming enquiries from one workspace.</p>
           </div>
-          <button className="admin-refresh" onClick={loadLeads}>Refresh ↻</button>
+          <button className="admin-refresh" onClick={refreshAll}>Refresh all ↻</button>
         </section>
 
         {error && <div className="admin-alert">{error}</div>}
