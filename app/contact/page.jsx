@@ -192,7 +192,8 @@ export default function ContactPage() {
                 setSending(true);
                 setFormMessage("");
 
-                const formData = new FormData(event.currentTarget);
+                const form = event.currentTarget;
+                const formData = new FormData(form);
                 const payload = {
                   name: formData.get("name"),
                   email: formData.get("email"),
@@ -213,7 +214,7 @@ export default function ContactPage() {
                     throw new Error(result.message || "Unable to send your enquiry.");
                   }
 
-                  event.currentTarget.reset();
+                  form.reset();
                   setFormMessage("Thanks — your enquiry has been received. We’ll get back to you soon.");
                 } catch (error) {
                   setFormMessage(error.message || "Unable to send your enquiry. Please try again.");
