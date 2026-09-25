@@ -49,6 +49,7 @@ const cardGroups = [
         copy: "Master data skills through hands-on SQL practice.",
         status: "Explore",
         accent: "blue",
+        href: "https://sqlwhalefrontend.vercel.app/",
       },
       {
         title: "Programming",
@@ -74,12 +75,21 @@ const cardGroups = [
         copy: "Turn your resume into a clearer next opportunity.",
         status: "Try it",
         accent: "orange",
+        href: "https://t.me/ScanMyResumeBot",
       },
       {
-        title: "Music Enhancer",
+        title: "AI 8D Audio Converter",
         copy: "Bring more clarity and presence to every track.",
         status: "Try it",
         accent: "pink",
+        href: "https://project911-flame.vercel.app/",
+      },
+      {
+        title: "Webchat",
+        copy: "A lightweight web chat experience for connecting and communicating online.",
+        status: "Try it",
+        accent: "mint",
+        href: "https://webwhalechat.netlify.app/",
       },
       {
         title: "More",
@@ -361,7 +371,9 @@ export default function Home() {
                 {group.items.map((item) => (
                   <a
                     className={`mini-card ${item.accent}`}
-                    href="#contact"
+                    href={item.href || "#contact"}
+                    target={item.href ? "_blank" : undefined}
+                    rel={item.href ? "noopener noreferrer" : undefined}
                     key={item.title}
                   >
                     <span className="mini-icon">

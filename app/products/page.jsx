@@ -252,11 +252,29 @@ const currentProducts = [
     featured: false,
     href: "https://project911-flame.vercel.app/",
   },
+  {
+    id: "04",
+    name: "Webchat",
+    category: "Communication Tool",
+    status: "LIVE",
+    icon: SparkIcon,
+    description:
+      "A lightweight web chat experience for connecting and communicating online.",
+    tags: [
+      "Chat",
+      "Communication",
+      "Web",
+      "Community",
+    ],
+    accent: "cyan",
+    featured: false,
+    href: "https://webwhalechat.netlify.app/",
+  },
 ];
 
 const comingProducts = [
   {
-    id: "04",
+    id: "05",
     name: "WebWhale AI",
     category: "Artificial Intelligence",
     icon: SparkIcon,
@@ -265,7 +283,7 @@ const comingProducts = [
     eta: "IN DEVELOPMENT",
   },
   {
-    id: "05",
+    id: "06",
     name: "WhaleShield",
     category: "Security",
     icon: ShieldIcon,
@@ -274,7 +292,7 @@ const comingProducts = [
     eta: "COMING SOON",
   },
   {
-    id: "06",
+    id: "07",
     name: "WhalePlay",
     category: "Entertainment",
     icon: GameIcon,
@@ -778,6 +796,7 @@ export default function ProductsPage() {
             "DEVELOPER",
             "CAREER",
             "CREATIVE",
+            "COMMUNICATION",
           ].map((filter) => (
             <button
               key={filter}
@@ -1522,6 +1541,12 @@ export default function ProductsPage() {
               href={
                 selectedProduct.href ||
                 "/contact"
+              }
+              target={selectedProduct.href ? "_blank" : undefined}
+              rel={
+                selectedProduct.href
+                  ? "noopener noreferrer"
+                  : undefined
               }
               className="modal-button"
             >
