@@ -59,6 +59,7 @@ export default function AdminPage() {
 
   async function loadAdminData() {
     try {
+      await fetch("/api/admin/products/seed", { method: "POST" });
       const [productsResponse, analyticsResponse] = await Promise.all([
         fetch("/api/admin/products", { cache: "no-store" }),
         fetch("/api/admin/analytics", { cache: "no-store" }),
