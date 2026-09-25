@@ -26,32 +26,38 @@ export async function POST(request) {
       { status: "cancelled", endDate: new Date() }
     );
 
-    // Set user's plan back to Starter
-    const defaultStarter = new Subscription({
+    const existingStarter = await Subscription.findOne({
       userId: user._id,
       plan: "Starter",
       status: "active",
-      price: 0,
-      currency: "INR",
-      billingPeriod: "forever",
-      features: [
-        "Account & profile",
-        "Access to free resources",
-        "Product updates",
-      ],
     });
-    await defaultStarter.save();
+
+    const starter =
+      existingStarter ||
+      (await Subscription.create({
+        userId: user._id,
+        plan: "Starter",
+        status: "active",
+        price: 0,
+        currency: "INR",
+        billingPeriod: "forever",
+        features: [
+          "Account & profile",
+          "Access to free resources",
+          "Product updates",
+        ],
+      }));
 
     await User.findByIdAndUpdate(user._id, {
       currentPlan: "Starter",
-      subscription: defaultStarter._id,
+      subscription: starter._id,
     });
 
     return NextResponse.json({
       success: true,
       message: "Subscription cancelled successfully. Your account is on the Starter plan.",
       currentPlan: "Starter",
-      subscription: defaultStarter,
+      subscription: starter,
     });
   } catch (error) {
     console.error("Cancel subscription error:", error);
