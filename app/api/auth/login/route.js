@@ -4,11 +4,22 @@ import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
 import { signToken, AUTH_COOKIE_NAME, getCookieOptions } from "@/lib/auth";
+import { rateLimit } from "@/lib/security";
 
 export async function POST(request) {
+  const limited = rateLimit(request, "login", 10, 10 * 60 * 1000);
+  if (limited) return limited;
+
   try {
     const body = await request.json().catch(() => ({}));
     const { email, password } = body;
+
+    if (typeof email !== "string" || typeof password !== "string" || email.length > 254 || password.length > 128) {
+      return NextResponse.json(
+        { success: false, message: "Invalid login details." },
+        { status: 400 }
+      );
+    }
 
     if (!email || !password) {
       return NextResponse.json(
@@ -71,7 +82,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to sign in. Please try again.",
+        message: "Unable to sign in. Please try again later.",
       },
       { status: 500 }
     );
