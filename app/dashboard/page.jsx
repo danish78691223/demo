@@ -122,7 +122,16 @@ export default function Dashboard() {
             <p>Explore SQLwhale, Webchat, and other WEBWHALE products.</p>
             <strong>Explore products</strong>
           </Link>
-        </div>div>
+          {user?.role === "admin" && (
+            <Link href="/admin" className="dashboard-card dashboard-card-admin">
+              <div className="dashboard-card-top"><span>04</span><b>↗</b></div>
+              <h3>Admin</h3>
+              <p>Manage leads, review enquiries, and access the WEBWHALE admin workspace.</p>
+              <strong>Open admin dashboard</strong>
+            </Link>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
