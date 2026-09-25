@@ -4,16 +4,33 @@ import connectToDatabase from "@/lib/mongodb";
 import { getAuthUser } from "@/lib/auth";
 import Subscription from "@/models/Subscription";
 import User from "@/models/User";
+import { rateLimit } from "@/lib/security";
 
 const GROWTH_PRICE = 499;
 
 export async function POST(request) {
+  const limited = rateLimit(request, "verify-payment", 10, 10 * 60 * 1000);
+  if (limited) return limited;
+
   try {
     const user = await getAuthUser(request);
     if (!user) return NextResponse.json({ success: false, message: "Please sign in before verifying payment." }, { status: 401 });
 
     const body = await request.json().catch(() => ({}));
     const { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature, subscriptionId } = body;
+
+    if (
+      typeof orderId !== "string" ||
+      typeof paymentId !== "string" ||
+      typeof signature !== "string" ||
+      typeof subscriptionId !== "string" ||
+      orderId.length > 100 ||
+      paymentId.length > 100 ||
+      signature.length > 128 ||
+      subscriptionId.length > 100
+    ) {
+      return NextResponse.json({ success: false, message: "Invalid payment verification data." }, { status: 400 });
+    }
 
     if (!orderId || !paymentId || !signature || !subscriptionId) {
       return NextResponse.json({ success: false, message: "Incomplete payment verification data." }, { status: 400 });
@@ -77,6 +94,6 @@ export async function POST(request) {
     return NextResponse.json({ success: true, message: "Growth plan activated successfully.", currentPlan: "Growth", subscription });
   } catch (error) {
     console.error("Verify Razorpay payment error:", error);
-    return NextResponse.json({ success: false, message: error.message || "Payment verification failed." }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Payment verification failed. Please try again later." }, { status: 500 });
   }
 }
