@@ -141,8 +141,8 @@ export default function WebDevelopmentPage() {
   return <main className="web-development-page">
     <nav className="navbar wd-navbar">
       <a className="brand" href="/home" onClick={() => setMenuOpen(false)}>
-        <img className="brand-logo" src="/webwhale_logo.png" alt="WEBWHALE"/>
-        <span className="brand-name">WEBWHALE<span className="brand-dot">.</span></span>
+        <img className="brand-logo" src="/webwhale_logo.png" alt="WEBXWHALE"/>
+        <span className="brand-name">WEBXWHALE<span className="brand-dot">.</span></span>
       </a>
       <button className={`menu-toggle ${menuOpen ? "is-open" : ""}`} onClick={() => setMenuOpen(v=>!v)} aria-label="Toggle navigation">
         <span/><span/>
@@ -161,7 +161,7 @@ export default function WebDevelopmentPage() {
       <div className="wd-hero-glow wd-glow-a"/>
       <div className="wd-hero-glow wd-glow-b"/>
       <div className="wd-hero-inner">
-        <div className="wd-kicker"><span/> WEBWHALE / WEB DEVELOPMENT <b>SYSTEM ONLINE</b></div>
+        <div className="wd-kicker"><span/> WEBXWHALE / WEB DEVELOPMENT <b>SYSTEM ONLINE</b></div>
         <h1><span>Websites</span><em>that work.</em><strong>Web apps that grow.</strong></h1>
         <p>From a single landing page to a complete LMS, eCommerce platform or custom management system — choose the experience, features and complexity your business actually needs.</p>
         <div className="wd-hero-actions">
@@ -205,7 +205,7 @@ export default function WebDevelopmentPage() {
       <div className="wd-system-copy">
         <span className="wd-label">02 — SYSTEMS</span>
         <h2>Beyond websites: <em>business systems.</em></h2>
-        <p>Need logins, dashboards, inventory, courses, orders, roles or custom workflows? WEBWHALE can treat the website as a product — not just a collection of pages.</p>
+        <p>Need logins, dashboards, inventory, courses, orders, roles or custom workflows? WEBXWHALE can treat the website as a product — not just a collection of pages.</p>
       </div>
       <div className="wd-system-list">
         {["LMS / Learning Platform","Custom Management System","Store Management System","eCommerce & Customer Portals"].map((x,i)=><div key={x}><b>0{i+1}</b><span>{x}</span><ArrowRight/></div>)}
@@ -215,7 +215,7 @@ export default function WebDevelopmentPage() {
     <section className="wd-pricing-note wd-reveal">
       <span className="wd-label">03 — PRICING</span>
       <h2>Indicative ranges, <em>not rigid packages.</em></h2>
-      <p>Displayed prices are starting estimates for WEBWHALE projects. Final pricing depends on page count, design depth, content, integrations, authentication, database workflows, hosting and third-party services.</p>
+      <p>Displayed prices are starting estimates for WEBXWHALE projects. Final pricing depends on page count, design depth, content, integrations, authentication, database workflows, hosting and third-party services.</p>
     </section>
 
     <section className="wd-cta wd-reveal">
