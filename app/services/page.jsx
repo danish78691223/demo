@@ -369,16 +369,16 @@ export default function ServicesPage() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
             src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE
+            WEBXWHALE
             <span className="brand-dot">.</span>
           </span>
         </a>
@@ -453,7 +453,7 @@ export default function ServicesPage() {
 
           <div className="hero-topline service-reveal">
             <span className="status-dot" />
-            WEBWHALE / SERVICES
+            WEBXWHALE / SERVICES
             <span className="hero-topline-right">
               SYSTEM ONLINE
             </span>
@@ -573,7 +573,7 @@ export default function ServicesPage() {
           </p>
 
           <p className="intro-secondary">
-            WEBWHALE brings these disciplines together to create
+            WEBXWHALE brings these disciplines together to create
             experiences that are technically strong, visually
             considered, and designed around the people who use them.
           </p>
@@ -950,11 +950,11 @@ export default function ServicesPage() {
               <img
                 className="brand-logo"
                 src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE
+                WEBXWHALE
                 <span className="brand-dot">.</span>
               </span>
             </a>
@@ -1059,7 +1059,7 @@ export default function ServicesPage() {
         <div className="footer-bottom">
 
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE.
+            © {new Date().getFullYear()} WEBXWHALE.
             All rights reserved.
           </div>
 
