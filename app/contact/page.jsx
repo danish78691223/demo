@@ -37,16 +37,16 @@ export default function ContactPage() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
             src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE<span className="brand-dot">.</span>
+            WEBXWHALE<span className="brand-dot">.</span>
           </span>
         </a>
 
@@ -145,7 +145,7 @@ export default function ContactPage() {
             <p className="contact-info-text">
               Whether you&apos;re interested in a service, have a
               product idea, want to collaborate, or just want to
-              say hello, you can reach out to WEBWHALE.
+              say hello, you can reach out to WEBXWHALE.
             </p>
 
             <div className="contact-details">
@@ -306,7 +306,7 @@ export default function ContactPage() {
 
                 <p>
                   By submitting this form, you agree that
-                  WEBWHALE may use the information provided
+                  WEBXWHALE may use the information provided
                   to respond to your request.
                 </p>
 
@@ -350,7 +350,7 @@ export default function ContactPage() {
             <h2>
               Keep in touch
               <br />
-              with <span>WEBWHALE.</span>
+              with <span>WEBXWHALE.</span>
             </h2>
           </div>
 
@@ -367,7 +367,7 @@ export default function ContactPage() {
             </a>
 
             <a href="/aboutus">
-              About WEBWHALE
+              About WEBXWHALE
               <ArrowUpRight />
             </a>
 
@@ -389,11 +389,11 @@ export default function ContactPage() {
               <img
                 className="brand-logo"
                 src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE<span className="brand-dot">.</span>
+                WEBXWHALE<span className="brand-dot">.</span>
               </span>
             </a>
 
@@ -450,7 +450,7 @@ export default function ContactPage() {
         <div className="footer-bottom">
 
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE.
+            © {new Date().getFullYear()} WEBXWHALE.
             All rights reserved.
           </div>
 
