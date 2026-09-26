@@ -667,13 +667,17 @@ export default function ServicesPage() {
                 onMouseLeave={(event) =>
                   resetCard(event.currentTarget)
                 }
-                onClick={() =>
+                onClick={() => {
+                  if (service.id === "01") {
+                    window.location.href = "/services/web-development";
+                    return;
+                  }
                   setActiveService(
                     activeService === service.id
                       ? null
                       : service.id
-                  )
-                }
+                  );
+                }}
               >
 
                 <div className="card-top">
