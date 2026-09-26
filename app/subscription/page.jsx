@@ -11,7 +11,7 @@ const plans = [
     name: "Starter",
     price: "₹0",
     period: "forever",
-    desc: "For exploring the WEBWHALE ecosystem.",
+    desc: "For exploring the WEBXWHALE ecosystem.",
     features: [
       "Account & profile",
       "Access to free resources",
