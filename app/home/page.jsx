@@ -127,8 +127,9 @@ const defaultCardGroups = [
       {
         title: "Web Development",
         copy: "Thoughtful web experiences that grow with you.",
-        status: "Work with us",
+        status: "Explore",
         accent: "mint",
+        href: "/services/web-development",
       },
       {
         title: "Marketing",
@@ -620,7 +621,7 @@ export default function Home() {
             <p className="footer-heading">SERVICES</p>
 
             <nav className="footer-links">
-              <a href="/services">
+              <a href="/services/web-development">
                 Web Development
               </a>
 
