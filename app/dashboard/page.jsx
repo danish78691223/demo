@@ -60,10 +60,10 @@ export default function Dashboard() {
             <h1>
               Welcome{user?.name ? ", " + user.name.split(" ")[0] : ""}.
               <br />
-              <em>Your WEBWHALE space.</em>
+              <em>Your WEBXWHALE space.</em>
             </h1>
             <p className="dashboard-subtitle">
-              Manage your account, membership, and access to WEBWHALE products from one place.
+              Manage your account, membership, and access to WEBXWHALE products from one place.
             </p>
           </div>
 
@@ -119,14 +119,14 @@ export default function Dashboard() {
           <Link href="/products" className="dashboard-card">
             <div className="dashboard-card-top"><span>03</span><b>↗</b></div>
             <h3>Products</h3>
-            <p>Explore SQLwhale, Webchat, and other WEBWHALE products.</p>
+            <p>Explore SQLwhale, Webchat, and other WEBXWHALE products.</p>
             <strong>Explore products</strong>
           </Link>
           {user?.role === "admin" && (
             <Link href="/admin" className="dashboard-card dashboard-card-admin">
               <div className="dashboard-card-top"><span>04</span><b>↗</b></div>
               <h3>Admin</h3>
-              <p>Manage leads, review enquiries, and access the WEBWHALE admin workspace.</p>
+              <p>Manage leads, review enquiries, and access the WEBXWHALE admin workspace.</p>
               <strong>Open admin dashboard</strong>
             </Link>
           )}
