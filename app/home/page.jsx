@@ -246,12 +246,12 @@ export default function Home() {
           className="brand"
           href="#home"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
             src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
@@ -342,7 +342,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-stats" aria-label="WEBWHALE platform facts">
+        <div className="hero-stats" aria-label="WEBXWHALE platform facts">
           <div>
             <strong>01</strong>
             <span>
@@ -571,11 +571,11 @@ export default function Home() {
               <img
                 className="brand-logo"
                 src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE<span className="brand-dot">.</span>
+                WEBXWHALE<span className="brand-dot">.</span>
               </span>
             </a>
 
@@ -666,7 +666,7 @@ export default function Home() {
         {/* Footer bottom */}
         <div className="footer-bottom">
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE. All rights reserved.
+            © {new Date().getFullYear()} WEBXWHALE. All rights reserved.
           </div>
 
           <div className="footer-bottom-links">
