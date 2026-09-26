@@ -188,7 +188,7 @@ export default function AdminPage() {
       <div className="admin-shell">
         <aside className="admin-sidebar">
           <div className="admin-sidebar-brand">
-            <span>WEBWHALE</span>
+            <span>WEBXWHALE</span>
             <small>CONTROL CENTER</small>
           </div>
           <nav className="admin-sidebar-nav">
@@ -208,7 +208,7 @@ export default function AdminPage() {
         <div className="admin-main">
           <header className="admin-main-header">
             <div>
-              <p className="eyebrow">WEBWHALE ADMIN</p>
+              <p className="eyebrow">WEBXWHALE ADMIN</p>
               <h1>{section === "overview" ? <>Control <em>center.</em></> : NAV_ITEMS.find((item) => item.id === section)?.label}</h1>
               <p>{section === "leads" ? "Review enquiries, inspect complete lead details and move prospects through your sales pipeline." : "Manage your WebWhale operations from one workspace."}</p>
             </div>
