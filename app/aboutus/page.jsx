@@ -52,16 +52,16 @@ export default function AboutUsPage() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
             src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE<span className="brand-dot">.</span>
+            WEBXWHALE<span className="brand-dot">.</span>
           </span>
         </a>
 
@@ -120,7 +120,7 @@ export default function AboutUsPage() {
 
           <p className="kicker">
             <span></span>
-            ABOUT WEBWHALE
+            ABOUT WEBXWHALE
           </p>
 
           <h1>
@@ -130,7 +130,7 @@ export default function AboutUsPage() {
           </h1>
 
           <p className="about-hero-text">
-            WEBWHALE is a technology-focused brand exploring the
+            WEBXWHALE is a technology-focused brand exploring the
             intersection of software, creativity, learning, and
             digital experiences.
           </p>
@@ -169,7 +169,7 @@ export default function AboutUsPage() {
             </h2>
 
             <p className="about-large-text">
-              WEBWHALE is being built around a simple idea:
+              WEBXWHALE is being built around a simple idea:
               technology should not only be powerful, it should
               also be understandable, useful, and accessible.
             </p>
@@ -179,7 +179,7 @@ export default function AboutUsPage() {
               services, and experiences across multiple areas of
               technology. From web development and software to
               artificial intelligence, machine learning, education,
-              e-commerce, entertainment, and digital tools, WEBWHALE
+              e-commerce, entertainment, and digital tools, WEBXWHALE
               is designed to grow with the possibilities of technology.
             </p>
 
@@ -208,7 +208,7 @@ export default function AboutUsPage() {
           </div>
 
           <p>
-            WEBWHALE can operate across different areas of the
+            WEBXWHALE can operate across different areas of the
             digital ecosystem, allowing individual products and
             services to evolve independently while remaining part
             of one technology-focused brand.
@@ -327,7 +327,7 @@ export default function AboutUsPage() {
             <div className="principle-number">04</div>
             <h3>Continuous evolution</h3>
             <p>
-              WEBWHALE is designed to learn, adapt, experiment,
+              WEBXWHALE is designed to learn, adapt, experiment,
               and evolve as technology changes.
             </p>
           </article>
@@ -383,11 +383,11 @@ export default function AboutUsPage() {
               <img
                 className="brand-logo"
                 src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE<span className="brand-dot">.</span>
+                WEBXWHALE<span className="brand-dot">.</span>
               </span>
             </a>
 
@@ -444,7 +444,7 @@ export default function AboutUsPage() {
         <div className="footer-bottom">
 
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE.
+            © {new Date().getFullYear()} WEBXWHALE.
             All rights reserved.
           </div>
 
