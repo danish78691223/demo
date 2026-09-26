@@ -241,10 +241,7 @@ export default function WebDevelopmentPage() {
         </div>
       </section>
     </div>}
-  </main>;
-}
-
-<style jsx global>{`
+    <style jsx global>{`
 .web-development-page{--wd-cyan:#12c8e8;--wd-blue:#1877e8;--wd-ink:#14231f;--wd-cream:#f4f0e9;--wd-dark:#03070a;background:var(--wd-cream);color:var(--wd-ink);min-height:100vh;overflow:hidden}
 .wd-navbar{position:absolute;background:rgba(3,7,10,.22);backdrop-filter:blur(10px)}
 .wd-hero{min-height:760px;position:relative;display:flex;align-items:center;overflow:hidden;background:radial-gradient(circle at 76% 38%,rgba(18,200,232,.26),transparent 28%),linear-gradient(130deg,#02080b,#071c25 48%,#075a70 100%);color:#fff}
@@ -265,3 +262,5 @@ export default function WebDevelopmentPage() {
 @media(max-width:900px){.wd-hero{min-height:700px}.wd-hero-inner{padding:140px 24px 80px}.wd-hero h1 em{margin-left:5vw}.wd-hero h1 strong{margin-left:10vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:10vw}.wd-intro,.wd-systems{grid-template-columns:1fr;gap:45px}.wd-catalog-head{grid-template-columns:1fr;gap:25px}.wd-cards{grid-template-columns:repeat(2,1fr)}.wd-detail-modal{grid-template-columns:1fr}.wd-detail-visual{min-height:360px}.wd-detail-content{padding:45px 28px}}
 @media(max-width:620px){.wd-kicker b{display:none}.wd-hero{min-height:690px}.wd-hero-inner{padding:120px 20px 60px}.wd-hero h1{font-size:clamp(53px,15vw,82px)}.wd-hero h1 em{font-size:1.08em;margin-left:0}.wd-hero h1 strong{font-size:.82em;margin-left:8vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:0}.wd-hero-inner>p{margin-top:45px}.wd-hero-actions{flex-wrap:wrap}.wd-intro,.wd-catalog,.wd-systems,.wd-pricing-note,.wd-cta{padding:85px 20px}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(43px,13vw,65px)}.wd-cards{grid-template-columns:1fr}.wd-card{min-height:320px}.wd-detail-visual{padding:35px 20px;min-height:300px}.wd-detail-content{padding:38px 22px}.wd-detail-meta,.wd-detail-columns{grid-template-columns:1fr}.wd-window-body{min-height:240px}.wd-main{padding:24px 18px}.wd-blocks{margin-top:30px}.wd-close{position:fixed}.wd-system-list>div{font-size:14px}}
 `}</style>
+  </main>;
+}
