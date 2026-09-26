@@ -53,7 +53,7 @@ export default function LoginPage() {
             <em>Keep moving.</em>
           </h1>
           <p>
-            Sign in to access your WEBWHALE workspace, products and subscription.
+            Sign in to access your WEBXWHALE workspace, products and subscription.
           </p>
         </section>
         <section className="auth-card">
@@ -89,7 +89,7 @@ export default function LoginPage() {
             </button>
           </form>
           <p className="auth-switch">
-            New to WEBWHALE? <Link href="/signup">Create an account</Link>
+            New to WEBXWHALE? <Link href="/signup">Create an account</Link>
           </p>
         </section>
       </div>
