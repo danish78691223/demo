@@ -316,7 +316,7 @@ const comingProducts = [
     category: "Entertainment",
     icon: GameIcon,
     description:
-      "A planned entertainment and gaming-oriented experience exploring a new side of the WEBWHALE ecosystem.",
+      "A planned entertainment and gaming-oriented experience exploring a new side of the WEBXWHALE ecosystem.",
     eta: "EXPLORING",
   },
 ];
@@ -502,16 +502,16 @@ export default function ProductsPage() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
             src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE
+            WEBXWHALE
             <span className="brand-dot">
               .
             </span>
@@ -619,7 +619,7 @@ export default function ProductsPage() {
 
             <span className="live-dot" />
 
-            WEBWHALE / PRODUCTS
+            WEBXWHALE / PRODUCTS
 
             <span>
               DIGITAL ECOSYSTEM
@@ -715,7 +715,7 @@ export default function ProductsPage() {
               <i>✦</i>
 
               <span>
-                WEBWHALE LABS
+                WEBXWHALE LABS
               </span>
 
               <i>✦</i>
@@ -756,7 +756,7 @@ export default function ProductsPage() {
           </h2>
 
           <p className="products-intro-copy">
-            WEBWHALE products are built around a simple
+            WEBXWHALE products are built around a simple
             principle: technology should solve problems,
             create experiences, or make something easier.
           </p>
@@ -821,7 +821,7 @@ export default function ProductsPage() {
 
           <p>
             Explore the products currently being developed,
-            tested, or made available within the WEBWHALE
+            tested, or made available within the WEBXWHALE
             ecosystem.
           </p>
 
@@ -1128,7 +1128,7 @@ export default function ProductsPage() {
 
           <p>
             Some ideas need time. These products are part
-            of what WEBWHALE is exploring next.
+            of what WEBXWHALE is exploring next.
           </p>
 
         </div>
@@ -1367,11 +1367,11 @@ export default function ProductsPage() {
               <img
                 className="brand-logo"
                 src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE
+                WEBXWHALE
                 <span className="brand-dot">
                   .
                 </span>
@@ -1482,7 +1482,7 @@ export default function ProductsPage() {
         <div className="footer-bottom">
 
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE.
+            © {new Date().getFullYear()} WEBXWHALE.
             All rights reserved.
           </div>
 
