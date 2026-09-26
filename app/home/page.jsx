@@ -228,7 +228,7 @@ export default function Home() {
         data.products.forEach((item) => {
           groups[map[item.category]].items.push({
             title: item.name, copy: item.description, status: item.status || "Explore",
-            accent: item.accent || "cyan", href: item.href || "#contact",
+            accent: item.accent || "cyan", href: item.name === "Web Development" ? "/services/web-development" : (item.href || "#contact"),
           });
         });
         setCardGroups(groups);
