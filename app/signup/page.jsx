@@ -59,7 +59,7 @@ export default function SignupPage() {
             <em>Build. Scale.</em>
           </h1>
           <p>
-            Create one account for your WEBWHALE experience and keep your progress
+            Create one account for your WEBXWHALE experience and keep your progress
             in one place.
           </p>
         </section>
