@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
-import Subscription from "@/models/Subscription";
 import { signToken, AUTH_COOKIE_NAME, getCookieOptions } from "@/lib/auth";
 import { rateLimit } from "@/lib/security";
 
@@ -14,16 +13,16 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const { email, password } = body;
 
-    if (typeof email !== "string" || typeof password !== "string" || email.length > 254 || password.length > 128) {
+    if (
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      email.length > 254 ||
+      password.length > 128 ||
+      !email ||
+      !password
+    ) {
       return NextResponse.json(
         { success: false, message: "Invalid login details." },
-        { status: 400 }
-      );
-    }
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { success: false, message: "Email and password are required." },
         { status: 400 }
       );
     }
@@ -31,8 +30,6 @@ export async function POST(request) {
     await connectToDatabase();
 
     const normalizedEmail = email.toLowerCase().trim();
-
-    // Query user and explicitly select password field
     const user = await User.findOne({ email: normalizedEmail })
       .select("+password")
       .populate("subscription");
@@ -44,7 +41,6 @@ export async function POST(request) {
       );
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return NextResponse.json(
@@ -53,7 +49,6 @@ export async function POST(request) {
       );
     }
 
-    // Generate JWT token
     const token = signToken({
       userId: user._id.toString(),
       email: user.email,
@@ -69,21 +64,23 @@ export async function POST(request) {
         phone: user.phone || "",
         company: user.company || "",
         bio: user.bio || "",
-        currentPlan: user.currentPlan,
+        role: user.role || "user",
+        currentPlan: user.currentPlan || "Starter",
         subscription: user.subscription,
       },
     });
 
-    response.cookies.set(AUTH_COOKIE_NAME, token, getCookieOptions());
+    response.cookies.set({
+      name: AUTH_COOKIE_NAME,
+      value: token,
+      ...getCookieOptions(),
+    });
 
     return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to sign in. Please try again later.",
-      },
+      { success: false, message: "Unable to sign in. Please try again later." },
       { status: 500 }
     );
   }
