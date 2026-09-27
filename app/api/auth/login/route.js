@@ -70,17 +70,19 @@ export async function POST(request) {
       },
     });
 
-    response.cookies.set({
-      name: AUTH_COOKIE_NAME,
-      value: token,
-      ...getCookieOptions(),
-    });
+    // Use the NextResponse cookie API form that is compatible across
+    // the deployed Next.js runtime while retaining the persistent
+    // 30-day cookie options from lib/auth.js.
+    response.cookies.set(AUTH_COOKIE_NAME, token, getCookieOptions());
 
     return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
-      { success: false, message: "Unable to sign in. Please try again later." },
+      {
+        success: false,
+        message: "Unable to sign in. Please try again later.",
+      },
       { status: 500 }
     );
   }
