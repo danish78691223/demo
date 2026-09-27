@@ -134,6 +134,51 @@ export default function WebDevelopmentPage() {
 
   useEffect(() => {
     document.body.classList.add("web-dev-route");
+
+    const cards = cardsRef.current;
+    if (!cards) return;
+
+    let paused = false;
+    let timer;
+
+    const startAutoScroll = () => {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        if (paused || !cardsRef.current) return;
+
+        const el = cardsRef.current;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        const step = Math.min(el.clientWidth * 0.82, 420);
+
+        if (el.scrollLeft >= maxScroll - 8) {
+          el.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          el.scrollBy({ left: step, behavior: "smooth" });
+        }
+      }, 3000);
+    };
+
+    const pause = () => { paused = true; };
+    const resume = () => { paused = false; };
+
+    cards.addEventListener("mouseenter", pause);
+    cards.addEventListener("mouseleave", resume);
+    cards.addEventListener("touchstart", pause, { passive: true });
+    cards.addEventListener("touchend", resume, { passive: true });
+
+    startAutoScroll();
+
+    return () => {
+      clearInterval(timer);
+      cards.removeEventListener("mouseenter", pause);
+      cards.removeEventListener("mouseleave", resume);
+      cards.removeEventListener("touchstart", pause);
+      cards.removeEventListener("touchend", resume);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.add("web-dev-route");
     const nodes = document.querySelectorAll(".wd-reveal");
     const observer = new IntersectionObserver(entries => entries.forEach(e => {
       if (e.isIntersecting) {
