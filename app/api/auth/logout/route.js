@@ -7,10 +7,12 @@ export async function POST() {
     message: "Logged out successfully.",
   });
 
-  // Clear session cookie
-  response.cookies.set(AUTH_COOKIE_NAME, "", {
+  response.cookies.set({
+    name: AUTH_COOKIE_NAME,
+    value: "",
     ...getCookieOptions(),
     maxAge: 0,
+    expires: new Date(0),
   });
 
   return response;
