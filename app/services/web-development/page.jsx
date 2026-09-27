@@ -139,29 +139,32 @@ export default function WebDevelopmentPage() {
     if (!cards) return;
 
     let paused = false;
-    let animationFrame;
+    let animationFrame = 0;
     let lastTime = performance.now();
 
-    const scroll = (time) => {
+    const tick = (time) => {
       const el = cardsRef.current;
-      const delta = time - lastTime;
+      const delta = Math.min(time - lastTime, 50);
       lastTime = time;
 
       if (el && !paused && el.scrollWidth > el.clientWidth) {
         const maxScroll = el.scrollWidth - el.clientWidth;
-        const speed = 0.045; // continuous pixels per millisecond
+        const pixelsPerSecond = 42;
 
         if (el.scrollLeft >= maxScroll - 1) {
           el.scrollLeft = 0;
         } else {
-          el.scrollLeft += delta * speed;
+          el.scrollLeft += (pixelsPerSecond * delta) / 1000;
         }
       }
 
-      animationFrame = requestAnimationFrame(scroll);
+      animationFrame = requestAnimationFrame(tick);
     };
 
-    const pause = () => { paused = true; };
+    const pause = () => {
+      paused = true;
+    };
+
     const resume = () => {
       paused = false;
       lastTime = performance.now();
@@ -169,15 +172,19 @@ export default function WebDevelopmentPage() {
 
     cards.addEventListener("mouseenter", pause);
     cards.addEventListener("mouseleave", resume);
+    cards.addEventListener("pointerdown", pause);
+    cards.addEventListener("pointerup", resume);
     cards.addEventListener("touchstart", pause, { passive: true });
     cards.addEventListener("touchend", resume, { passive: true });
 
-    animationFrame = requestAnimationFrame(scroll);
+    animationFrame = requestAnimationFrame(tick);
 
     return () => {
       cancelAnimationFrame(animationFrame);
       cards.removeEventListener("mouseenter", pause);
       cards.removeEventListener("mouseleave", resume);
+      cards.removeEventListener("pointerdown", pause);
+      cards.removeEventListener("pointerup", resume);
       cards.removeEventListener("touchstart", pause);
       cards.removeEventListener("touchend", resume);
     };
@@ -325,7 +332,7 @@ export default function WebDevelopmentPage() {
 .wd-hero h1{margin:0;max-width:1050px;font-size:clamp(64px,9.5vw,150px);line-height:.78;letter-spacing:-.09em}.wd-hero h1 span,.wd-hero h1 em,.wd-hero h1 strong{display:block}.wd-hero h1 span{animation:wdUp .9s .1s both}.wd-hero h1 em{font:400 clamp(68px,10vw,155px)/.78 "Playfair Display",serif;color:var(--wd-cyan);margin-left:8vw;animation:wdUp .9s .25s both}.wd-hero h1 strong{font:600 clamp(52px,7.2vw,112px)/.9 "DM Sans",sans-serif;margin-left:16vw;color:#fff;animation:wdUp .9s .4s both}.wd-hero-inner>p{max-width:560px;color:rgba(255,255,255,.62);line-height:1.7;font-size:15px;margin:65px 0 30px 16vw;animation:wdUp .9s .6s both}.wd-hero-actions{margin-left:16vw;display:flex;align-items:center;gap:20px;animation:wdUp .9s .72s both}
 .wd-primary,.wd-secondary{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 19px;font-weight:600;font-size:13px;transition:.3s}.wd-primary{background:#fff;color:#06151a}.wd-primary:hover{transform:translateY(-3px);background:var(--wd-cyan)}.wd-secondary{color:#fff;border:1px solid rgba(255,255,255,.25)}.wd-secondary:hover{border-color:var(--wd-cyan);color:var(--wd-cyan)}.wd-primary svg,.wd-secondary svg,.wd-card-bottom svg,.wd-system-list svg,.wd-close svg{width:17px;height:17px}.wd-hero-index{position:absolute;right:28px;bottom:32px;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.32)}
 .wd-intro{padding:135px clamp(24px,8vw,120px);display:grid;grid-template-columns:1.25fr .75fr;gap:90px;align-items:end;background:var(--wd-cream)}.wd-label{color:#75817b}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(48px,6vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0 0}.wd-intro h2 em,.wd-catalog-head h2 em,.wd-system-copy h2 em,.wd-pricing-note h2 em,.wd-cta h2 em{font:400 1em/1 "Playfair Display",serif;color:#087c9a}.wd-intro>p{max-width:460px;color:#68726d;line-height:1.75;font-size:15px;margin:0}
-.wd-catalog{padding:125px clamp(24px,7vw,110px) 150px;background:#ece9e1}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end}.wd-catalog-head>p{color:#68726d;font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:#75817b;font:500 9px "DM Mono",monospace;letter-spacing:.12em}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(20,35,31,.18);background:transparent;color:#14231f;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:#071116;color:#fff;border-color:#071116}.wd-cards{max-width:1120px;margin:auto;display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 2px 28px;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#087c9a transparent}.wd-cards::-webkit-scrollbar{height:6px}.wd-cards::-webkit-scrollbar-track{background:transparent}.wd-cards::-webkit-scrollbar-thumb{background:#087c9a;border-radius:99px}.wd-card{flex:0 0 285px;height:390px;min-height:390px;scroll-snap-align:start}
+.wd-catalog{padding:125px clamp(24px,7vw,110px) 150px;background:#ece9e1}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end}.wd-catalog-head>p{color:#68726d;font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:#75817b;font:500 9px "DM Mono",monospace;letter-spacing:.12em}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(20,35,31,.18);background:transparent;color:#14231f;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:#071116;color:#fff;border-color:#071116}.wd-cards{max-width:1120px;margin:auto;display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 2px 28px;scroll-snap-type:none;scroll-behavior:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#087c9a transparent}.wd-cards::-webkit-scrollbar{height:6px}.wd-cards::-webkit-scrollbar-track{background:transparent}.wd-cards::-webkit-scrollbar-thumb{background:#087c9a;border-radius:99px}.wd-card{flex:0 0 285px;height:390px;min-height:390px;scroll-snap-align:start}
 .wd-card{appearance:none;text-align:left;position:relative;overflow:hidden;min-height:355px;padding:25px;display:flex;flex-direction:column;background:linear-gradient(145deg,#071116,#0b2028);color:#fff;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .4s;animation-delay:calc(var(--i)*45ms)}.wd-card:hover{transform:translateY(-8px) rotateX(1deg);border-color:rgba(18,200,232,.5);box-shadow:0 24px 60px rgba(0,0,0,.16)}.wd-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:3px}.wd-card-sheen{position:absolute;width:220px;height:220px;right:-110px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.2),transparent 68%);transition:.6s}.wd-card:hover .wd-card-sheen{transform:scale(1.7)}.wd-card-top{display:flex;justify-content:space-between;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.4);position:relative;z-index:1}.wd-card-top small{color:var(--wd-cyan)}.wd-card-number{font:400 42px/.9 "DM Mono",monospace;color:rgba(18,200,232,.18);margin:38px 0 18px}.wd-card h3{font-size:27px;line-height:1;letter-spacing:-.055em;margin:0 0 13px;position:relative;z-index:1}.wd-card p{font-size:12px;line-height:1.6;color:rgba(255,255,255,.48);margin:0;position:relative;z-index:1}.wd-card-bottom{margin-top:auto;padding-top:25px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;font:500 10px "DM Mono",monospace;color:var(--wd-cyan)}.wd-card-bottom svg{transition:.3s}.wd-card:hover .wd-card-bottom svg{transform:translateX(5px)}
 .wd-systems{padding:125px clamp(24px,8vw,120px);background:#03070a;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}.wd-system-copy{max-width:650px}.wd-system-copy h2{font-size:clamp(50px,6vw,86px)}.wd-system-copy p{max-width:560px;color:#aab7ba;line-height:1.7;margin:28px 0 0;font-size:14px}.wd-system-list{border-top:1px solid rgba(255,255,255,.15)}.wd-system-list>div{display:flex;align-items:center;gap:20px;padding:23px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:16px}.wd-system-list b{font:400 9px "DM Mono",monospace;color:var(--wd-cyan)}.wd-system-list span{flex:1}.wd-system-list svg{color:var(--wd-cyan);transition:.3s}.wd-system-list>div:hover svg{transform:translateX(5px)}
 .wd-pricing-note{padding:125px clamp(24px,8vw,120px);background:#a9eaf3}.wd-pricing-note h2{max-width:850px}.wd-pricing-note p{max-width:650px;margin:28px 0 0;color:#315b62;line-height:1.7;font-size:14px}.wd-cta{padding:130px clamp(24px,8vw,120px);background:var(--wd-cream);text-align:center}.wd-cta h2{max-width:900px;margin:18px auto 35px}.wd-cta .wd-primary{background:#071116;color:#fff}.wd-cta .wd-primary:hover{background:var(--wd-cyan);color:#06151a}
