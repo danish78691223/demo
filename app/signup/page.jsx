@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AccountNav from "../../components/AccountNav";
 import { authApi } from "../../lib/api";
+
+function getSafeReturnTo(value) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  return value;
+}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -16,6 +21,15 @@ export default function SignupPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [returnTo, setReturnTo] = useState("/dashboard");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setReturnTo(
+        getSafeReturnTo(new URLSearchParams(window.location.search).get("return_to"))
+      );
+    }
+  }, []);
 
   async function submit(e) {
     e.preventDefault();
@@ -38,14 +52,22 @@ export default function SignupPage() {
         email: form.email,
         password: form.password,
       });
-      // Redirect to login page after successful signup
-      router.push("/login?signup=success");
+      router.push(
+        returnTo !== "/dashboard"
+          ? `/login?signup=success&return_to=${encodeURIComponent(returnTo)}`
+          : "/login?signup=success"
+      );
     } catch (err) {
       setError(err.message || "Failed to create account.");
     } finally {
       setLoading(false);
     }
   }
+
+  const loginHref =
+    returnTo !== "/dashboard"
+      ? `/login?return_to=${encodeURIComponent(returnTo)}`
+      : "/login";
 
   return (
     <main className="auth-page">
@@ -117,7 +139,7 @@ export default function SignupPage() {
             </button>
           </form>
           <p className="auth-switch">
-            Already have an account? <Link href="/login">Sign in</Link>
+            Already have an account? <Link href={loginHref}>Sign in</Link>
           </p>
         </section>
       </div>
