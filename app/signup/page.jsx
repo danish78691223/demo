@@ -25,9 +25,20 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setReturnTo(
-        getSafeReturnTo(new URLSearchParams(window.location.search).get("return_to"))
+      const rawReturnTo = getSafeReturnTo(
+        new URLSearchParams(window.location.search).get("return_to")
       );
+      // After signup, continue authorization through login instead of
+      // opening the signup screen again.
+      try {
+        const nextUrl = new URL(rawReturnTo, window.location.origin);
+        if (nextUrl.pathname === "/api/oauth/authorize") {
+          nextUrl.searchParams.set("screen", "login");
+        }
+        setReturnTo(nextUrl.pathname + nextUrl.search);
+      } catch {
+        setReturnTo(rawReturnTo);
+      }
     }
   }, []);
 
