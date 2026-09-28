@@ -67,7 +67,11 @@ export async function POST(request) {
     const { clientId, clientSecret } = getClientCredentials(request, body);
     const client = getOAuthClient(clientId);
 
-    if (!client || !verifyOAuthClientSecret(client, clientSecret)) {
+    if (!client) {
+      return tokenError("invalid_client", "Unknown OAuth client.", 401);
+    }
+
+    if (client.type !== "public" && !verifyOAuthClientSecret(client, clientSecret)) {
       return tokenError(
         "invalid_client",
         "Client authentication failed.",
