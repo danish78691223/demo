@@ -6,16 +6,23 @@ import { useRouter } from "next/navigation";
 import AccountNav from "../../components/AccountNav";
 import { authApi } from "../../lib/api";
 
+function getSafeReturnTo(value) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  return value;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [returnTo, setReturnTo] = useState("/dashboard");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      setReturnTo(getSafeReturnTo(params.get("return_to") || params.get("redirect")));
       if (params.get("signup") === "success") {
         setSuccessMsg("Account created successfully! Please sign in with your email and password.");
       }
@@ -29,17 +36,18 @@ export default function LoginPage() {
 
     try {
       await authApi.login(form);
-      const redirectTarget =
-        typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("redirect") || "/dashboard"
-          : "/dashboard";
-      router.push(redirectTarget);
+      router.push(returnTo);
     } catch (err) {
       setError(err.message || "Failed to sign in.");
     } finally {
       setLoading(false);
     }
   }
+
+  const signupHref =
+    returnTo !== "/dashboard"
+      ? `/signup?return_to=${encodeURIComponent(returnTo)}`
+      : "/signup";
 
   return (
     <main className="auth-page">
@@ -89,7 +97,7 @@ export default function LoginPage() {
             </button>
           </form>
           <p className="auth-switch">
-            New to WEBXWHALE? <Link href="/signup">Create an account</Link>
+            New to WEBXWHALE? <Link href={signupHref}>Create an account</Link>
           </p>
         </section>
       </div>
