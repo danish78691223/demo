@@ -25,6 +25,7 @@ export async function GET(request) {
   const state = url.searchParams.get("state") || "";
   const codeChallenge = url.searchParams.get("code_challenge");
   const codeChallengeMethod = url.searchParams.get("code_challenge_method");
+  const screen = url.searchParams.get("screen") === "signup" ? "signup" : "login";
 
   if (responseType !== "code") {
     return oauthError("Only response_type=code is supported.");
@@ -43,7 +44,7 @@ export async function GET(request) {
   const user = await getAuthUser(request);
 
   if (!user) {
-    const loginUrl = new URL("/login", url.origin);
+    const loginUrl = new URL(`/${screen}`, url.origin);
     loginUrl.searchParams.set("return_to", url.pathname + url.search);
     return NextResponse.redirect(loginUrl);
   }
