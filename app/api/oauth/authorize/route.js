@@ -41,10 +41,19 @@ export async function GET(request) {
     return oauthError("PKCE with S256 is required.");
   }
 
+  // An explicit signup request must always open the central signup form.
+  // Otherwise an existing WEBXWHALE session would silently authorize the
+  // already-authenticated account instead of letting the user create an account.
+  if (screen === "signup") {
+    const signupUrl = new URL("/signup", url.origin);
+    signupUrl.searchParams.set("return_to", url.pathname + url.search);
+    return NextResponse.redirect(signupUrl);
+  }
+
   const user = await getAuthUser(request);
 
   if (!user) {
-    const loginUrl = new URL(`/${screen}`, url.origin);
+    const loginUrl = new URL("/login", url.origin);
     loginUrl.searchParams.set("return_to", url.pathname + url.search);
     return NextResponse.redirect(loginUrl);
   }
