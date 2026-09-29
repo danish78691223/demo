@@ -49,6 +49,13 @@ export async function POST(request) {
       );
     }
 
+    if (user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Admin access only." },
+        { status: 403 }
+      );
+    }
+
     const token = signToken({
       userId: user._id.toString(),
       email: user.email,
