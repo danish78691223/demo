@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { authApi } from "../../lib/api";
 
 const ArrowUpRight = () => (
   <svg
@@ -194,25 +193,8 @@ const focusAreas = [
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [cardGroups, setCardGroups] = useState(defaultCardGroups);
 
-  useEffect(() => {
-    let isMounted = true;
-    authApi
-      .me()
-      .then((data) => {
-        if (isMounted && data.user) {
-          setUser(data.user);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setUser(null);
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     fetch("/api/products?home=true", { cache: "no-store" })
@@ -287,24 +269,8 @@ export default function Home() {
             About us
           </a>
 
-          <a href="/subscription" onClick={closeMenu}>
-            Subscription
-          </a>
 
-          {user ? (
-            <>
-              <a href="/profile" onClick={closeMenu}>
-                Profile
-              </a>
-              <a className="nav-cta" href="/dashboard" onClick={closeMenu}>
-                Dashboard <ArrowUpRight />
-              </a>
-            </>
-          ) : (
-            <a className="nav-cta" href="/login" onClick={closeMenu}>
-              Sign in <ArrowUpRight />
-            </a>
-          )}
+
         </div>
       </nav>
 
@@ -658,6 +624,10 @@ export default function Home() {
 
               <a href="/contact">
                 Contact
+              </a>
+
+              <a href="/login" className="footer-admin-login">
+                Admin Login
               </a>
             </nav>
           </div>
