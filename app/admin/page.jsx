@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { id: "overview", label: "Overview", icon: "◈" },
   { id: "products", label: "Products", icon: "▦" },
   { id: "leads", label: "Leads", icon: "◉" },
+  { id: "feedback", label: "Feedback", icon: "✦" },
   { id: "analytics", label: "Analytics", icon: "↗" },
 ];
 
@@ -29,6 +30,7 @@ export default function AdminPage() {
   const [data, setData] = useState({ leads: [], summary: {} });
   const [products, setProducts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [feedback, setFeedback] = useState({ items: [], summary: {} });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
@@ -52,6 +54,31 @@ export default function AdminPage() {
     return true;
   }
 
+  async function loadFeedback() {
+    const response = await fetch("/api/admin/feedback", { cache: "no-store", credentials: "include" });
+    const result = await response.json();
+    if (response.status === 401) { router.push("/login?redirect=/admin"); return false; }
+    if (response.status === 403) { router.push("/dashboard"); return false; }
+    if (!response.ok) throw new Error(result.message || "Unable to load feedback.");
+    setFeedback({ items: result.feedback || [], summary: result.summary || {} });
+    return true;
+  }
+
+  async function updateFeedbackStatus(id, status) {
+    const response = await fetch("/api/admin/feedback/" + id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setError(result.message || "Unable to update feedback."); return; }
+    setFeedback((current) => ({
+      ...current,
+      items: current.items.map((item) => item._id === id ? result.feedback : item),
+    }));
+  }
+
   async function loadAdminData() {
     await fetch("/api/admin/products/seed", { method: "POST", credentials: "include" });
     const [productsResponse, analyticsResponse] = await Promise.all([
@@ -73,7 +100,7 @@ export default function AdminPage() {
       const auth = await authApi.me();
       if (!auth?.user) { router.push("/login?redirect=/admin"); return; }
       if (auth.user.role !== "admin") { router.push("/dashboard"); return; }
-      await Promise.all([loadLeads(), loadAdminData()]);
+      await Promise.all([loadLeads(), loadAdminData(), loadFeedback()]);
     } catch (err) {
       setError(err.message || "Unable to load admin data.");
     } finally {
@@ -233,6 +260,10 @@ export default function AdminPage() {
             />
           )}
 
+          {section === "feedback" && (
+            <FeedbackSection feedback={feedback} updateFeedbackStatus={updateFeedbackStatus} />
+          )}
+
           {section === "leads" && (
             <LeadsSection
               data={data} filteredLeads={filteredLeads} leadSearch={leadSearch} setLeadSearch={setLeadSearch}
@@ -360,6 +391,63 @@ function LeadDetail({ lead, onClose, onStatusChange }) {
           <div className="lead-detail-block lead-detail-message"><span>Message</span><p>{lead.message}</p></div>
         </div>
       </aside>
+    </div>
+  );
+}
+
+function FeedbackSection({ feedback, updateFeedbackStatus }) {
+  const categoryLabels = {
+    learning: "Learning experience",
+    bug: "Bug / problem",
+    ui: "UI / experience",
+    feature: "Feature request",
+    other: "Something else",
+  };
+
+  return (
+    <div className="admin-content">
+      <section className="admin-leads admin-leads-modern">
+        <div className="admin-section-title">
+          <div><p className="eyebrow">PRODUCT FEEDBACK</p><h2>What SQLWhale users think.</h2></div>
+          <span>{feedback.summary.new || 0} new · {feedback.summary.total || 0} total</span>
+        </div>
+
+        <div className="admin-stats">
+          <Stat label="Total feedback" value={feedback.summary.total || 0} />
+          <Stat label="New" value={feedback.summary.new || 0} />
+          <Stat label="Reviewed" value={feedback.summary.reviewed || 0} />
+          <Stat label="Archived" value={feedback.summary.archived || 0} />
+        </div>
+
+        {feedback.items.length === 0 ? (
+          <div className="admin-empty"><strong>No feedback yet.</strong><p>Feedback submitted from SQLWhale will appear here.</p></div>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table lead-table">
+              <thead><tr><th>User</th><th>Rating</th><th>Category</th><th>Feedback</th><th>Page</th><th>Status</th><th>Received</th></tr></thead>
+              <tbody>
+                {feedback.items.map((item) => (
+                  <tr key={item._id}>
+                    <td><strong>{item.name || "SQLWhale user"}</strong><a href={item.email ? "mailto:" + item.email : "#"}>{item.email || "No email"}</a></td>
+                    <td><strong>{"★".repeat(item.rating)}{"☆".repeat(5 - item.rating)}</strong></td>
+                    <td>{categoryLabels[item.category] || item.category}</td>
+                    <td className="admin-message">{item.message}</td>
+                    <td>{item.page || "—"}</td>
+                    <td>
+                      <select value={item.status} onChange={(e) => updateFeedbackStatus(item._id, e.target.value)} className="lead-status">
+                        <option value="new">new</option>
+                        <option value="reviewed">reviewed</option>
+                        <option value="archived">archived</option>
+                      </select>
+                    </td>
+                    <td>{new Date(item.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
