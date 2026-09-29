@@ -11,7 +11,7 @@ export async function POST(request) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const { name, email, service, message } = body;
+    const { name, email, service, message, source = "WEBXWHALE" } = body;
 
     if (
       typeof name !== "string" ||
@@ -28,6 +28,8 @@ export async function POST(request) {
     const cleanName = name.trim();
     const cleanEmail = email.trim().toLowerCase();
     const cleanMessage = message.trim();
+    const cleanSource =
+      typeof source === "string" ? source.trim().toUpperCase() : "WEBXWHALE";
 
     if (
       cleanName.length < 2 ||
@@ -43,7 +45,8 @@ export async function POST(request) {
         "consulting",
         "collaboration",
         "other",
-      ].includes(service)
+      ].includes(service) ||
+      !["WEBXWHALE", "SQLWHALE"].includes(cleanSource)
     ) {
       return NextResponse.json(
         { success: false, message: "Please check your form details and try again." },
@@ -58,6 +61,7 @@ export async function POST(request) {
       email: cleanEmail,
       service,
       message: cleanMessage,
+      source: cleanSource,
     });
 
     return NextResponse.json(
