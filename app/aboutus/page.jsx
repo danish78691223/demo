@@ -410,10 +410,10 @@ export default function AboutUsPage() {
             <p className="footer-heading">PRODUCTS</p>
 
             <nav className="footer-links">
-              <a href="/#products">SQLwhale</a>
-              <a href="/#products">Resume Analyzer</a>
-              <a href="/#products">Music Enhancer</a>
-              <a href="/#products">More Products</a>
+              <a href="https://sqlwhalefrontend.vercel.app/">SQLwhale</a>
+              <a href="https://t.me/ScanMyResumeBot">Resume Analyzer</a>
+              <a href="https://project911-flame.vercel.app/">AI 8D Audio Converter</a>
+              <a href="/products">More Products</a>
             </nav>
           </div>
 
