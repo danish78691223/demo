@@ -15,6 +15,11 @@ export async function GET(request) {
       .limit(100)
       .lean();
 
+    const normalizedLeads = leads.map((lead) => ({
+      ...lead,
+      source: lead.source === "SQLWHALE" ? "SQLWHALE" : "WEBXWHALE",
+    }));
+
     const counts = await Lead.aggregate([
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
@@ -35,7 +40,7 @@ export async function GET(request) {
       }
     });
 
-    return NextResponse.json({ success: true, leads, summary });
+    return NextResponse.json({ success: true, leads: normalizedLeads, summary });
   } catch (error) {
     console.error("Admin leads GET error:", error);
     return NextResponse.json(
