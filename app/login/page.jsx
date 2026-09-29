@@ -12,23 +12,26 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let active = true;
-    authApi.me().then((data) => {
-      if (active && data?.user?.role === "admin") router.replace("/admin");
-    }).catch(() => {});
-    return () => { active = false; };
-  }, [router]);
+    // Do not auto-redirect an existing admin session from the login page.
+    // Visiting this page is an explicit request to authenticate again.
+    // Clear any previous admin session so an old/stale cookie cannot bypass
+    // the credential form.
+    authApi.logout().catch(() => {});
+  }, []);
 
   async function submit(event) {
     event.preventDefault();
     setError("");
     setLoading(true);
+
     try {
       const result = await authApi.login(form);
+
       if (result?.user?.role !== "admin") {
         await authApi.logout().catch(() => {});
         throw new Error("Admin access only. Please use an administrator account.");
       }
+
       router.replace("/admin");
     } catch (err) {
       setError(err.message || "Unable to sign in.");
