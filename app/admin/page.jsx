@@ -35,6 +35,7 @@ export default function AdminPage() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadSearch, setLeadSearch] = useState("");
   const [leadFilter, setLeadFilter] = useState("all");
+  const [leadSourceFilter, setLeadSourceFilter] = useState("all");
   const [productForm, setProductForm] = useState({
     name: "", category: "product", description: "", href: "", status: "LIVE",
     tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0,
@@ -170,11 +171,14 @@ export default function AdminPage() {
     const query = leadSearch.trim().toLowerCase();
     return data.leads.filter((lead) => {
       const matchesStatus = leadFilter === "all" || lead.status === leadFilter;
-      const matchesQuery = !query || [lead.name, lead.email, lead.message, lead.service]
+      const matchesSource =
+        leadSourceFilter === "all" ||
+        (lead.source || "WEBXWHALE") === leadSourceFilter;
+      const matchesQuery = !query || [lead.name, lead.email, lead.message, lead.service, lead.source]
         .some((value) => String(value || "").toLowerCase().includes(query));
-      return matchesStatus && matchesQuery;
+      return matchesStatus && matchesSource && matchesQuery;
     });
-  }, [data.leads, leadSearch, leadFilter]);
+  }, [data.leads, leadSearch, leadFilter, leadSourceFilter]);
 
   if (loading) {
     return <main className="account-page"><AccountNav dark /><div className="account-container admin-loading">Loading Control Center…</div></main>;
@@ -232,7 +236,9 @@ export default function AdminPage() {
           {section === "leads" && (
             <LeadsSection
               data={data} filteredLeads={filteredLeads} leadSearch={leadSearch} setLeadSearch={setLeadSearch}
-              leadFilter={leadFilter} setLeadFilter={setLeadFilter} selectedLead={selectedLead}
+              leadFilter={leadFilter} setLeadFilter={setLeadFilter}
+              leadSourceFilter={leadSourceFilter} setLeadSourceFilter={setLeadSourceFilter}
+              selectedLead={selectedLead}
               setSelectedLead={setSelectedLead} updateStatus={updateStatus}
             />
           )}
@@ -308,7 +314,7 @@ function ProductsSection({ products, productForm, setProductForm, editingProduct
   );
 }
 
-function LeadsSection({ data, filteredLeads, leadSearch, setLeadSearch, leadFilter, setLeadFilter, selectedLead, setSelectedLead, updateStatus }) {
+function LeadsSection({ data, filteredLeads, leadSearch, setLeadSearch, leadFilter, setLeadFilter, leadSourceFilter, setLeadSourceFilter, selectedLead, setSelectedLead, updateStatus }) {
   return (
     <div className="admin-content">
       <section className="admin-leads admin-leads-modern">
@@ -316,12 +322,18 @@ function LeadsSection({ data, filteredLeads, leadSearch, setLeadSearch, leadFilt
         <div className="lead-toolbar">
           <input value={leadSearch} onChange={(e) => setLeadSearch(e.target.value)} placeholder="Search name, email or message…" />
           <select value={leadFilter} onChange={(e) => setLeadFilter(e.target.value)}><option value="all">All statuses</option>{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}</select>
+          <select value={leadSourceFilter} onChange={(e) => setLeadSourceFilter(e.target.value)}>
+            <option value="all">All sources</option>
+            <option value="WEBXWHALE">WEBXWHALE</option>
+            <option value="SQLWHALE">SQLWHALE</option>
+          </select>
         </div>
         <div className="lead-filter-pills">{STATUS_OPTIONS.map((status) => <button key={status} className={leadFilter === status ? "active" : ""} onClick={() => setLeadFilter(status)}>{status}<b>{data.summary[status] || 0}</b></button>)}</div>
         {filteredLeads.length === 0 ? <div className="admin-empty"><strong>No matching leads.</strong><p>Try another search or status filter.</p></div> : (
-          <div className="admin-table-wrap"><table className="admin-table lead-table"><thead><tr><th>Lead</th><th>Service</th><th>Message</th><th>Status</th><th>Received</th><th></th></tr></thead><tbody>
+          <div className="admin-table-wrap"><table className="admin-table lead-table"><thead><tr><th>Lead</th><th>Source</th><th>Service</th><th>Message</th><th>Status</th><th>Received</th><th></th></tr></thead><tbody>
             {filteredLeads.map((lead) => <tr key={lead._id} className={selectedLead?._id === lead._id ? "selected" : ""} onClick={() => setSelectedLead(lead)}>
               <td><strong>{lead.name}</strong><a href={"mailto:" + lead.email} onClick={(e) => e.stopPropagation()}>{lead.email}</a></td>
+              <td><span className={"lead-source lead-source-" + (lead.source || "WEBXWHALE").toLowerCase()}>{lead.source || "WEBXWHALE"}</span></td>
               <td>{SERVICE_LABELS[lead.service] || lead.service}</td><td className="admin-message">{lead.message}</td>
               <td onClick={(e) => e.stopPropagation()}><select value={lead.status} onChange={(e) => updateStatus(lead._id, e.target.value)} className={"lead-status lead-status-" + lead.status}>{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}</select></td>
               <td>{new Date(lead.createdAt).toLocaleDateString()}</td><td><button className="lead-view-button" onClick={(e) => { e.stopPropagation(); setSelectedLead(lead); }}>View →</button></td>
@@ -342,6 +354,7 @@ function LeadDetail({ lead, onClose, onStatusChange }) {
           <div className="lead-detail-status"><span>Status</span><select value={lead.status} onChange={(e) => onStatusChange(lead._id, e.target.value)} className={"lead-status lead-status-" + lead.status}>{STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}</select></div>
           <div className="lead-detail-actions"><a href={"mailto:" + lead.email}>Email lead ↗</a></div>
           <div className="lead-detail-block"><span>Email</span><a href={"mailto:" + lead.email}>{lead.email}</a></div>
+          <div className="lead-detail-block"><span>Source</span><strong>{lead.source || "WEBXWHALE"}</strong></div>
           <div className="lead-detail-block"><span>Service requested</span><strong>{SERVICE_LABELS[lead.service] || lead.service}</strong></div>
           <div className="lead-detail-block"><span>Received</span><strong>{new Date(lead.createdAt).toLocaleString()}</strong></div>
           <div className="lead-detail-block lead-detail-message"><span>Message</span><p>{lead.message}</p></div>
