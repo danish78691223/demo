@@ -1,104 +1,61 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AccountNav from "../../components/AccountNav";
 import { authApi } from "../../lib/api";
 
-function getSafeReturnTo(value) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  return value;
-}
-
-export default function LoginPage() {
+export default function AdminLoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [returnTo, setReturnTo] = useState("/dashboard");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      setReturnTo(getSafeReturnTo(params.get("return_to") || params.get("redirect")));
-      if (params.get("signup") === "success") {
-        setSuccessMsg("Account created successfully! Please sign in with your email and password.");
-      }
-    }
-  }, []);
+    let active = true;
+    authApi.me().then((data) => {
+      if (active && data?.user?.role === "admin") router.replace("/admin");
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [router]);
 
-  async function submit(e) {
-    e.preventDefault();
+  async function submit(event) {
+    event.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      await authApi.login(form);
-      router.push(returnTo);
+      const result = await authApi.login(form);
+      if (result?.user?.role !== "admin") {
+        await authApi.logout().catch(() => {});
+        throw new Error("Admin access only. Please use an administrator account.");
+      }
+      router.replace("/admin");
     } catch (err) {
-      setError(err.message || "Failed to sign in.");
+      setError(err.message || "Unable to sign in.");
     } finally {
       setLoading(false);
     }
   }
-
-  const signupHref =
-    returnTo !== "/dashboard"
-      ? `/signup?return_to=${encodeURIComponent(returnTo)}`
-      : "/signup";
 
   return (
     <main className="auth-page">
       <AccountNav dark />
       <div className="auth-shell">
         <section className="auth-art">
-          <p className="eyebrow">WELCOME BACK</p>
-          <h1>
-            Keep building.
-            <br />
-            <em>Keep moving.</em>
-          </h1>
-          <p>
-            Sign in to access your WEBXWHALE workspace, products and subscription.
-          </p>
+          <p className="eyebrow">WEBXWHALE ADMIN</p>
+          <h1>Control.<br /><em>Operate.</em></h1>
+          <p>Sign in to access the WEBXWHALE Control Center.</p>
         </section>
         <section className="auth-card">
-          <span className="auth-label">ACCOUNT LOGIN</span>
+          <span className="auth-label">ADMIN LOGIN</span>
           <h2>Sign in</h2>
-          <p className="auth-muted">Use your registered email and password.</p>
-          {successMsg && <div className="form-success">{successMsg}</div>}
+          <p className="auth-muted">Administrator credentials only.</p>
           {error && <div className="form-error">{error}</div>}
           <form onSubmit={submit}>
-            <label>
-              Email
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="you@example.com"
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="••••••••"
-              />
-            </label>
-            <button className="auth-submit" disabled={loading}>
-              {loading ? "Signing in…" : "Sign in"}
-            </button>
+            <label>Email<input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="admin@example.com" /></label>
+            <label>Password<input type="password" required minLength={6} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="••••••••" /></label>
+            <button className="auth-submit" disabled={loading}>{loading ? "Signing in…" : "Admin sign in"}</button>
           </form>
-          <p className="auth-switch">
-            New to WEBXWHALE? <Link href={signupHref}>Create an account</Link>
-          </p>
         </section>
       </div>
     </main>
