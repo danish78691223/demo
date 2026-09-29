@@ -33,6 +33,12 @@ const LeadSchema = new mongoose.Schema(
       trim: true,
       maxlength: 3000,
     },
+    source: {
+      type: String,
+      enum: ["WEBXWHALE", "SQLWHALE"],
+      default: "WEBXWHALE",
+      index: true,
+    },
     status: {
       type: String,
       enum: ["new", "contacted", "discussion", "proposal", "won", "lost"],
