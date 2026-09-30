@@ -99,6 +99,13 @@ const services = [
     stack:["Next.js","Node.js","MongoDB","REST API"],
     best:"Retail stores, supermarkets and multi-user operations",
   },
+  {
+    id:"14", type:"Academic Projects", level:"STUDENT", price:"₹3,000+", time:"Project-based",
+    desc:"Practical academic project development and technical support for students, with a focus on building, understanding and presenting working software projects.",
+    features:["Project planning & structure","Frontend / backend development","Database integration","Documentation support","Deployment guidance","Project walkthrough"],
+    stack:["HTML/CSS","JavaScript","React / Next.js","Node.js","MongoDB / MySQL"],
+    best:"B.Sc, BCA, MCA, M.Sc and other academic software projects",
+  },
 ];
 
 function ServiceVisual({ service }) {
@@ -242,7 +249,7 @@ export default function WebDevelopmentPage() {
           <a href="/contact" className="wd-secondary">Discuss your project</a>
         </div>
       </div>
-      <div className="wd-hero-index">01 / 13</div>
+      <div className="wd-hero-index">01 / 14</div>
     </section>
 
     <section className="wd-intro wd-reveal">
@@ -257,7 +264,7 @@ export default function WebDevelopmentPage() {
       </div>
 
       <div className="wd-catalog-controls wd-reveal">
-        <span>01 — 13 / WEBSITE TYPES</span>
+        <span>01 — 14 / WEBSITE TYPES</span>
         <div>
           <button type="button" onClick={() => scrollCards(-1)} aria-label="Previous website type">←</button>
           <button type="button" onClick={() => scrollCards(1)} aria-label="Next website type">→</button>
