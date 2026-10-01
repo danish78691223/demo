@@ -130,70 +130,70 @@ function ServiceVisual({ service }) {
 export default function WebDevelopmentPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const cardsRef = useRef(null);
+  const [spiralOffset, setSpiralOffset] = useState(0);
+  const spiralRef = useRef(null);
+  const spiralTargetRef = useRef(0);
+  const spiralLastRef = useRef(0);
+  const spiralFrameRef = useRef(null);
 
-  const scrollCards = (direction) => {
-    cardsRef.current?.scrollBy({
-      left: direction * Math.min(cardsRef.current.clientWidth * 0.82, 420),
-      behavior: "smooth",
-    });
+  const moveSpiral = (direction) => {
+    spiralTargetRef.current += direction;
   };
 
   useEffect(() => {
-    document.body.classList.add("web-dev-route");
-
-    const cards = cardsRef.current;
-    if (!cards) return;
+    const root = spiralRef.current;
+    if (!root) return;
 
     let paused = false;
-    let animationFrame = 0;
-    let lastTime = performance.now();
+    let last = performance.now();
 
-    const tick = (time) => {
-      const el = cardsRef.current;
-      const delta = Math.min(time - lastTime, 50);
-      lastTime = time;
-
-      if (el && !paused && el.scrollWidth > el.clientWidth) {
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        const pixelsPerSecond = 42;
-
-        if (el.scrollLeft >= maxScroll - 1) {
-          el.scrollLeft = 0;
-        } else {
-          el.scrollLeft += (pixelsPerSecond * delta) / 1000;
-        }
+    const onWheel = (event) => {
+      const rect = root.getBoundingClientRect();
+      if (event.clientY >= rect.top && event.clientY <= rect.bottom) {
+        spiralTargetRef.current += event.deltaY * 0.0065;
       }
-
-      animationFrame = requestAnimationFrame(tick);
     };
 
-    const pause = () => {
-      paused = true;
-    };
-
+    const pause = () => { paused = true; };
     const resume = () => {
       paused = false;
-      lastTime = performance.now();
+      last = performance.now();
     };
 
-    cards.addEventListener("mouseenter", pause);
-    cards.addEventListener("mouseleave", resume);
-    cards.addEventListener("pointerdown", pause);
-    cards.addEventListener("pointerup", resume);
-    cards.addEventListener("touchstart", pause, { passive: true });
-    cards.addEventListener("touchend", resume, { passive: true });
+    const tick = (time) => {
+      const delta = Math.min(time - last, 50);
+      last = time;
 
-    animationFrame = requestAnimationFrame(tick);
+      if (!paused) {
+        const target = spiralTargetRef.current;
+        const current = spiralLastRef.current;
+        const next = current + (target - current) * Math.min(1, delta * 0.009);
+        spiralLastRef.current = next;
+        setSpiralOffset(next);
+      }
+
+      spiralFrameRef.current = requestAnimationFrame(tick);
+    };
+
+    root.addEventListener("wheel", onWheel, { passive: true });
+    root.addEventListener("mouseenter", pause);
+    root.addEventListener("mouseleave", resume);
+    root.addEventListener("pointerdown", pause);
+    root.addEventListener("pointerup", resume);
+    root.addEventListener("touchstart", pause, { passive: true });
+    root.addEventListener("touchend", resume, { passive: true });
+
+    spiralFrameRef.current = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
-      cards.removeEventListener("mouseenter", pause);
-      cards.removeEventListener("mouseleave", resume);
-      cards.removeEventListener("pointerdown", pause);
-      cards.removeEventListener("pointerup", resume);
-      cards.removeEventListener("touchstart", pause);
-      cards.removeEventListener("touchend", resume);
+      root.removeEventListener("wheel", onWheel);
+      root.removeEventListener("mouseenter", pause);
+      root.removeEventListener("mouseleave", resume);
+      root.removeEventListener("pointerdown", pause);
+      root.removeEventListener("pointerup", resume);
+      root.removeEventListener("touchstart", pause);
+      root.removeEventListener("touchend", resume);
+      cancelAnimationFrame(spiralFrameRef.current);
     };
   }, []);
 
@@ -260,32 +260,64 @@ export default function WebDevelopmentPage() {
     <section id="website-types" className="wd-catalog">
       <div className="wd-catalog-head wd-reveal">
         <div><span className="wd-label">01 — CATALOG</span><h2>Choose your <em>build.</em></h2></div>
-        <p>Tap any card. The card moves left and the detail panel expands with features, technology and an indicative starting range.</p>
+        <p>Scroll or use the controls to move through the spiral. The focused card comes forward while the rest wrap around the helix in depth.</p>
       </div>
 
       <div className="wd-catalog-controls wd-reveal">
-        <span>01 — 14 / WEBSITE TYPES</span>
+        <span>01 — 14 / SPIRAL WEBSITE TYPES</span>
         <div>
-          <button type="button" onClick={() => scrollCards(-1)} aria-label="Previous website type">←</button>
-          <button type="button" onClick={() => scrollCards(1)} aria-label="Next website type">→</button>
+          <button type="button" onClick={() => moveSpiral(-1)} aria-label="Previous website type">←</button>
+          <button type="button" onClick={() => moveSpiral(1)} aria-label="Next website type">→</button>
         </div>
       </div>
 
-      <div className="wd-cards" ref={cardsRef}>
-        {services.map((service, index) => <button
-          key={service.id}
-          className="wd-card wd-reveal"
-          style={{"--i":index}}
-          onClick={() => setSelected(service)}
-          aria-label={`View details for ${service.type}`}
-        >
-          <div className="wd-card-top"><span>{service.id}</span><small>{service.level}</small></div>
-          <div className="wd-card-number">0{index+1}</div>
-          <h3>{service.type}</h3>
-          <p>{service.desc}</p>
-          <div className="wd-card-bottom"><span>{service.price}</span><ArrowRight/></div>
-          <i className="wd-card-sheen"/>
-        </button>)}
+      <div className="wd-spiral-slider wd-reveal" ref={spiralRef}>
+        <div className="wd-spiral-vignette"/>
+        <div className="wd-spiral-axis"/>
+        <div className="wd-spiral-cards" style={{"--spiral-offset":spiralOffset}}>
+          {services.map((service, index) => {
+            const relative = index - spiralOffset;
+            const angle = relative * 0.62;
+            const y = relative * 112;
+            const x = Math.sin(angle) * 260;
+            const z = Math.cos(angle) * 360;
+            const rotateY = Math.sin(angle) * 42;
+            const rotateZ = Math.sin(angle) * 7;
+            const scale = Math.max(0.62, 1.03 - Math.abs(relative) * 0.08);
+            const opacity = Math.max(0.18, 1 - Math.abs(relative) * 0.15);
+            const blur = Math.min(3.8, Math.abs(relative) * 0.48);
+
+            return <button
+              key={service.id}
+              className="wd-spiral-card"
+              style={{
+                "--x": `${x}px`,
+                "--y": `${y}px`,
+                "--z": `${z}px`,
+                "--ry": `${rotateY}deg`,
+                "--rz": `${rotateZ}deg`,
+                "--scale": scale,
+                "--opacity": opacity,
+                "--blur": `${blur}px`,
+                "--order": index,
+              }}
+              onClick={() => setSelected(service)}
+              aria-label={`View details for ${service.type}`}
+            >
+              <span className="wd-spiral-card-glow"/>
+              <span className="wd-spiral-card-index">{service.id}</span>
+              <span className="wd-spiral-card-level">{service.level}</span>
+              <span className="wd-spiral-card-number">{String(index + 1).padStart(2, "0")}</span>
+              <strong>{service.type}</strong>
+              <span className="wd-spiral-card-desc">{service.desc}</span>
+              <span className="wd-spiral-card-footer">
+                <small>{service.price}</small>
+                <ArrowRight/>
+              </span>
+            </button>;
+          })}
+        </div>
+        <div className="wd-spiral-hint"><span>SCROLL</span><i>↕</i><span>OR DRAG</span></div>
       </div>
     </section>
 
@@ -339,16 +371,16 @@ export default function WebDevelopmentPage() {
 .wd-hero h1{margin:0;max-width:1050px;font-size:clamp(64px,9.5vw,150px);line-height:.78;letter-spacing:-.09em}.wd-hero h1 span,.wd-hero h1 em,.wd-hero h1 strong{display:block}.wd-hero h1 span{animation:wdUp .9s .1s both}.wd-hero h1 em{font:400 clamp(68px,10vw,155px)/.78 "Playfair Display",serif;color:var(--wd-cyan);margin-left:8vw;animation:wdUp .9s .25s both}.wd-hero h1 strong{font:600 clamp(52px,7.2vw,112px)/.9 "DM Sans",sans-serif;margin-left:16vw;color:#fff;animation:wdUp .9s .4s both}.wd-hero-inner>p{max-width:560px;color:rgba(255,255,255,.62);line-height:1.7;font-size:15px;margin:65px 0 30px 16vw;animation:wdUp .9s .6s both}.wd-hero-actions{margin-left:16vw;display:flex;align-items:center;gap:20px;animation:wdUp .9s .72s both}
 .wd-primary,.wd-secondary{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 19px;font-weight:600;font-size:13px;transition:.3s}.wd-primary{background:#fff;color:#06151a}.wd-primary:hover{transform:translateY(-3px);background:var(--wd-cyan)}.wd-secondary{color:#fff;border:1px solid rgba(255,255,255,.25)}.wd-secondary:hover{border-color:var(--wd-cyan);color:var(--wd-cyan)}.wd-primary svg,.wd-secondary svg,.wd-card-bottom svg,.wd-system-list svg,.wd-close svg{width:17px;height:17px}.wd-hero-index{position:absolute;right:28px;bottom:32px;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.32)}
 .wd-intro{padding:135px clamp(24px,8vw,120px);display:grid;grid-template-columns:1.25fr .75fr;gap:90px;align-items:end;background:var(--wd-cream)}.wd-label{color:#75817b}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(48px,6vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0 0}.wd-intro h2 em,.wd-catalog-head h2 em,.wd-system-copy h2 em,.wd-pricing-note h2 em,.wd-cta h2 em{font:400 1em/1 "Playfair Display",serif;color:#087c9a}.wd-intro>p{max-width:460px;color:#68726d;line-height:1.75;font-size:15px;margin:0}
-.wd-catalog{padding:125px clamp(24px,7vw,110px) 150px;background:#ece9e1}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end}.wd-catalog-head>p{color:#68726d;font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:#75817b;font:500 9px "DM Mono",monospace;letter-spacing:.12em}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(20,35,31,.18);background:transparent;color:#14231f;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:#071116;color:#fff;border-color:#071116}.wd-cards{max-width:1120px;margin:auto;display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:8px 2px 28px;scroll-snap-type:none;scroll-behavior:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#087c9a transparent}.wd-cards::-webkit-scrollbar{height:6px}.wd-cards::-webkit-scrollbar-track{background:transparent}.wd-cards::-webkit-scrollbar-thumb{background:#087c9a;border-radius:99px}.wd-card{flex:0 0 285px;height:390px;min-height:390px;scroll-snap-align:start}
-.wd-card{appearance:none;text-align:left;position:relative;overflow:hidden;min-height:355px;padding:25px;display:flex;flex-direction:column;background:linear-gradient(145deg,#071116,#0b2028);color:#fff;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:transform .5s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .4s;animation-delay:calc(var(--i)*45ms)}.wd-card:hover{transform:translateY(-8px) rotateX(1deg);border-color:rgba(18,200,232,.5);box-shadow:0 24px 60px rgba(0,0,0,.16)}.wd-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:3px}.wd-card-sheen{position:absolute;width:220px;height:220px;right:-110px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.2),transparent 68%);transition:.6s}.wd-card:hover .wd-card-sheen{transform:scale(1.7)}.wd-card-top{display:flex;justify-content:space-between;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.4);position:relative;z-index:1}.wd-card-top small{color:var(--wd-cyan)}.wd-card-number{font:400 42px/.9 "DM Mono",monospace;color:rgba(18,200,232,.18);margin:38px 0 18px}.wd-card h3{font-size:27px;line-height:1;letter-spacing:-.055em;margin:0 0 13px;position:relative;z-index:1}.wd-card p{font-size:12px;line-height:1.6;color:rgba(255,255,255,.48);margin:0;position:relative;z-index:1}.wd-card-bottom{margin-top:auto;padding-top:25px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;font:500 10px "DM Mono",monospace;color:var(--wd-cyan)}.wd-card-bottom svg{transition:.3s}.wd-card:hover .wd-card-bottom svg{transform:translateX(5px)}
+.wd-catalog{padding:125px clamp(24px,7vw,110px) 150px;background:#ece9e1}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end}.wd-catalog-head>p{color:#68726d;font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:#75817b;font:500 9px "DM Mono",monospace;letter-spacing:.12em}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(20,35,31,.18);background:transparent;color:#14231f;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:#071116;color:#fff;border-color:#071116}.wd-spiral-slider{position:relative;max-width:1120px;height:720px;margin:15px auto 0;overflow:hidden;perspective:1400px;background:radial-gradient(circle at 50% 48%,rgba(18,200,232,.13),transparent 34%),linear-gradient(180deg,rgba(3,7,10,.96),rgba(4,12,16,.98));border:1px solid rgba(7,18,22,.12);box-shadow:inset 0 0 80px rgba(0,0,0,.16);touch-action:pan-y;cursor:grab}.wd-spiral-slider:active{cursor:grabbing}.wd-spiral-vignette{position:absolute;inset:0;z-index:15;pointer-events:none;background:linear-gradient(90deg,rgba(3,7,10,.95),transparent 16%,transparent 84%,rgba(3,7,10,.95)),linear-gradient(180deg,rgba(3,7,10,.68),transparent 18%,transparent 82%,rgba(3,7,10,.78))}.wd-spiral-axis{position:absolute;left:50%;top:50%;width:4px;height:590px;transform:translate(-50%,-50%);background:linear-gradient(180deg,transparent,var(--wd-cyan),rgba(18,200,232,.12),transparent);filter:blur(6px);opacity:.24;pointer-events:none}.wd-spiral-axis:after{content:"";position:absolute;inset:-35px;width:74px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(18,200,232,.22),transparent 70%);filter:blur(16px)}.wd-spiral-cards{position:absolute;inset:0;transform-style:preserve-3d}.wd-spiral-card{position:absolute;left:50%;top:50%;width:min(430px,72vw);height:285px;transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));transform-style:preserve-3d;opacity:var(--opacity);filter:blur(var(--blur));z-index:calc(100 - var(--order));appearance:none;text-align:left;padding:27px 29px;background:linear-gradient(145deg,rgba(9,29,37,.98),rgba(4,12,16,.98));color:#fff;border:1px solid rgba(18,200,232,.16);box-shadow:0 30px 80px rgba(0,0,0,.35),inset 0 0 30px rgba(18,200,232,.035);cursor:pointer;transition:transform .24s linear,opacity .24s linear,filter .24s linear,border-color .24s,box-shadow .24s}.wd-spiral-card:hover{border-color:rgba(18,200,232,.62);box-shadow:0 35px 90px rgba(0,0,0,.45),0 0 40px rgba(18,200,232,.1)}.wd-spiral-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:4px}.wd-spiral-card-glow{position:absolute;inset:-35%;background:radial-gradient(circle at 70% 35%,rgba(18,200,232,.24),transparent 30%);opacity:.65;pointer-events:none}.wd-spiral-card-index,.wd-spiral-card-level,.wd-spiral-card-number,.wd-spiral-card-desc,.wd-spiral-card-footer{position:relative;z-index:1}.wd-spiral-card-index{font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.4)}.wd-spiral-card-level{float:right;font:500 9px "DM Mono",monospace;color:var(--wd-cyan);letter-spacing:.1em}.wd-spiral-card-number{display:block;font:400 55px/.9 "DM Mono",monospace;color:rgba(18,200,232,.17);margin-top:34px}.wd-spiral-card strong{display:block;position:relative;z-index:1;font-size:30px;letter-spacing:-.055em;line-height:.98;max-width:330px;margin-top:8px}.wd-spiral-card-desc{display:block;color:rgba(255,255,255,.45);font-size:11px;line-height:1.55;max-width:360px;margin-top:15px}.wd-spiral-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:22px;color:var(--wd-cyan);font:500 10px "DM Mono",monospace}.wd-spiral-card-footer svg{width:17px;height:17px;transition:.25s}.wd-spiral-card:hover .wd-spiral-card-footer svg{transform:translateX(6px)}.wd-spiral-hint{position:absolute;left:50%;bottom:22px;z-index:20;transform:translateX(-50%);display:flex;gap:10px;align-items:center;color:rgba(255,255,255,.36);font:500 8px "DM Mono",monospace;letter-spacing:.15em;pointer-events:none}.wd-spiral-hint i{font-style:normal;color:var(--wd-cyan);font-size:16px;animation:wdSpiralHint 1.5s ease-in-out infinite}
+@keyframes wdSpiralHint{50%{transform:translateY(5px);opacity:.45}}
 .wd-systems{padding:125px clamp(24px,8vw,120px);background:#03070a;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}.wd-system-copy{max-width:650px}.wd-system-copy h2{font-size:clamp(50px,6vw,86px)}.wd-system-copy p{max-width:560px;color:#aab7ba;line-height:1.7;margin:28px 0 0;font-size:14px}.wd-system-list{border-top:1px solid rgba(255,255,255,.15)}.wd-system-list>div{display:flex;align-items:center;gap:20px;padding:23px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:16px}.wd-system-list b{font:400 9px "DM Mono",monospace;color:var(--wd-cyan)}.wd-system-list span{flex:1}.wd-system-list svg{color:var(--wd-cyan);transition:.3s}.wd-system-list>div:hover svg{transform:translateX(5px)}
 .wd-pricing-note{padding:125px clamp(24px,8vw,120px);background:#a9eaf3}.wd-pricing-note h2{max-width:850px}.wd-pricing-note p{max-width:650px;margin:28px 0 0;color:#315b62;line-height:1.7;font-size:14px}.wd-cta{padding:130px clamp(24px,8vw,120px);background:var(--wd-cream);text-align:center}.wd-cta h2{max-width:900px;margin:18px auto 35px}.wd-cta .wd-primary{background:#071116;color:#fff}.wd-cta .wd-primary:hover{background:var(--wd-cyan);color:#06151a}
 .wd-reveal{opacity:0;transform:translateY(42px);transition:opacity .8s ease,transform .8s cubic-bezier(.16,1,.3,1)}.wd-reveal.wd-visible{opacity:1;transform:none}
 .wd-modal-backdrop{position:fixed;inset:0;z-index:500;background:rgba(0,7,10,.74);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:25px;animation:wdFade .25s ease}.wd-detail-modal{width:min(1080px,100%);max-height:min(850px,92vh);overflow:auto;display:grid;grid-template-columns:.78fr 1.22fr;background:#f4f0e9;color:#14231f;box-shadow:0 35px 100px rgba(0,0,0,.35);animation:wdModal .55s cubic-bezier(.16,1,.3,1)}.wd-close{position:absolute;z-index:3;margin:18px 0 0 18px;width:42px;height:42px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:#071116;color:#fff;display:grid;place-items:center;cursor:pointer}.wd-detail-visual{min-height:580px;background:linear-gradient(145deg,#03070a,#0b3542);display:flex;align-items:center;justify-content:center;padding:55px;overflow:hidden}.wd-detail-content{padding:60px 55px}.wd-detail-content h2{font-size:clamp(45px,5vw,72px);line-height:.9;letter-spacing:-.065em;margin:16px 0}.wd-detail-lead{color:#68726d;line-height:1.7;font-size:14px;max-width:600px}.wd-detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:30px 0}.wd-detail-meta>div{border:1px solid rgba(20,35,31,.14);padding:18px}.wd-detail-meta small,.wd-detail-columns h4{display:block;font:500 9px "DM Mono",monospace;color:#75817b;letter-spacing:.1em;margin-bottom:8px}.wd-detail-meta strong{font-size:20px;letter-spacing:-.04em}.wd-detail-columns{display:grid;grid-template-columns:1fr 1fr;gap:35px;border-top:1px solid rgba(20,35,31,.13);padding-top:25px}.wd-detail-columns h4{margin:0 0 13px}.wd-detail-columns p{display:flex;gap:8px;color:#53615b;font-size:12px;line-height:1.5;margin:8px 0}.wd-detail-columns p svg{width:15px;height:15px;flex:none;color:#087c9a}.wd-stack-title{margin-top:25px!important}.wd-stack{display:flex;flex-wrap:wrap;gap:7px}.wd-stack span{border:1px solid rgba(20,35,31,.15);padding:7px 9px;font:400 8px "DM Mono",monospace}.wd-modal-cta{margin-top:30px;background:#071116;color:#fff}.wd-modal-cta:hover{background:#087c9a}
 .wd-visual{width:100%;position:relative;transform:rotate(-3deg)}.wd-window{border:1px solid rgba(255,255,255,.18);background:#071116;box-shadow:0 25px 70px rgba(0,0,0,.3);animation:wdWindow 5s ease-in-out infinite}.wd-window-bar{height:38px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:6px;padding:0 12px}.wd-window-bar i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3)}.wd-window-bar span{margin-left:auto;font:400 7px "DM Mono",monospace;color:rgba(255,255,255,.28)}.wd-window-body{display:grid;grid-template-columns:55px 1fr;min-height:320px}.wd-side{border-right:1px solid rgba(255,255,255,.1);padding:18px 13px}.wd-side b{display:block;height:8px;margin-bottom:17px;background:rgba(18,200,232,.2)}.wd-main{padding:35px 28px}.wd-line{height:9px;width:58%;background:rgba(255,255,255,.12);margin-bottom:12px}.wd-line-big{width:82%;height:22px;background:rgba(18,200,232,.3)}.wd-line.short{width:40%}.wd-blocks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:45px}.wd-blocks span{height:100px;background:linear-gradient(145deg,rgba(18,200,232,.2),rgba(24,119,232,.04));border:1px solid rgba(18,200,232,.16)}.wd-float{position:absolute;padding:10px 13px;background:#12c8e8;color:#031116;font:500 9px "DM Mono",monospace;box-shadow:8px 8px 0 rgba(0,0,0,.18)}.wd-float-one{left:-18px;top:20%}.wd-float-two{right:-18px;bottom:17%;background:#fff}
 @keyframes wdGrid{to{background-position:72px 72px}}@keyframes wdFloat{50%{transform:translate3d(0,-22px,0)}}@keyframes wdPulse{50%{opacity:.35;box-shadow:0 0 4px var(--wd-cyan)}}@keyframes wdUp{from{opacity:0;transform:translateY(45px)}to{opacity:1;transform:none}}@keyframes wdFade{from{opacity:0}to{opacity:1}}@keyframes wdModal{from{opacity:0;transform:translateY(35px) scale(.97)}to{opacity:1;transform:none}}@keyframes wdWindow{50%{transform:translateY(-8px)}}
-@media(max-width:900px){.wd-card{flex-basis:260px;height:370px;min-height:370px}.wd-hero{min-height:700px}.wd-hero-inner{padding:140px 24px 80px}.wd-hero h1 em{margin-left:5vw}.wd-hero h1 strong{margin-left:10vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:10vw}.wd-intro,.wd-systems{grid-template-columns:1fr;gap:45px}.wd-catalog-head{grid-template-columns:1fr;gap:25px}.wd-cards{grid-template-columns:repeat(2,1fr)}.wd-detail-modal{grid-template-columns:1fr}.wd-detail-visual{min-height:360px}.wd-detail-content{padding:45px 28px}}
-@media(max-width:620px){.wd-kicker b{display:none}.wd-hero{min-height:690px}.wd-hero-inner{padding:120px 20px 60px}.wd-hero h1{font-size:clamp(53px,15vw,82px)}.wd-hero h1 em{font-size:1.08em;margin-left:0}.wd-hero h1 strong{font-size:.82em;margin-left:8vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:0}.wd-hero-inner>p{margin-top:45px}.wd-hero-actions{flex-wrap:wrap}.wd-intro,.wd-catalog,.wd-systems,.wd-pricing-note,.wd-cta{padding:85px 20px}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(43px,13vw,65px)}.wd-cards{grid-template-columns:1fr}.wd-card{min-height:320px}.wd-detail-visual{padding:35px 20px;min-height:300px}.wd-detail-content{padding:38px 22px}.wd-detail-meta,.wd-detail-columns{grid-template-columns:1fr}.wd-window-body{min-height:240px}.wd-main{padding:24px 18px}.wd-blocks{margin-top:30px}.wd-close{position:fixed}.wd-system-list>div{font-size:14px}}
+@media(max-width:900px){.wd-spiral-slider{height:650px}.wd-spiral-card{width:min(390px,72vw);height:270px}.wd-spiral-card strong{font-size:27px}.wd-spiral-hint{bottom:18px}.wd-hero{min-height:700px}.wd-hero-inner{padding:140px 24px 80px}.wd-hero h1 em{margin-left:5vw}.wd-hero h1 strong{margin-left:10vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:10vw}.wd-intro,.wd-systems{grid-template-columns:1fr;gap:45px}.wd-catalog-head{grid-template-columns:1fr;gap:25px}.wd-detail-modal{grid-template-columns:1fr}.wd-detail-visual{min-height:360px}.wd-detail-content{padding:45px 28px}}
+@media(max-width:620px){.wd-kicker b{display:none}.wd-hero{min-height:690px}.wd-hero-inner{padding:120px 20px 60px}.wd-hero h1{font-size:clamp(53px,15vw,82px)}.wd-hero h1 em{font-size:1.08em;margin-left:0}.wd-hero h1 strong{font-size:.82em;margin-left:8vw}.wd-hero-inner>p,.wd-hero-actions{margin-left:0}.wd-hero-inner>p{margin-top:45px}.wd-hero-actions{flex-wrap:wrap}.wd-intro,.wd-catalog,.wd-systems,.wd-pricing-note,.wd-cta{padding:85px 20px}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(43px,13vw,65px)}.wd-spiral-slider{height:575px}.wd-spiral-card{width:78vw;max-width:340px;height:250px;padding:23px}.wd-spiral-card-number{font-size:43px;margin-top:28px}.wd-spiral-card strong{font-size:24px}.wd-spiral-card-desc{font-size:10px;max-height:50px;overflow:hidden}.wd-spiral-card-footer{margin-top:15px}.wd-detail-visual{padding:35px 20px;min-height:300px}.wd-detail-content{padding:38px 22px}.wd-detail-meta,.wd-detail-columns{grid-template-columns:1fr}.wd-window-body{min-height:240px}.wd-main{padding:24px 18px}.wd-blocks{margin-top:30px}.wd-close{position:fixed}.wd-system-list>div{font-size:14px}}
 `}</style>
   </main>;
 }
