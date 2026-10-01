@@ -152,6 +152,7 @@ export default function WebDevelopmentPage() {
     let lastStep = 0;
     let animationFrame = 0;
     let touchStartY = 0;
+    let lastFrameTime = performance.now();
 
     const getIndex = () => Math.round(spiralLastRef.current);
 
@@ -223,8 +224,8 @@ export default function WebDevelopmentPage() {
     };
 
     const tick = (time) => {
-      const delta = Math.min(time - (spiralLastRef.currentTime || time), 50);
-      spiralLastRef.currentTime = time;
+      const delta = Math.min(time - lastFrameTime, 50);
+      lastFrameTime = time;
 
       const current = spiralLastRef.current;
       const target = spiralTargetRef.current;
@@ -242,7 +243,7 @@ export default function WebDevelopmentPage() {
       animationFrame = requestAnimationFrame(tick);
     };
 
-    root.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("wheel", onWheel, { passive: false });
     root.addEventListener("touchstart", onTouchStart, { passive: true });
     root.addEventListener("touchend", onTouchEnd, { passive: false });
 
