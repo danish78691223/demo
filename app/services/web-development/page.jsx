@@ -320,7 +320,7 @@ export default function WebDevelopmentPage() {
             </button>;
           })}
         </div>
-        <div className="wd-spiral-hint"><span>SCROLL</span><i>↕</i><span>OR DRAG</span></div>
+        <div className="wd-spiral-hint"><span>SCROLL</span><i>↕</i><span>OR USE ARROWS</span></div>
       </div>
     </section>
 
