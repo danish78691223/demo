@@ -149,10 +149,17 @@ export default function WebDevelopmentPage() {
     const root = spiralRef.current;
     if (!root) return;
 
-    let lastStep = 0;
     let animationFrame = 0;
     let touchStartY = 0;
     let lastFrameTime = performance.now();
+
+    // Wheel gestures can emit many events during one fast scroll.
+    // Treat those events as a single gesture so one gesture = one card.
+    let gestureLastTime = 0;
+    let gestureDirection = 0;
+    let gestureConsumed = false;
+    const GESTURE_GAP = 260;
+    const STEP_LOCK = 520;
 
     const getIndex = () => Math.round(spiralLastRef.current);
 
@@ -172,32 +179,56 @@ export default function WebDevelopmentPage() {
       if (next === current) return false;
 
       spiralTargetRef.current = next;
-      lastStep = performance.now();
       return true;
     };
 
     const onWheel = (event) => {
-      if (!isSectionActive()) return;
+      if (!isSectionActive() || Math.abs(event.deltaY) < 3) return;
 
       const now = performance.now();
-      if (now - lastStep < 520) {
-        event.preventDefault();
-        return;
+      const direction = event.deltaY > 0 ? 1 : -1;
+      const newGesture =
+        now - gestureLastTime > GESTURE_GAP ||
+        direction !== gestureDirection;
+
+      if (newGesture) {
+        gestureConsumed = false;
+        gestureDirection = direction;
       }
 
-      if (Math.abs(event.deltaY) < 8) return;
+      gestureLastTime = now;
 
-      const direction = event.deltaY > 0 ? 1 : -1;
       const current = getIndex();
       const atStart = current === 0 && direction < 0;
       const atEnd = current === services.length - 1 && direction > 0;
 
-      // At the ends, release the wheel so the page can move
-      // to the previous/next section naturally.
-      if (atStart || atEnd) return;
+      // A fast gesture must never leak its remaining wheel events
+      // into the page after reaching the first/last card.
+      if (atStart || atEnd) {
+        if (!newGesture || gestureConsumed) {
+          event.preventDefault();
+          return;
+        }
 
+        // A genuinely new gesture at the boundary is allowed to
+        // leave the section naturally.
+        return;
+      }
+
+      // Consume every wheel event belonging to the same gesture.
       event.preventDefault();
-      step(direction);
+
+      if (gestureConsumed) return;
+
+      // Wait for the previous card animation to finish.
+      const target = spiralTargetRef.current;
+      const currentPosition = spiralLastRef.current;
+      if (Math.abs(target - currentPosition) > 0.08) return;
+
+      const moved = step(direction);
+      if (moved) {
+        gestureConsumed = true;
+      }
     };
 
     const onTouchStart = (event) => {
@@ -219,8 +250,11 @@ export default function WebDevelopmentPage() {
 
       if (atStart || atEnd) return;
 
+      const target = spiralTargetRef.current;
+      if (Math.abs(target - spiralLastRef.current) > 0.08) return;
+
       event.preventDefault();
-      if (performance.now() - lastStep >= 520) step(direction);
+      step(direction);
     };
 
     const tick = (time) => {
@@ -250,7 +284,7 @@ export default function WebDevelopmentPage() {
     animationFrame = requestAnimationFrame(tick);
 
     return () => {
-      root.removeEventListener("wheel", onWheel);
+      window.removeEventListener("wheel", onWheel);
       root.removeEventListener("touchstart", onTouchStart);
       root.removeEventListener("touchend", onTouchEnd);
       cancelAnimationFrame(animationFrame);
