@@ -276,16 +276,19 @@ export default function WebDevelopmentPage() {
         <div className="wd-spiral-axis"/>
         <div className="wd-spiral-cards" style={{"--spiral-offset":spiralOffset}}>
           {services.map((service, index) => {
-            const relative = index - spiralOffset;
+            const total = services.length;
+            const raw = index - spiralOffset;
+            const relative = ((raw + total / 2) % total + total) % total - total / 2;
+            const distance = Math.abs(relative);
             const angle = relative * 0.62;
             const y = relative * 112;
             const x = Math.sin(angle) * 260;
             const z = Math.cos(angle) * 360;
             const rotateY = Math.sin(angle) * 42;
             const rotateZ = Math.sin(angle) * 7;
-            const scale = Math.max(0.62, 1.03 - Math.abs(relative) * 0.08);
-            const opacity = Math.max(0.18, 1 - Math.abs(relative) * 0.15);
-            const blur = Math.min(3.8, Math.abs(relative) * 0.48);
+            const scale = Math.max(0.62, 1.03 - distance * 0.08);
+            const opacity = Math.max(0.18, 1 - distance * 0.15);
+            const blur = Math.min(3.8, distance * 0.48);
 
             return <button
               key={service.id}
@@ -299,7 +302,7 @@ export default function WebDevelopmentPage() {
                 "--scale": scale,
                 "--opacity": opacity,
                 "--blur": `${blur}px`,
-                "--order": index,
+                "--order": Math.round(distance * 10),
               }}
               onClick={() => setSelected(service)}
               aria-label={`View details for ${service.type}`}
