@@ -149,44 +149,111 @@ export default function WebDevelopmentPage() {
     const root = spiralRef.current;
     if (!root) return;
 
+    const catalog = root.closest(".wd-catalog");
+    if (!catalog) return;
+
     let animationFrame = 0;
-    let touchStartY = 0;
     let lastFrameTime = performance.now();
 
-    // Wheel gestures can emit many events during one fast scroll.
-    // Treat those events as a single gesture so one gesture = one card.
     let gestureLastTime = 0;
     let gestureDirection = 0;
     let gestureConsumed = false;
-    const GESTURE_GAP = 260;
-    const STEP_LOCK = 520;
+    let touchStartY = 0;
+    let touchHandled = false;
+
+    const GESTURE_GAP = 280;
 
     const getIndex = () => Math.round(spiralLastRef.current);
 
-    const isSectionActive = () => {
-      const rect = root.getBoundingClientRect();
-      const viewportCenter = window.innerHeight * 0.5;
-      return rect.top <= viewportCenter && rect.bottom >= viewportCenter;
+    const setIndex = (index) => {
+      const next = Math.min(services.length - 1, Math.max(0, index));
+      spiralTargetRef.current = next;
+      return next;
     };
 
-    const step = (direction) => {
+    const moveOneCard = (direction) => {
       const current = getIndex();
-      const next = Math.min(
+      const target = Math.min(
         services.length - 1,
         Math.max(0, current + direction)
       );
 
-      if (next === current) return false;
-
-      spiralTargetRef.current = next;
+      if (target === current) return false;
+      setIndex(target);
       return true;
     };
 
-    const onWheel = (event) => {
-      if (!isSectionActive() || Math.abs(event.deltaY) < 3) return;
+    const scrollToSibling = (direction) => {
+      const sibling = direction > 0
+        ? catalog.nextElementSibling
+        : catalog.previousElementSibling;
 
-      const now = performance.now();
+      if (sibling) {
+        sibling.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({
+          top: direction > 0
+            ? document.documentElement.scrollHeight
+            : 0,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    const sectionTop = () =>
+      catalog.getBoundingClientRect().top + window.scrollY;
+
+    const isInsideSection = () => {
+      const rect = catalog.getBoundingClientRect();
+      const viewport = window.innerHeight;
+      return rect.top <= viewport * 0.72 && rect.bottom >= viewport * 0.28;
+    };
+
+    const snapIntoSectionIfCrossing = (direction, delta) => {
+      const top = sectionTop();
+      const currentScroll = window.scrollY;
+      const amount = Math.abs(delta);
+
+      if (
+        direction > 0 &&
+        currentScroll < top &&
+        currentScroll + amount >= top
+      ) {
+        window.scrollTo({ top, behavior: "auto" });
+        setIndex(0);
+        gestureConsumed = true;
+        return true;
+      }
+
+      if (
+        direction < 0 &&
+        currentScroll > top &&
+        currentScroll - amount <= top
+      ) {
+        window.scrollTo({ top, behavior: "auto" });
+        setIndex(services.length - 1);
+        gestureConsumed = true;
+        return true;
+      }
+
+      return false;
+    };
+
+    const onWheel = (event) => {
+      if (event.ctrlKey || Math.abs(event.deltaY) < 2) return;
+
       const direction = event.deltaY > 0 ? 1 : -1;
+      const now = performance.now();
+
+      // Catch fast gestures that would otherwise jump completely over
+      // the catalog before it becomes active.
+      if (!isInsideSection()) {
+        if (snapIntoSectionIfCrossing(direction, event.deltaY)) {
+          event.preventDefault();
+        }
+        return;
+      }
+
       const newGesture =
         now - gestureLastTime > GESTURE_GAP ||
         direction !== gestureDirection;
@@ -202,59 +269,74 @@ export default function WebDevelopmentPage() {
       const atStart = current === 0 && direction < 0;
       const atEnd = current === services.length - 1 && direction > 0;
 
-      // A fast gesture must never leak its remaining wheel events
-      // into the page after reaching the first/last card.
+      // Once all cards are finished, the next NEW gesture moves to the
+      // adjacent section. Remaining events from the same gesture stay
+      // consumed so a fast wheel cannot skip multiple sections.
       if (atStart || atEnd) {
-        if (!newGesture || gestureConsumed) {
-          event.preventDefault();
-          return;
-        }
+        event.preventDefault();
 
-        // A genuinely new gesture at the boundary is allowed to
-        // leave the section naturally.
+        if (newGesture && !gestureConsumed) {
+          gestureConsumed = true;
+          scrollToSibling(direction);
+        }
         return;
       }
 
-      // Consume every wheel event belonging to the same gesture.
+      // The catalog owns the scroll while it is active.
       event.preventDefault();
 
+      // One gesture = one card.
       if (gestureConsumed) return;
 
-      // Wait for the previous card animation to finish.
       const target = spiralTargetRef.current;
       const currentPosition = spiralLastRef.current;
-      if (Math.abs(target - currentPosition) > 0.08) return;
 
-      const moved = step(direction);
-      if (moved) {
+      if (Math.abs(target - currentPosition) > 0.06) return;
+
+      if (moveOneCard(direction)) {
         gestureConsumed = true;
       }
     };
 
     const onTouchStart = (event) => {
+      if (!isInsideSection()) return;
       touchStartY = event.touches[0]?.clientY ?? 0;
+      touchHandled = false;
+    };
+
+    const onTouchMove = (event) => {
+      if (!isInsideSection()) return;
+      event.preventDefault();
     };
 
     const onTouchEnd = (event) => {
-      if (!isSectionActive()) return;
+      if (!isInsideSection() || touchHandled) return;
 
       const endY = event.changedTouches[0]?.clientY ?? touchStartY;
       const delta = touchStartY - endY;
 
       if (Math.abs(delta) < 35) return;
 
+      touchHandled = true;
       const direction = delta > 0 ? 1 : -1;
       const current = getIndex();
-      const atStart = current === 0 && direction < 0;
-      const atEnd = current === services.length - 1 && direction > 0;
 
-      if (atStart || atEnd) return;
+      if (current === services.length - 1 && direction > 0) {
+        scrollToSibling(1);
+        return;
+      }
+
+      if (current === 0 && direction < 0) {
+        scrollToSibling(-1);
+        return;
+      }
 
       const target = spiralTargetRef.current;
-      if (Math.abs(target - spiralLastRef.current) > 0.08) return;
+      if (Math.abs(target - spiralLastRef.current) <= 0.06) {
+        moveOneCard(direction);
+      }
 
       event.preventDefault();
-      step(direction);
     };
 
     const tick = (time) => {
@@ -278,7 +360,8 @@ export default function WebDevelopmentPage() {
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
-    root.addEventListener("touchstart", onTouchStart, { passive: true });
+    root.addEventListener("touchstart", onTouchStart, { passive: false });
+    root.addEventListener("touchmove", onTouchMove, { passive: false });
     root.addEventListener("touchend", onTouchEnd, { passive: false });
 
     animationFrame = requestAnimationFrame(tick);
@@ -286,6 +369,7 @@ export default function WebDevelopmentPage() {
     return () => {
       window.removeEventListener("wheel", onWheel);
       root.removeEventListener("touchstart", onTouchStart);
+      root.removeEventListener("touchmove", onTouchMove);
       root.removeEventListener("touchend", onTouchEnd);
       cancelAnimationFrame(animationFrame);
     };
@@ -471,7 +555,7 @@ export default function WebDevelopmentPage() {
 .wd-hero h1{margin:0;max-width:1050px;font-size:clamp(64px,9.5vw,150px);line-height:.78;letter-spacing:-.09em}.wd-hero h1 span,.wd-hero h1 em,.wd-hero h1 strong{display:block}.wd-hero h1 span{animation:wdUp .9s .1s both}.wd-hero h1 em{font:400 clamp(68px,10vw,155px)/.78 "Playfair Display",serif;color:var(--wd-cyan);margin-left:8vw;animation:wdUp .9s .25s both}.wd-hero h1 strong{font:600 clamp(52px,7.2vw,112px)/.9 "DM Sans",sans-serif;margin-left:16vw;color:#fff;animation:wdUp .9s .4s both}.wd-hero-inner>p{max-width:560px;color:rgba(255,255,255,.62);line-height:1.7;font-size:15px;margin:65px 0 30px 16vw;animation:wdUp .9s .6s both}.wd-hero-actions{margin-left:16vw;display:flex;align-items:center;gap:20px;animation:wdUp .9s .72s both}
 .wd-primary,.wd-secondary{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 19px;font-weight:600;font-size:13px;transition:.3s}.wd-primary{background:#fff;color:#06151a}.wd-primary:hover{transform:translateY(-3px);background:var(--wd-cyan)}.wd-secondary{color:#fff;border:1px solid rgba(255,255,255,.25)}.wd-secondary:hover{border-color:var(--wd-cyan);color:var(--wd-cyan)}.wd-primary svg,.wd-secondary svg,.wd-card-bottom svg,.wd-system-list svg,.wd-close svg{width:17px;height:17px}.wd-hero-index{position:absolute;right:28px;bottom:32px;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.32)}
 .wd-intro{padding:135px clamp(24px,8vw,120px);display:grid;grid-template-columns:1.25fr .75fr;gap:90px;align-items:end;background:var(--wd-cream)}.wd-label{color:#75817b}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(48px,6vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0 0}.wd-intro h2 em,.wd-catalog-head h2 em,.wd-system-copy h2 em,.wd-pricing-note h2 em,.wd-cta h2 em{font:400 1em/1 "Playfair Display",serif;color:#087c9a}.wd-intro>p{max-width:460px;color:#68726d;line-height:1.75;font-size:15px;margin:0}
-.wd-catalog{position:relative;padding:125px 0 150px;background:radial-gradient(circle at 50% 42%,rgba(18,200,232,.055),transparent 32%),linear-gradient(180deg,#03090c 0%,#06151a 48%,#03080b 100%);color:#fff;overflow:hidden}.wd-catalog:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(18,200,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(18,200,232,.12) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 78%)}.wd-catalog:after{content:"";position:absolute;width:720px;height:720px;left:50%;top:38%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.1),transparent 65%);filter:blur(20px);pointer-events:none}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end;position:relative;z-index:2}.wd-catalog-head>p{color:rgba(255,255,255,.58);font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.4);font:500 9px "DM Mono",monospace;letter-spacing:.12em;position:relative;z-index:2}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.025);color:#fff;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:var(--wd-cyan);color:#031116;border-color:var(--wd-cyan)}.wd-spiral-stage{height:calc(100vh - 72px);min-height:620px;position:relative;max-width:none;margin:15px 0 0;z-index:1}.wd-spiral-slider{position:sticky;top:74px;width:100%;height:calc(100vh - 108px);min-height:590px;overflow:hidden;perspective:1500px;background:radial-gradient(circle at 50% 50%,rgba(18,200,232,.13),transparent 38%),linear-gradient(180deg,rgba(2,7,10,.55),rgba(6,21,27,.72) 52%,rgba(2,7,10,.65));border:0;box-shadow:inset 0 0 140px rgba(0,0,0,.45);touch-action:pan-y}.wd-spiral-vignette{position:absolute;inset:0;z-index:30;pointer-events:none;background:linear-gradient(90deg,rgba(2,7,10,.92),transparent 14%,transparent 86%,rgba(2,7,10,.92)),linear-gradient(180deg,rgba(2,7,10,.72),transparent 20%,transparent 80%,rgba(2,7,10,.82))}.wd-spiral-axis{position:absolute;left:50%;top:50%;width:3px;height:76%;transform:translate(-50%,-50%);background:linear-gradient(180deg,transparent,var(--wd-cyan) 30%,rgba(18,200,232,.15) 70%,transparent);filter:blur(5px);opacity:.24;pointer-events:none}.wd-spiral-axis:after{content:"";position:absolute;inset:-50px;width:110px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(18,200,232,.2),transparent 70%);filter:blur(18px)}.wd-spiral-cards{position:absolute;inset:0;transform-style:preserve-3d}.wd-spiral-card{position:absolute;left:50%;top:50%;width:min(470px,70vw);height:300px;transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));transform-style:preserve-3d;opacity:var(--opacity);filter:blur(var(--blur));z-index:var(--order);appearance:none;text-align:left;padding:28px 31px;background:linear-gradient(145deg,rgba(9,31,39,.98),rgba(3,12,16,.98));color:#fff;border:1px solid rgba(18,200,232,.19);box-shadow:0 32px 80px rgba(0,0,0,.42),inset 0 0 35px rgba(18,200,232,.035);cursor:pointer;transition:transform .42s cubic-bezier(.16,1,.3,1),opacity .35s ease,filter .35s ease,border-color .25s,box-shadow .25s}.wd-spiral-card:hover{border-color:rgba(18,200,232,.7);box-shadow:0 38px 100px rgba(0,0,0,.5),0 0 45px rgba(18,200,232,.12)}.wd-spiral-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:4px}.wd-spiral-card-glow{position:absolute;inset:0;background:radial-gradient(circle at 78% 18%,rgba(18,200,232,.22),transparent 35%);pointer-events:none}.wd-spiral-card-index,.wd-spiral-card-level,.wd-spiral-card-number,.wd-spiral-card-desc,.wd-spiral-card-footer{position:relative;z-index:1}.wd-spiral-card-index{font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.44)}.wd-spiral-card-level{float:right;font:500 9px "DM Mono",monospace;color:var(--wd-cyan);letter-spacing:.1em}.wd-spiral-card-number{display:block;font:400 54px/.9 "DM Mono",monospace;color:rgba(18,200,232,.2);margin-top:35px}.wd-spiral-card strong{display:block;position:relative;z-index:1;font-size:31px;letter-spacing:-.055em;line-height:.98;max-width:370px;margin-top:7px}.wd-spiral-card-desc{display:block;color:rgba(255,255,255,.48);font-size:11px;line-height:1.55;max-width:390px;margin-top:14px}.wd-spiral-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;color:var(--wd-cyan);font:500 10px "DM Mono",monospace}.wd-spiral-card-footer svg{width:17px;height:17px;transition:.25s}.wd-spiral-card:hover .wd-spiral-card-footer svg{transform:translateX(6px)}.wd-spiral-hint{position:absolute;left:50%;bottom:19px;z-index:40;transform:translateX(-50%);display:flex;gap:10px;align-items:center;color:rgba(255,255,255,.35);font:500 8px "DM Mono",monospace;letter-spacing:.14em;pointer-events:none;white-space:nowrap}.wd-spiral-hint i{font-style:normal;color:var(--wd-cyan);font-size:16px;animation:wdSpiralHint 1.5s ease-in-out infinite}
+.wd-catalog{position:relative;padding:125px 0 150px;background:radial-gradient(circle at 50% 42%,rgba(18,200,232,.055),transparent 32%),linear-gradient(180deg,#03090c 0%,#06151a 48%,#03080b 100%);color:#fff;overflow:hidden}.wd-catalog:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(18,200,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(18,200,232,.12) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 78%)}.wd-catalog:after{content:"";position:absolute;width:720px;height:720px;left:50%;top:38%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.1),transparent 65%);filter:blur(20px);pointer-events:none}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end;position:relative;z-index:2}.wd-catalog-head>p{color:rgba(255,255,255,.58);font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.4);font:500 9px "DM Mono",monospace;letter-spacing:.12em;position:relative;z-index:2}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.025);color:#fff;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:var(--wd-cyan);color:#031116;border-color:var(--wd-cyan)}.wd-spiral-stage{height:calc(100vh - 72px);min-height:620px;position:relative;max-width:none;margin:15px 0 0;z-index:1}.wd-spiral-slider{position:sticky;top:74px;width:100%;height:calc(100vh - 108px);min-height:590px;overflow:hidden;perspective:1500px;background:radial-gradient(circle at 50% 50%,rgba(18,200,232,.13),transparent 38%),linear-gradient(180deg,rgba(2,7,10,.55),rgba(6,21,27,.72) 52%,rgba(2,7,10,.65));border:0;box-shadow:inset 0 0 140px rgba(0,0,0,.45);touch-action:none;overscroll-behavior:contain}.wd-spiral-vignette{position:absolute;inset:0;z-index:30;pointer-events:none;background:linear-gradient(90deg,rgba(2,7,10,.92),transparent 14%,transparent 86%,rgba(2,7,10,.92)),linear-gradient(180deg,rgba(2,7,10,.72),transparent 20%,transparent 80%,rgba(2,7,10,.82))}.wd-spiral-axis{position:absolute;left:50%;top:50%;width:3px;height:76%;transform:translate(-50%,-50%);background:linear-gradient(180deg,transparent,var(--wd-cyan) 30%,rgba(18,200,232,.15) 70%,transparent);filter:blur(5px);opacity:.24;pointer-events:none}.wd-spiral-axis:after{content:"";position:absolute;inset:-50px;width:110px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(18,200,232,.2),transparent 70%);filter:blur(18px)}.wd-spiral-cards{position:absolute;inset:0;transform-style:preserve-3d}.wd-spiral-card{position:absolute;left:50%;top:50%;width:min(470px,70vw);height:300px;transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));transform-style:preserve-3d;opacity:var(--opacity);filter:blur(var(--blur));z-index:var(--order);appearance:none;text-align:left;padding:28px 31px;background:linear-gradient(145deg,rgba(9,31,39,.98),rgba(3,12,16,.98));color:#fff;border:1px solid rgba(18,200,232,.19);box-shadow:0 32px 80px rgba(0,0,0,.42),inset 0 0 35px rgba(18,200,232,.035);cursor:pointer;transition:transform .42s cubic-bezier(.16,1,.3,1),opacity .35s ease,filter .35s ease,border-color .25s,box-shadow .25s}.wd-spiral-card:hover{border-color:rgba(18,200,232,.7);box-shadow:0 38px 100px rgba(0,0,0,.5),0 0 45px rgba(18,200,232,.12)}.wd-spiral-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:4px}.wd-spiral-card-glow{position:absolute;inset:0;background:radial-gradient(circle at 78% 18%,rgba(18,200,232,.22),transparent 35%);pointer-events:none}.wd-spiral-card-index,.wd-spiral-card-level,.wd-spiral-card-number,.wd-spiral-card-desc,.wd-spiral-card-footer{position:relative;z-index:1}.wd-spiral-card-index{font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.44)}.wd-spiral-card-level{float:right;font:500 9px "DM Mono",monospace;color:var(--wd-cyan);letter-spacing:.1em}.wd-spiral-card-number{display:block;font:400 54px/.9 "DM Mono",monospace;color:rgba(18,200,232,.2);margin-top:35px}.wd-spiral-card strong{display:block;position:relative;z-index:1;font-size:31px;letter-spacing:-.055em;line-height:.98;max-width:370px;margin-top:7px}.wd-spiral-card-desc{display:block;color:rgba(255,255,255,.48);font-size:11px;line-height:1.55;max-width:390px;margin-top:14px}.wd-spiral-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;color:var(--wd-cyan);font:500 10px "DM Mono",monospace}.wd-spiral-card-footer svg{width:17px;height:17px;transition:.25s}.wd-spiral-card:hover .wd-spiral-card-footer svg{transform:translateX(6px)}.wd-spiral-hint{position:absolute;left:50%;bottom:19px;z-index:40;transform:translateX(-50%);display:flex;gap:10px;align-items:center;color:rgba(255,255,255,.35);font:500 8px "DM Mono",monospace;letter-spacing:.14em;pointer-events:none;white-space:nowrap}.wd-spiral-hint i{font-style:normal;color:var(--wd-cyan);font-size:16px;animation:wdSpiralHint 1.5s ease-in-out infinite}
 @keyframes wdSpiralHint{50%{transform:translateY(5px);opacity:.45}}
 .wd-systems{padding:125px clamp(24px,8vw,120px);background:#03070a;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}.wd-system-copy{max-width:650px}.wd-system-copy h2{font-size:clamp(50px,6vw,86px)}.wd-system-copy p{max-width:560px;color:#aab7ba;line-height:1.7;margin:28px 0 0;font-size:14px}.wd-system-list{border-top:1px solid rgba(255,255,255,.15)}.wd-system-list>div{display:flex;align-items:center;gap:20px;padding:23px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:16px}.wd-system-list b{font:400 9px "DM Mono",monospace;color:var(--wd-cyan)}.wd-system-list span{flex:1}.wd-system-list svg{color:var(--wd-cyan);transition:.3s}.wd-system-list>div:hover svg{transform:translateX(5px)}
 .wd-pricing-note{padding:125px clamp(24px,8vw,120px);background:#a9eaf3}.wd-pricing-note h2{max-width:850px}.wd-pricing-note p{max-width:650px;margin:28px 0 0;color:#315b62;line-height:1.7;font-size:14px}.wd-cta{padding:130px clamp(24px,8vw,120px);background:var(--wd-cream);text-align:center}.wd-cta h2{max-width:900px;margin:18px auto 35px}.wd-cta .wd-primary{background:#071116;color:#fff}.wd-cta .wd-primary:hover{background:var(--wd-cyan);color:#06151a}
