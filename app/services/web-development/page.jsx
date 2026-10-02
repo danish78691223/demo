@@ -547,7 +547,7 @@ export default function WebDevelopmentPage() {
     </div>}
     <style jsx global>{`
 .web-development-page{--wd-cyan:#12c8e8;--wd-blue:#1877e8;--wd-ink:#14231f;--wd-cream:#f4f0e9;--wd-dark:#03070a;background:var(--wd-cream);color:var(--wd-ink);min-height:100vh;overflow:hidden}
-.wd-navbar{position:absolute;background:rgba(3,7,10,.22);backdrop-filter:blur(10px)}
+.wd-navbar{position:fixed;top:0;left:0;right:0;width:100%;z-index:1000;background:rgba(3,7,10,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
 .wd-hero{min-height:760px;position:relative;display:flex;align-items:center;overflow:hidden;background:radial-gradient(circle at 76% 38%,rgba(18,200,232,.26),transparent 28%),linear-gradient(130deg,#02080b,#071c25 48%,#075a70 100%);color:#fff}
 .wd-hero-grid{position:absolute;inset:0;opacity:.2;background-image:linear-gradient(rgba(18,200,232,.15) 1px,transparent 1px),linear-gradient(90deg,rgba(18,200,232,.15) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse at center,#000 20%,transparent 82%);animation:wdGrid 20s linear infinite}
 .wd-hero-glow{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none}.wd-glow-a{width:520px;height:520px;right:-160px;top:120px;background:radial-gradient(circle,rgba(18,200,232,.38),transparent 68%);animation:wdFloat 8s ease-in-out infinite}.wd-glow-b{width:300px;height:300px;left:-120px;bottom:-130px;background:radial-gradient(circle,rgba(24,119,232,.22),transparent 70%);animation:wdFloat 11s ease-in-out infinite reverse}
