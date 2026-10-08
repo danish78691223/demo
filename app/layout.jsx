@@ -27,7 +27,7 @@ export const metadata = {
   creator: "WEBXWHALE",
   publisher: "WEBXWHALE",
   alternates: {
-    canonical: "https://webxwhale-ebon.vercel.app/",
+    canonical: "https://webxwhale-ebon.vercel.app/home",
   },
   robots: {
     index: true,
@@ -40,7 +40,7 @@ export const metadata = {
     title: "WEBXWHALE — Learn, Build & Grow with Technology",
     description:
       "Explore SQLwhale, digital products and modern web development services from WEBXWHALE.",
-    url: "https://webxwhale-ebon.vercel.app/",
+    url: "https://webxwhale-ebon.vercel.app/home",
     siteName: "WEBXWHALE",
     type: "website",
     locale: "en_IN",
@@ -60,15 +60,49 @@ export const metadata = {
       "SQLwhale learning, digital products and modern web development services by WEBXWHALE.",
     images: ["/webwhale_logo.png"],
   },
+  applicationName: "WEBXWHALE",
+  category: "technology",
   icons: {
     icon: "/favicon.ico",
   },
 };
 
 export default function RootLayout({ children }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://webxwhale-ebon.vercel.app/#organization",
+        name: "WEBXWHALE",
+        url: "https://webxwhale-ebon.vercel.app/home",
+        logo: "https://webxwhale-ebon.vercel.app/webwhale_logo.png",
+        description:
+          "Technology brand building practical learning platforms, digital products and modern web experiences.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://webxwhale-ebon.vercel.app/#website",
+        url: "https://webxwhale-ebon.vercel.app/home",
+        name: "WEBXWHALE",
+        publisher: {
+          "@id": "https://webxwhale-ebon.vercel.app/#organization",
+        },
+        inLanguage: "en-IN",
+      },
+    ],
+  };
+
   return (
     <html lang="en">
-      <body>{children}<VisitorTracker /></body>
+      <body>
+        {children}
+        <VisitorTracker />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      </body>
     </html>
   );
 }
