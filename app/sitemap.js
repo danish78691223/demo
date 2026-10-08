@@ -13,7 +13,7 @@ export default function sitemap() {
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),
-    changeFrequency: path === "" || path === "/home" ? "weekly" : "monthly",
-    priority: path === "" || path === "/home" ? 1 : 0.7,
+    changeFrequency: path === "/home" ? "weekly" : "monthly",
+    priority: path === "/home" ? 1 : 0.7,
   }));
 }
