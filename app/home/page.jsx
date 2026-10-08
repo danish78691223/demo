@@ -194,7 +194,23 @@ const focusAreas = [
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cardGroups, setCardGroups] = useState(defaultCardGroups);
+  const [showSqlwhalePopup, setShowSqlwhalePopup] = useState(false);
 
+
+  useEffect(() => {
+    const popupSeen = sessionStorage.getItem("webxwhale_sqlwhale_popup_seen");
+    if (!popupSeen) setShowSqlwhalePopup(true);
+  }, []);
+
+  const closeSqlwhalePopup = () => {
+    sessionStorage.setItem("webxwhale_sqlwhale_popup_seen", "1");
+    setShowSqlwhalePopup(false);
+  };
+
+  const openSqlwhalePopup = () => {
+    sessionStorage.setItem("webxwhale_sqlwhale_popup_seen", "1");
+    setShowSqlwhalePopup(false);
+  };
 
   useEffect(() => {
     fetch("/api/products?home=true", { cache: "no-store" })
@@ -222,6 +238,94 @@ export default function Home() {
 
   return (
     <main>
+      {showSqlwhalePopup && (
+        <div
+          className="sqlwhale-launch-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sqlwhale-launch-title"
+        >
+          <div className="sqlwhale-launch-popup">
+            <button
+              type="button"
+              className="sqlwhale-launch-close"
+              onClick={closeSqlwhalePopup}
+              aria-label="Close SQLwhale announcement"
+            >
+              ×
+            </button>
+
+            <div className="sqlwhale-launch-badge">
+              <Spark />
+              <span>NOW LIVE · WEBXWHALE LEARNING</span>
+            </div>
+
+            <div className="sqlwhale-launch-grid">
+              <div className="sqlwhale-launch-copy">
+                <p className="sqlwhale-launch-kicker">Meet your new SQL playground</p>
+
+                <h2 id="sqlwhale-launch-title">
+                  <span>SQLwhale</span> is now live.
+                </h2>
+
+                <p className="sqlwhale-launch-lead">
+                  Learn SQL by doing, not just watching. Explore databases,
+                  write queries, solve practical tasks and build confidence
+                  with an interactive learning experience made for the real world.
+                </p>
+
+                <p className="sqlwhale-launch-audience">
+                  <strong>Beginner or experienced professional?</strong> SQLwhale
+                  is built to help you learn from the basics, sharpen your skills,
+                  practice faster and keep progressing.
+                </p>
+
+                <a
+                  className="sqlwhale-launch-cta"
+                  href="https://sqlwhalefrontend.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={openSqlwhalePopup}
+                >
+                  Start learning with SQLwhale
+                  <ArrowUpRight />
+                </a>
+              </div>
+
+              <div className="sqlwhale-launch-features" aria-label="SQLwhale features">
+                <div className="sqlwhale-feature-card">
+                  <span>01</span>
+                  <strong>Hands-on SQL Practice</strong>
+                  <p>Write and run queries instead of only reading theory.</p>
+                </div>
+                <div className="sqlwhale-feature-card">
+                  <span>02</span>
+                  <strong>Interactive Database Canvas</strong>
+                  <p>See databases and tables visually while you learn.</p>
+                </div>
+                <div className="sqlwhale-feature-card">
+                  <span>03</span>
+                  <strong>Tasks &amp; Progress</strong>
+                  <p>Solve structured challenges and keep track of completed work.</p>
+                </div>
+                <div className="sqlwhale-feature-card">
+                  <span>04</span>
+                  <strong>Learn at Your Level</strong>
+                  <p>Great for fresh learners, students, developers and professionals.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="sqlwhale-launch-footer">
+              <span>Learn SQL · Practice smarter · Build confidence</span>
+              <span>Powered by WEBXWHALE</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= NAVBAR ================= */}
+
       {/* ================= NAVBAR ================= */}
       <nav className="navbar" aria-label="Primary navigation">
         <a
