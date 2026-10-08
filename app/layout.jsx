@@ -2,12 +2,66 @@ import "./globals.css";
 import VisitorTracker from "../components/VisitorTracker";
 
 export const metadata = {
-  title: "WEBXWHALE — Learn. Build. Scale.",
+  metadataBase: new URL("https://webxwhale-ebon.vercel.app"),
+  title: {
+    default: "WEBXWHALE — Learn, Build & Grow with Technology",
+    template: "%s | WEBXWHALE",
+  },
   description:
-    "WEBXWHALE is a multipurpose platform for learning, digital products, web development and business growth.",
-    icons: {
-    icon: '/favicon.ico', // public folder me rakhi image ka path
-    
+    "WEBXWHALE builds practical learning platforms, digital products and modern web experiences. Discover SQLwhale for hands-on SQL learning and explore budget-friendly web development services.",
+  keywords: [
+    "WEBXWHALE",
+    "SQLwhale",
+    "SQL learning platform",
+    "learn SQL online",
+    "SQL practice",
+    "web development services",
+    "website development",
+    "React development",
+    "Next.js development",
+    "MERN stack development",
+    "AI solutions",
+    "digital products",
+  ],
+  authors: [{ name: "WEBXWHALE" }],
+  creator: "WEBXWHALE",
+  publisher: "WEBXWHALE",
+  alternates: {
+    canonical: "https://webxwhale-ebon.vercel.app/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
+  },
+  openGraph: {
+    title: "WEBXWHALE — Learn, Build & Grow with Technology",
+    description:
+      "Explore SQLwhale, digital products and modern web development services from WEBXWHALE.",
+    url: "https://webxwhale-ebon.vercel.app/",
+    siteName: "WEBXWHALE",
+    type: "website",
+    locale: "en_IN",
+    images: [
+      {
+        url: "/webwhale_logo.png",
+        width: 1200,
+        height: 630,
+        alt: "WEBXWHALE",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WEBXWHALE — Learn, Build & Grow with Technology",
+    description:
+      "SQLwhale learning, digital products and modern web development services by WEBXWHALE.",
+    images: ["/webwhale_logo.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 
