@@ -2,7 +2,6 @@ export default function sitemap() {
   const baseUrl = "https://webxwhale-ebon.vercel.app";
 
   return [
-    "",
     "/home",
     "/services",
     "/services/web-development",
