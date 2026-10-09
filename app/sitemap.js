@@ -1,7 +1,6 @@
 const baseUrl = "https://webxwhale.com";
 
 const pages = [
-  { path: "/", priority: 0.8, changeFrequency: "weekly" },
   { path: "/home", priority: 1.0, changeFrequency: "weekly" },
   { path: "/services", priority: 0.9, changeFrequency: "monthly" },
   { path: "/services/web-development", priority: 0.9, changeFrequency: "monthly" },
