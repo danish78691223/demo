@@ -1,0 +1,30 @@
+# WEBXWHALE
+
+> WEBXWHALE is a technology brand building digital products, learning tools, and web experiences.
+
+Canonical website: https://webxwhale.com/
+
+## Main pages
+
+- [Home](https://webxwhale.com/home): Overview of WEBXWHALE, its learning platforms, digital products, and services.
+- [Services](https://webxwhale.com/services): Overview of available technology and digital services.
+- [Web Development](https://webxwhale.com/services/web-development): Website and web application development services, including responsive business websites, e-commerce experiences, and custom web projects.
+- [Products](https://webxwhale.com/products): Digital products and learning platforms from WEBXWHALE, including SQLwhale, Resume Analyzer, AI 8D Audio Converter, and Webchat.
+- [About WEBXWHALE](https://webxwhale.com/aboutus): Brand overview and areas of focus.
+- [Contact](https://webxwhale.com/contact): Contact and enquiry form.
+- [Privacy Policy](https://webxwhale.com/privacy): Privacy information.
+- [Terms](https://webxwhale.com/terms): Website terms.
+
+## Featured products
+
+- [SQLwhale](https://sqlwhalefrontend.vercel.app/): Hands-on SQL learning and practice.
+- [Resume Analyzer bot](https://t.me/ScanMyResumeBot): Resume analysis tool.
+- [AI 8D Audio Converter](https://project911-flame.vercel.app/): Audio conversion product.
+- [Webchat](https://webwhalechat.netlify.app/): Web-based chat product.
+
+## Discovery
+
+- Sitemap: https://webxwhale.com/sitemap.xml
+- Robots rules: https://webxwhale.com/robots.txt
+
+Use the linked website pages as the source of truth for current features, prices, availability, and policies. Do not assume that planned or marked “coming soon” features are currently available.
