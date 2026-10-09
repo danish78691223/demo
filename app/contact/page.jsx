@@ -156,7 +156,7 @@ export default function ContactPage() {
                   EMAIL
                 </span>
 
-                <a href="mailto:hello@webwhale.in">
+                <a href="mailto:askdnk2523@gmail.com">
                   hello@webxwhale.in
                   <ArrowUpRight />
                 </a>
@@ -404,9 +404,9 @@ export default function ContactPage() {
 
             <a
               className="footer-email"
-              href="mailto:hello@webwhale.in"
+              href="mailto:askdnk2523@gmail.com"
             >
-              hello@webwhale.in
+              hello@webxwhale.in
               <ArrowUpRight />
             </a>
 
