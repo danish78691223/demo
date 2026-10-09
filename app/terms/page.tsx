@@ -883,7 +883,7 @@ export default function Terms() {
 
               <a
                 className="button button-dark"
-                href="mailto:hello@webwhale.in"
+                href="mailto:askdnk2523@gmail.com"
               >
                 Say hello <ArrowUpRight />
               </a>
