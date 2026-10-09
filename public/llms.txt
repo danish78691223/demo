@@ -15,6 +15,17 @@ Canonical website: https://webxwhale.com/
 - [Privacy Policy](https://webxwhale.com/privacy): Privacy information.
 - [Terms](https://webxwhale.com/terms): Website terms.
 
+## Markdown mirrors
+
+- [Home Markdown](https://webxwhale.com/home.md)
+- [Services Markdown](https://webxwhale.com/services.md)
+- [Web Development Markdown](https://webxwhale.com/web-development.md)
+- [Products Markdown](https://webxwhale.com/products.md)
+- [About Markdown](https://webxwhale.com/aboutus.md)
+- [Contact Markdown](https://webxwhale.com/contact.md)
+- [Privacy Policy Markdown](https://webxwhale.com/privacy.md)
+- [Terms Markdown](https://webxwhale.com/terms.md)
+
 ## Featured products
 
 - [SQLwhale](https://sqlwhalefrontend.vercel.app/): Hands-on SQL learning and practice.
