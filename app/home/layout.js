@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Learn, Build & Grow with Technology",
+  title: { absolute: "WEBXWHALE | Learn, Build & Grow with Technology" },
   description: "Discover SQLwhale for hands-on SQL practice, explore useful digital products and find modern web development services from WEBXWHALE.",
   alternates: { canonical: "/home" },
   openGraph: {
