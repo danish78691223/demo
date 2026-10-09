@@ -1,20 +1,20 @@
 const baseUrl = "https://webxwhale.com";
 
-export default function sitemap() {
-  const paths = [
-    ["/home", 1.0, "weekly"],
-    ["/services", 0.9, "monthly"],
-    ["/services/web-development", 0.9, "monthly"],
-    ["/products", 0.9, "monthly"],
-    ["/aboutus", 0.7, "monthly"],
-    ["/contact", 0.7, "monthly"],
-    ["/privacy", 0.3, "yearly"],
-    ["/terms", 0.3, "yearly"],
-  ];
+const pages = [
+  { path: "/home", priority: 1.0, changeFrequency: "weekly" },
+  { path: "/services", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/services/web-development", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/products", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/aboutus", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/contact", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
+  { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
+];
 
-  return paths.map(([path, priority, changeFrequency]) => ({
+export default function sitemap() {
+  return pages.map(({ path, priority, changeFrequency }) => ({
     url: `${baseUrl}${path}`,
-    changeFrequency,
     priority,
+    changeFrequency,
   }));
 }
