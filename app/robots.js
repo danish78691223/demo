@@ -8,6 +8,5 @@ export default function robots() {
       },
     ],
     sitemap: "https://webxwhale.com/sitemap.xml",
-    host: "https://webxwhale.com",
   };
 }
