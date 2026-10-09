@@ -4,8 +4,10 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
+        disallow: ["/admin", "/login", "/api/"],
       },
     ],
-    sitemap: "https://webxwhale-ebon.vercel.app/sitemap.xml",
+    sitemap: "https://webxwhale.com/sitemap.xml",
+    host: "https://webxwhale.com",
   };
 }
