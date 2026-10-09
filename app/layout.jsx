@@ -8,7 +8,7 @@ export const metadata = {
     template: "%s | WEBXWHALE",
   },
   description:
-    "WEBXWHALE creates modern websites, digital products and practical learning experiences. Explore SQLwhale for hands-on SQL practice and affordable web development services for businesses and students.",
+    "WEBXWHALE builds modern websites, digital products and learning tools. Explore SQLwhale for hands-on SQL practice and affordable web development.",
   keywords: [
     "WEBXWHALE",
     "web development company",
@@ -37,7 +37,7 @@ export const metadata = {
   openGraph: {
     title: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     description:
-      "Explore SQLwhale, useful digital products and modern web development services from WEBXWHALE.",
+      "Explore SQLwhale, digital products and modern website development services from WEBXWHALE.",
     url: "/home",
     siteName: "WEBXWHALE",
     type: "website",
@@ -53,7 +53,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     description:
-      "Hands-on SQL learning, digital products and modern web development services by WEBXWHALE.",
+      "SQL learning, digital products and website development services by WEBXWHALE.",
     images: ["/webwhale_logo.png"],
   },
   applicationName: "WEBXWHALE",
