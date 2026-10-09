@@ -2,32 +2,30 @@ import "./globals.css";
 import VisitorTracker from "../components/VisitorTracker";
 
 export const metadata = {
-  metadataBase: new URL("https://webxwhale-ebon.vercel.app"),
+  metadataBase: new URL("https://webxwhale.com"),
   title: {
-    default: "WEBXWHALE — Learn, Build & Grow with Technology",
+    default: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     template: "%s | WEBXWHALE",
   },
   description:
-    "WEBXWHALE builds practical learning platforms, digital products and modern web experiences. Discover SQLwhale for hands-on SQL learning and explore budget-friendly web development services.",
+    "WEBXWHALE creates modern websites, digital products and practical learning experiences. Explore SQLwhale for hands-on SQL practice and affordable web development services for businesses and students.",
   keywords: [
     "WEBXWHALE",
+    "web development company",
+    "website development services",
+    "affordable web development",
+    "custom website development",
     "SQLwhale",
-    "SQL learning platform",
+    "SQL practice online",
     "learn SQL online",
-    "SQL practice",
-    "web development services",
-    "website development",
-    "React development",
-    "Next.js development",
-    "MERN stack development",
-    "AI solutions",
     "digital products",
+    "AI solutions",
   ],
   authors: [{ name: "WEBXWHALE" }],
   creator: "WEBXWHALE",
   publisher: "WEBXWHALE",
   alternates: {
-    canonical: "https://webxwhale-ebon.vercel.app/home",
+    canonical: "/home",
   },
   robots: {
     index: true,
@@ -37,27 +35,25 @@ export const metadata = {
     "max-video-preview": -1,
   },
   openGraph: {
-    title: "WEBXWHALE — Learn, Build & Grow with Technology",
+    title: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     description:
-      "Explore SQLwhale, digital products and modern web development services from WEBXWHALE.",
-    url: "https://webxwhale-ebon.vercel.app/home",
+      "Explore SQLwhale, useful digital products and modern web development services from WEBXWHALE.",
+    url: "/home",
     siteName: "WEBXWHALE",
     type: "website",
     locale: "en_IN",
     images: [
       {
         url: "/webwhale_logo.png",
-        width: 1200,
-        height: 630,
-        alt: "WEBXWHALE",
+        alt: "WEBXWHALE logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "WEBXWHALE — Learn, Build & Grow with Technology",
+    title: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     description:
-      "SQLwhale learning, digital products and modern web development services by WEBXWHALE.",
+      "Hands-on SQL learning, digital products and modern web development services by WEBXWHALE.",
     images: ["/webwhale_logo.png"],
   },
   applicationName: "WEBXWHALE",
@@ -73,20 +69,20 @@ export default function RootLayout({ children }) {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://webxwhale-ebon.vercel.app/#organization",
+        "@id": "https://webxwhale.com/#organization",
         name: "WEBXWHALE",
-        url: "https://webxwhale-ebon.vercel.app/home",
-        logo: "https://webxwhale-ebon.vercel.app/webwhale_logo.png",
+        url: "https://webxwhale.com",
+        logo: "https://webxwhale.com/webwhale_logo.png",
         description:
-          "Technology brand building practical learning platforms, digital products and modern web experiences.",
+          "WEBXWHALE builds practical learning platforms, digital products and modern web experiences.",
       },
       {
         "@type": "WebSite",
-        "@id": "https://webxwhale-ebon.vercel.app/#website",
-        url: "https://webxwhale-ebon.vercel.app/home",
+        "@id": "https://webxwhale.com/#website",
+        url: "https://webxwhale.com",
         name: "WEBXWHALE",
         publisher: {
-          "@id": "https://webxwhale-ebon.vercel.app/#organization",
+          "@id": "https://webxwhale.com/#organization",
         },
         inLanguage: "en-IN",
       },
@@ -94,7 +90,7 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body>
         {children}
         <VisitorTracker />
