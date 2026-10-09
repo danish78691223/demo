@@ -1385,9 +1385,9 @@ export default function ProductsPage() {
 
             <a
               className="footer-email"
-              href="mailto:hello@webwhale.in"
+              href="mailto:askdnk2523@gmail.com"
             >
-              hello@webwhale.in
+              hello@webxwhale.in
               <ArrowUpRight />
             </a>
 
