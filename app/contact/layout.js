@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Contact WEBXWHALE",
+  title: "Contact Us",
   description: "Contact WEBXWHALE about website development, software and product builds, AI solutions or collaboration. Tell us about your project.",
   alternates: { canonical: "/contact" },
   openGraph: {
