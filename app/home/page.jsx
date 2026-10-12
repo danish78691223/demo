@@ -40,7 +40,7 @@ const Spark = () => (
 const trackContentClick = (item, category) => {
   if (category !== "product") return;
   try {
-    const visitorId = localStorage.getItem("webxwhale_visitor_id");
+    const visitorId = localStorage.getItem("webwhale_visitor_id");
     if (!visitorId) return;
     fetch("/api/analytics/visit", {
       method: "POST",
@@ -108,7 +108,7 @@ const defaultCardGroups = [
         copy: "A lightweight web chat experience for connecting and communicating online.",
         status: "Try it",
         accent: "mint",
-        href: "https://webxwhalechat.netlify.app/",
+        href: "https://webwhalechat.netlify.app/",
       },
       {
         title: "More",
@@ -336,7 +336,7 @@ export default function Home() {
         >
           <img
             className="brand-logo"
-            src="/webxwhale_logo.png"
+            src="/webwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -640,7 +640,7 @@ export default function Home() {
             <a className="brand footer-brand" href="#home">
               <img
                 className="brand-logo"
-                src="/webxwhale_logo.png"
+                src="/webwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
