@@ -45,15 +45,15 @@ const termsSections = [
       <>
         <p>
           By accessing, browsing, registering on, or using any website,
-          application, product, platform, or service provided by WEBWHALE
-          ("WEBWHALE", "we", "us", or "our"), you acknowledge that you have
+          application, product, platform, or service provided by WEBXWHALE
+          ("WEBXWHALE", "we", "us", or "our"), you acknowledge that you have
           read, understood, and agreed to be bound by these Terms &
           Conditions.
         </p>
 
         <p>
           If you do not agree with any part of these Terms, you should not
-          access or use the relevant WEBWHALE service.
+          access or use the relevant WEBXWHALE service.
         </p>
       </>
     ),
@@ -61,11 +61,11 @@ const termsSections = [
 
   {
     number: "02",
-    title: "About WEBWHALE",
+    title: "About WEBXWHALE",
     content: (
       <>
         <p>
-          WEBWHALE is a technology-focused brand intended to develop,
+          WEBXWHALE is a technology-focused brand intended to develop,
           provide, operate, and explore digital products and services across
           areas such as web development, software, mobile applications,
           artificial intelligence, machine learning, education, digital
@@ -95,7 +95,7 @@ const termsSections = [
         </p>
 
         <p>
-          If you use WEBWHALE services on behalf of an organization,
+          If you use WEBXWHALE services on behalf of an organization,
           business, institution, or another person, you represent that you
           have the authority to accept these Terms on their behalf.
         </p>
@@ -109,7 +109,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          You agree to use WEBWHALE services only for lawful purposes and
+          You agree to use WEBXWHALE services only for lawful purposes and
           in accordance with these Terms and any applicable laws,
           regulations, and third-party rules.
         </p>
@@ -139,7 +139,7 @@ const termsSections = [
           </li>
 
           <li>
-            Impersonate WEBWHALE, its employees, partners, users, or other
+            Impersonate WEBXWHALE, its employees, partners, users, or other
             individuals or organizations.
           </li>
 
@@ -163,7 +163,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          Certain WEBWHALE services may require you to create an account.
+          Certain WEBXWHALE services may require you to create an account.
           You are responsible for providing accurate information and
           maintaining the confidentiality of your account credentials.
         </p>
@@ -176,7 +176,7 @@ const termsSections = [
 
         <p>
           If you believe your account has been compromised or accessed
-          without authorization, you should notify WEBWHALE as soon as
+          without authorization, you should notify WEBXWHALE as soon as
           reasonably possible.
         </p>
       </>
@@ -189,15 +189,15 @@ const termsSections = [
     content: (
       <>
         <p>
-          Unless otherwise stated, WEBWHALE and its licensors retain all
-          rights, title, and interest in and to the WEBWHALE name, brand,
+          Unless otherwise stated, WEBXWHALE and its licensors retain all
+          rights, title, and interest in and to the WEBXWHALE name, brand,
           logos, designs, interfaces, software, source code, graphics,
           content, documentation, trademarks, and other intellectual
           property.
         </p>
 
         <p>
-          These Terms do not transfer ownership of WEBWHALE intellectual
+          These Terms do not transfer ownership of WEBXWHALE intellectual
           property to you. You receive only the rights expressly granted
           to you through the applicable service or license.
         </p>
@@ -211,7 +211,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          Some WEBWHALE services may allow users to submit, upload, post,
+          Some WEBXWHALE services may allow users to submit, upload, post,
           store, or otherwise provide content such as text, images, files,
           code, feedback, or other materials ("User Content").
         </p>
@@ -224,7 +224,7 @@ const termsSections = [
         </p>
 
         <p>
-          By submitting User Content, you grant WEBWHALE the permissions
+          By submitting User Content, you grant WEBXWHALE the permissions
           reasonably necessary to host, process, display, transmit, or
           otherwise provide the relevant service.
         </p>
@@ -238,14 +238,14 @@ const termsSections = [
     content: (
       <>
         <p>
-          WEBWHALE may integrate with or link to third-party services,
+          WEBXWHALE may integrate with or link to third-party services,
           websites, APIs, payment providers, hosting providers, analytics
           services, social platforms, or other external technologies.
         </p>
 
         <p>
           Third-party services may have their own terms and privacy
-          policies. WEBWHALE is not responsible for the policies, content,
+          policies. WEBXWHALE is not responsible for the policies, content,
           availability, security, or practices of third-party services that
           are outside our control.
         </p>
@@ -259,7 +259,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          Certain WEBWHALE products or services may be offered for a fee.
+          Certain WEBXWHALE products or services may be offered for a fee.
           Prices, billing periods, taxes, payment methods, refunds, and
           cancellation rules may vary by product or service and will be
           communicated at the applicable point of purchase.
@@ -280,12 +280,12 @@ const termsSections = [
       <>
         <p>
           We may modify, update, suspend, discontinue, or restrict access
-          to any WEBWHALE product or service from time to time.
+          to any WEBXWHALE product or service from time to time.
         </p>
 
         <p>
           We may also update features, functionality, technical
-          requirements, or service offerings as WEBWHALE develops.
+          requirements, or service offerings as WEBXWHALE develops.
         </p>
       </>
     ),
@@ -297,7 +297,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          To the maximum extent permitted by applicable law, WEBWHALE
+          To the maximum extent permitted by applicable law, WEBXWHALE
           services are provided on an "as is" and "as available" basis.
         </p>
 
@@ -308,7 +308,7 @@ const termsSections = [
         </p>
 
         <p>
-          Information provided through WEBWHALE services may change over
+          Information provided through WEBXWHALE services may change over
           time and should not automatically be treated as professional,
           legal, financial, medical, educational, or other specialized
           advice unless expressly stated otherwise.
@@ -323,7 +323,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          To the maximum extent permitted by applicable law, WEBWHALE and
+          To the maximum extent permitted by applicable law, WEBXWHALE and
           its owners, directors, employees, affiliates, partners, and
           service providers will not be liable for indirect, incidental,
           special, consequential, or punitive damages arising from or
@@ -344,7 +344,7 @@ const termsSections = [
     content: (
       <p>
         To the extent permitted by applicable law, you agree to indemnify
-        and hold harmless WEBWHALE and its applicable representatives,
+        and hold harmless WEBXWHALE and its applicable representatives,
         affiliates, partners, and service providers from claims, losses,
         liabilities, damages, costs, and expenses arising from your
         unlawful use of the services, violation of these Terms, or
@@ -359,7 +359,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          WEBWHALE may suspend or terminate access to a service where
+          WEBXWHALE may suspend or terminate access to a service where
           reasonably necessary, including in cases involving violations of
           these Terms, security risks, unlawful activity, fraud, abuse, or
           operational requirements.
@@ -379,13 +379,13 @@ const termsSections = [
     content: (
       <>
         <p>
-          Your use of WEBWHALE services may involve the collection and
+          Your use of WEBXWHALE services may involve the collection and
           processing of information. Such processing is governed by our
           applicable Privacy Policy.
         </p>
 
         <p>
-          By using a WEBWHALE service, you acknowledge that you should
+          By using a WEBXWHALE service, you acknowledge that you should
           review the applicable privacy terms before providing personal
           information.
         </p>
@@ -419,7 +419,7 @@ const termsSections = [
     content: (
       <>
         <p>
-          WEBWHALE may update these Terms from time to time to reflect
+          WEBXWHALE may update these Terms from time to time to reflect
           changes in our services, technology, business operations, or
           applicable legal requirements.
         </p>
@@ -451,7 +451,7 @@ const termsSections = [
       <p>
         These Terms, together with any applicable service-specific terms,
         policies, and agreements referenced herein, constitute the
-        understanding governing your use of the relevant WEBWHALE
+        understanding governing your use of the relevant WEBXWHALE
         services, unless a separate written agreement applies.
       </p>
     ),
@@ -463,7 +463,7 @@ const termsSections = [
     content: (
       <p>
         If you have questions, concerns, or requests regarding these Terms
-        & Conditions, you may contact WEBWHALE through the official
+        & Conditions, you may contact WEBXWHALE through the official
         contact channels provided on our website.
       </p>
     ),
@@ -483,16 +483,16 @@ export default function Terms() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            src="/webxwhale_logo.png"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE<span className="brand-dot">.</span>
+            WEBXWHALE<span className="brand-dot">.</span>
           </span>
         </a>
 
@@ -627,7 +627,7 @@ export default function Terms() {
               lineHeight: "1.6",
             }}
           >
-            The rules and guidelines that govern your use of WEBWHALE
+            The rules and guidelines that govern your use of WEBXWHALE
             websites, platforms, products, services, and digital
             experiences.
           </p>
@@ -685,7 +685,7 @@ export default function Terms() {
             }}
           >
             <div>
-              <p className="eyebrow">WEBWHALE / TERMS</p>
+              <p className="eyebrow">WEBXWHALE / TERMS</p>
 
               <div
                 style={{
@@ -723,7 +723,7 @@ export default function Terms() {
               >
                 These Terms & Conditions explain the basic rules,
                 responsibilities, and expectations that apply when you use
-                WEBWHALE. Different products or services may have
+                WEBXWHALE. Different products or services may have
                 additional terms that apply specifically to them.
               </p>
             </div>
@@ -877,13 +877,13 @@ export default function Terms() {
                 }}
               >
                 If you have questions about these Terms & Conditions or
-                any WEBWHALE service, reach out to us through our official
+                any WEBXWHALE service, reach out to us through our official
                 contact channel.
               </p>
 
               <a
                 className="button button-dark"
-                href="mailto:askdnk2523@gmail.com"
+                href="mailto:hello@webxwhale.com"
               >
                 Say hello <ArrowUpRight />
               </a>
@@ -897,12 +897,12 @@ export default function Terms() {
         <a className="brand footer-brand" href="/">
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            src="/webxwhale_logo.png"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE<span className="brand-dot">.</span>
+            WEBXWHALE<span className="brand-dot">.</span>
           </span>
         </a>
 
@@ -911,7 +911,7 @@ export default function Terms() {
         </p>
 
         <span>
-          © {new Date().getFullYear()} WEBWHALE
+          © {new Date().getFullYear()} WEBXWHALE
         </span>
       </footer>
     </main>
