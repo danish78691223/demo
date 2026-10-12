@@ -56,7 +56,7 @@ export default function AboutUsPage() {
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
+            src="/webxwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -382,7 +382,7 @@ export default function AboutUsPage() {
             <a className="brand footer-brand" href="/">
               <img
                 className="brand-logo"
-                src="/webwhale_logo.png"
+                src="/webxwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
@@ -398,7 +398,7 @@ export default function AboutUsPage() {
 
             <a
               className="footer-email"
-              href="mailto:askdnk2523@gmail.com"
+              href="mailto:hello@webxwhale.com"
             >
               hello@webxwhale.in
               <ArrowUpRight />
