@@ -241,7 +241,7 @@ export default function AdminPage() {
             <div>
               <p className="eyebrow">WEBXWHALE ADMIN</p>
               <h1>{section === "overview" ? <>Control <em>center.</em></> : NAV_ITEMS.find((item) => item.id === section)?.label}</h1>
-              <p>{section === "leads" ? "Review enquiries, inspect complete lead details and move prospects through your sales pipeline." : "Manage your WebWhale operations from one workspace."}</p>
+              <p>{section === "leads" ? "Review enquiries, inspect complete lead details and move prospects through your sales pipeline." : "Manage your WebXWhale operations from one workspace."}</p>
             </div>
             <button className="admin-refresh" onClick={refreshAll}>Refresh all ↻</button>
           </header>
