@@ -31,7 +31,7 @@ export default function IntroPage() {
 
   return (
     <main className={`intro-experience ${leaving ? "intro-experience-leaving" : ""} ${booting ? "intro-is-booting" : "intro-boot-complete"}`}>
-      {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark">W<span>×</span></div><p>INITIALIZING POSSIBILITIES</p><div className="intro-boot-track"><i /></div><small>WEBXWHALE <span> / </span> EXPERIENCE ENGINE</small></div>}
+      {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark"><img src="/webwhale_logo.png" alt="WEBXWHALE" /></div><p>INITIALIZING POSSIBILITIES</p><div className="intro-boot-track"><i /></div><small>WEBXWHALE <span> / </span> EXPERIENCE ENGINE</small></div>}
       <div className="intro-noise" aria-hidden="true" />
       <div className="intro-grid" aria-hidden="true" />
       <div className="intro-aurora intro-aurora-one" aria-hidden="true" />
@@ -39,7 +39,7 @@ export default function IntroPage() {
 
       <header className="intro-topbar">
         <a href="/home" className="intro-wordmark" onClick={(event) => { event.preventDefault(); enterWebsite(); }}>
-          <span className="intro-mark">W<span>×</span></span>
+          <span className="intro-mark"><img src="/webwhale_logo.png" alt="" /></span>
           <span>WEBXWHALE<small>IDEAS INTO EXPERIENCES</small></span>
         </a>
         <span className="intro-live"><i /> A WORLD OF POSSIBILITIES</span>
@@ -91,7 +91,7 @@ export default function IntroPage() {
           <div className="intro-orbit-dot intro-dot-three" />
           <div className="intro-core-glow" />
           <div className="intro-core">
-            <span className="intro-core-symbol">W<span>×</span></span>
+            <span className="intro-core-symbol"><img src="/webwhale_logo.png" alt="WEBXWHALE" /></span>
             <strong>Explore<br />the possible.</strong>
             <small>WEBXWHALE</small>
           </div>
