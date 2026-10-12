@@ -1,4 +1,4 @@
-# WEBWHALE Backend & Production Setup
+# WEBXWHALE Backend & Production Setup
 
 This project contains a full-featured backend powered by Next.js API route handlers and MongoDB (via Mongoose).
 
