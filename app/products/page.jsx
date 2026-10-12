@@ -58,7 +58,7 @@ const ExternalIcon = () => (
 
 const trackProductClick = (product) => {
   try {
-    const visitorId = localStorage.getItem("webxwhale_visitor_id");
+    const visitorId = localStorage.getItem("webwhale_visitor_id");
     if (!visitorId) return;
     fetch("/api/analytics/visit", {
       method: "POST",
@@ -287,7 +287,7 @@ const defaultCurrentProducts = [
     ],
     accent: "cyan",
     featured: false,
-    href: "https://webxwhalechat.netlify.app/",
+    href: "https://webwhalechat.netlify.app/",
   },
 ];
 
@@ -506,7 +506,7 @@ export default function ProductsPage() {
         >
           <img
             className="brand-logo"
-            src="/webxwhale_logo.png"
+            src="/webwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -1366,7 +1366,7 @@ export default function ProductsPage() {
             >
               <img
                 className="brand-logo"
-                src="/webxwhale_logo.png"
+                src="/webwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
