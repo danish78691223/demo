@@ -157,7 +157,7 @@ export default function ContactPage() {
                 </span>
 
                 <a href="mailto:hello@webxwhale.com">
-                  hello@webxwhale.in
+                  hello@webxwhale.com
                   <ArrowUpRight />
                 </a>
 
