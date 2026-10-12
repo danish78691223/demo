@@ -3762,3 +3762,9 @@ footer p {
   .intro-experience.intro-is-booting .intro-boot-mark { animation: none !important; opacity: 1; clip-path: inset(0); filter: none; }
   .intro-experience.intro-is-booting .intro-boot-track i { animation: none !important; transform: scaleX(1); }
 }
+
+
+@media (prefers-reduced-motion: reduce) {
+  /* Avoid a blank page when animations are intentionally disabled by the OS. */
+  .intro-experience.intro-is-booting > :not(.intro-boot-screen) { visibility: visible !important; }
+}
