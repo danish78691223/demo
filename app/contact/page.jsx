@@ -41,7 +41,7 @@ export default function ContactPage() {
         >
           <img
             className="brand-logo"
-            src="/webxwhale_logo.png"
+            src="/webwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -388,7 +388,7 @@ export default function ContactPage() {
             <a className="brand footer-brand" href="/">
               <img
                 className="brand-logo"
-                src="/webxwhale_logo.png"
+                src="/webwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
