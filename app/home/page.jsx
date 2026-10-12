@@ -40,7 +40,7 @@ const Spark = () => (
 const trackContentClick = (item, category) => {
   if (category !== "product") return;
   try {
-    const visitorId = localStorage.getItem("webwhale_visitor_id");
+    const visitorId = localStorage.getItem("webxwhale_visitor_id");
     if (!visitorId) return;
     fetch("/api/analytics/visit", {
       method: "POST",
@@ -108,7 +108,7 @@ const defaultCardGroups = [
         copy: "A lightweight web chat experience for connecting and communicating online.",
         status: "Try it",
         accent: "mint",
-        href: "https://webwhalechat.netlify.app/",
+        href: "https://webxwhalechat.netlify.app/",
       },
       {
         title: "More",
@@ -336,7 +336,7 @@ export default function Home() {
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
+            src="/webxwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -612,7 +612,7 @@ export default function Home() {
 
           <a
             className="button button-dark"
-            href="mailto:askdnk2523@gmail.com"
+            href="mailto:hello@webxwhale.com"
           >
             Say hello <ArrowUpRight />
           </a>
@@ -640,7 +640,7 @@ export default function Home() {
             <a className="brand footer-brand" href="#home">
               <img
                 className="brand-logo"
-                src="/webwhale_logo.png"
+                src="/webxwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
@@ -656,7 +656,7 @@ export default function Home() {
 
             <a
               className="footer-email"
-              href="mailto:askdnk2523@gmail.com"
+              href="mailto:hello@webxwhale.com"
             >
               hello@webxwhale.in
               <ArrowUpRight />
