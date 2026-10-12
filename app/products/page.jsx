@@ -58,7 +58,7 @@ const ExternalIcon = () => (
 
 const trackProductClick = (product) => {
   try {
-    const visitorId = localStorage.getItem("webwhale_visitor_id");
+    const visitorId = localStorage.getItem("webxwhale_visitor_id");
     if (!visitorId) return;
     fetch("/api/analytics/visit", {
       method: "POST",
@@ -287,14 +287,14 @@ const defaultCurrentProducts = [
     ],
     accent: "cyan",
     featured: false,
-    href: "https://webwhalechat.netlify.app/",
+    href: "https://webxwhalechat.netlify.app/",
   },
 ];
 
 const comingProducts = [
   {
     id: "05",
-    name: "WebWhale AI",
+    name: "WebXWhale AI",
     category: "Artificial Intelligence",
     icon: SparkIcon,
     description:
@@ -506,7 +506,7 @@ export default function ProductsPage() {
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
+            src="/webxwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -1366,7 +1366,7 @@ export default function ProductsPage() {
             >
               <img
                 className="brand-logo"
-                src="/webwhale_logo.png"
+                src="/webxwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
@@ -1385,7 +1385,7 @@ export default function ProductsPage() {
 
             <a
               className="footer-email"
-              href="mailto:askdnk2523@gmail.com"
+              href="mailto:hello@webxwhale.com"
             >
               hello@webxwhale.in
               <ArrowUpRight />
