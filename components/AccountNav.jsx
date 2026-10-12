@@ -36,7 +36,7 @@ export default function AccountNav({ dark = false }) {
   return (
     <nav className={`account-nav ${dark ? "account-nav-dark" : ""}`}>
       <Link href="/home" className="account-brand" onClick={close}>
-        <img src="/webwhale_logo.png" alt="WEBWHALE" />
+        <img src="/webwhale_logo.png" alt="WEBXWHALE" />
         <span>WEBXWHALE<span>.</span></span>
       </Link>
       <button className="account-menu-toggle" onClick={() => setOpen(!open)} aria-label="Toggle navigation" aria-expanded={open}>☰</button>
