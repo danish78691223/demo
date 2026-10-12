@@ -44,19 +44,19 @@ const privacySections = [
     content: (
       <>
         <p>
-          WEBWHALE ("WEBWHALE", "we", "us", or "our") respects your privacy
+          WEBXWHALE ("WEBXWHALE", "we", "us", or "our") respects your privacy
           and is committed to handling information responsibly.
         </p>
 
         <p>
           This Privacy Policy explains how information may be collected,
           used, stored, processed, and protected when you access or use
-          WEBWHALE websites, applications, products, platforms, and related
+          WEBXWHALE websites, applications, products, platforms, and related
           digital services.
         </p>
 
         <p>
-          By using a WEBWHALE service, you acknowledge that you have read
+          By using a WEBXWHALE service, you acknowledge that you have read
           and understood this Privacy Policy.
         </p>
       </>
@@ -69,7 +69,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          Depending on the WEBWHALE service you use, we may collect
+          Depending on the WEBXWHALE service you use, we may collect
           different categories of information.
         </p>
 
@@ -111,7 +111,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          Some WEBWHALE services may allow you to create accounts, submit
+          Some WEBXWHALE services may allow you to create accounts, submit
           forms, contact us, purchase products, request services, or
           otherwise provide information.
         </p>
@@ -132,7 +132,7 @@ const privacySections = [
       <>
         <p>
           Information may be used for purposes reasonably necessary to
-          operate and improve WEBWHALE services.
+          operate and improve WEBXWHALE services.
         </p>
 
         <p>This may include:</p>
@@ -174,7 +174,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          WEBWHALE or its service providers may use cookies, local storage,
+          WEBXWHALE or its service providers may use cookies, local storage,
           pixels, analytics tools, or similar technologies to operate
           websites and services, remember preferences, understand usage,
           and improve performance.
@@ -201,7 +201,7 @@ const privacySections = [
         </p>
 
         <p>
-          Such information may be processed directly by WEBWHALE or by
+          Such information may be processed directly by WEBXWHALE or by
           third-party analytics and infrastructure providers acting on our
           behalf.
         </p>
@@ -215,7 +215,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          WEBWHALE may use third-party providers for services such as
+          WEBXWHALE may use third-party providers for services such as
           hosting, analytics, authentication, payment processing,
           communications, infrastructure, or other functionality.
         </p>
@@ -226,7 +226,7 @@ const privacySections = [
         </p>
 
         <p>
-          WEBWHALE may also contain links or integrations to third-party
+          WEBXWHALE may also contain links or integrations to third-party
           websites and services. We are not responsible for the privacy
           practices of third parties that operate independently from us.
         </p>
@@ -302,7 +302,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          WEBWHALE services are not intended to knowingly collect personal
+          WEBXWHALE services are not intended to knowingly collect personal
           information from children where such collection is prohibited by
           applicable law.
         </p>
@@ -340,7 +340,7 @@ const privacySections = [
     title: "Business Transfers",
     content: (
       <p>
-        If WEBWHALE or any relevant part of its business is involved in a
+        If WEBXWHALE or any relevant part of its business is involved in a
         merger, acquisition, restructuring, financing, sale of assets, or
         similar transaction, information may be transferred as part of that
         transaction, subject to applicable law and relevant privacy
@@ -355,7 +355,7 @@ const privacySections = [
     content: (
       <>
         <p>
-          WEBWHALE may update this Privacy Policy from time to time to
+          WEBXWHALE may update this Privacy Policy from time to time to
           reflect changes in our services, technology, business practices,
           or applicable legal requirements.
         </p>
@@ -376,20 +376,20 @@ const privacySections = [
         <p>
           If you have questions, concerns, or requests regarding this
           Privacy Policy or the handling of your information, you can
-          contact WEBWHALE through our official contact channels.
+          contact WEBXWHALE through our official contact channels.
         </p>
 
         <p>
           Email:{" "}
           <a
-            href="mailto:hello@webwhale.in"
+            href="mailto:hello@webxwhale.com"
             style={{
               color: "var(--ink)",
               textDecoration: "underline",
               textUnderlineOffset: "4px",
             }}
           >
-            hello@webwhale.in
+            hello@webxwhale.com
           </a>
         </p>
       </>
@@ -410,16 +410,16 @@ export default function PrivacyPage() {
           className="brand"
           href="/"
           onClick={closeMenu}
-          aria-label="WEBWHALE home"
+          aria-label="WEBXWHALE home"
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
-            alt="WEBWHALE"
+            src="/webxwhale_logo.png"
+            alt="WEBXWHALE"
           />
 
           <span className="brand-name">
-            WEBWHALE<span className="brand-dot">.</span>
+            WEBXWHALE<span className="brand-dot">.</span>
           </span>
         </a>
 
@@ -562,7 +562,7 @@ export default function PrivacyPage() {
               lineHeight: "1.6",
             }}
           >
-            How WEBWHALE handles information across its websites,
+            How WEBXWHALE handles information across its websites,
             applications, products, platforms, and digital services.
           </p>
 
@@ -621,7 +621,7 @@ export default function PrivacyPage() {
           >
             <div>
               <p className="eyebrow">
-                WEBWHALE / PRIVACY
+                WEBXWHALE / PRIVACY
               </p>
 
               <div
@@ -655,7 +655,7 @@ export default function PrivacyPage() {
                 }}
               >
                 We aim to be transparent about the information that may be
-                collected when you interact with WEBWHALE and how that
+                collected when you interact with WEBXWHALE and how that
                 information may be used to operate, secure, and improve our
                 services.
               </p>
@@ -787,13 +787,13 @@ export default function PrivacyPage() {
                 }}
               >
                 If you have questions about this Privacy Policy or how
-                WEBWHALE handles information, contact us through our
+                WEBXWHALE handles information, contact us through our
                 official channel.
               </p>
 
               <a
                 className="button button-dark"
-                href="mailto:hello@webwhale.in"
+                href="mailto:hello@webxwhale.com"
               >
                 Contact us <ArrowUpRight />
               </a>
@@ -810,12 +810,12 @@ export default function PrivacyPage() {
             <a className="brand footer-brand" href="/">
               <img
                 className="brand-logo"
-                src="/webwhale_logo.png"
-                alt="WEBWHALE"
+                src="/webxwhale_logo.png"
+                alt="WEBXWHALE"
               />
 
               <span className="brand-name">
-                WEBWHALE<span className="brand-dot">.</span>
+                WEBXWHALE<span className="brand-dot">.</span>
               </span>
             </a>
 
@@ -826,9 +826,9 @@ export default function PrivacyPage() {
 
             <a
               className="footer-email"
-              href="mailto:hello@webwhale.in"
+              href="mailto:hello@webxwhale.com"
             >
-              hello@webwhale.in
+              hello@webxwhale.com
               <ArrowUpRight />
             </a>
           </div>
@@ -872,7 +872,7 @@ export default function PrivacyPage() {
 
         <div className="footer-bottom">
           <div className="footer-copyright">
-            © {new Date().getFullYear()} WEBWHALE. All rights reserved.
+            © {new Date().getFullYear()} WEBXWHALE. All rights reserved.
           </div>
 
           <div className="footer-bottom-links">
