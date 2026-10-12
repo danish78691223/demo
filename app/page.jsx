@@ -23,7 +23,7 @@ export default function IntroPage() {
   };
 
   useEffect(() => {
-    const timer = window.setTimeout(enterWebsite, 6500);
+    const timer = window.setTimeout(() => setBooting(false), 2100);
     return () => window.clearTimeout(timer);
   }, []);
 
