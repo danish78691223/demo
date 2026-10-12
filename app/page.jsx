@@ -14,6 +14,7 @@ export default function IntroPage() {
   const router = useRouter();
   const [active, setActive] = useState("ai");
   const [leaving, setLeaving] = useState(false);
+  const [booting, setBooting] = useState(true);
 
   const enterWebsite = () => {
     if (leaving) return;
@@ -29,7 +30,8 @@ export default function IntroPage() {
   const selected = discoveries.find((item) => item.id === active) || discoveries[0];
 
   return (
-    <main className={`intro-experience ${leaving ? "intro-experience-leaving" : ""}`}>
+    <main className={`intro-experience ${leaving ? "intro-experience-leaving" : ""} ${booting ? "intro-is-booting" : "intro-boot-complete"}`}>
+      {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark">W<span>×</span></div><p>INITIALIZING POSSIBILITIES</p><div className="intro-boot-track"><i /></div><small>WEBXWHALE <span> / </span> EXPERIENCE ENGINE</small></div>}
       <div className="intro-noise" aria-hidden="true" />
       <div className="intro-grid" aria-hidden="true" />
       <div className="intro-aurora intro-aurora-one" aria-hidden="true" />
@@ -79,7 +81,8 @@ export default function IntroPage() {
           <p className="intro-auto-note"><span className="intro-progress"><i /></span> YOUR NEXT DISCOVERY IS JUST A MOMENT AWAY</p>
         </div>
 
-        <div className="intro-universe" aria-label="Interactive WEBXWHALE discovery animation">
+        <div className="intro-universe" aria-label="Interactive WEBXWHALE discovery animation" onMouseMove={(event) => { const rect = event.currentTarget.getBoundingClientRect(); event.currentTarget.style.setProperty("--pointer-x", `${((event.clientX - rect.left) / rect.width - .5) * 18}px`); event.currentTarget.style.setProperty("--pointer-y", `${((event.clientY - rect.top) / rect.height - .5) * 18}px`); }} onMouseLeave={(event) => { event.currentTarget.style.setProperty("--pointer-x", "0px"); event.currentTarget.style.setProperty("--pointer-y", "0px"); }}>
+          <div className="intro-particle-field" aria-hidden="true">{Array.from({ length: 28 }, (_, index) => <i key={index} style={{ "--particle": index }} />)}</div>
           <div className="intro-orbit intro-orbit-outer" />
           <div className="intro-orbit intro-orbit-middle" />
           <div className="intro-orbit intro-orbit-inner" />
