@@ -41,7 +41,7 @@ export default function ContactPage() {
         >
           <img
             className="brand-logo"
-            src="/webwhale_logo.png"
+            src="/webxwhale_logo.png"
             alt="WEBXWHALE"
           />
 
@@ -156,7 +156,7 @@ export default function ContactPage() {
                   EMAIL
                 </span>
 
-                <a href="mailto:askdnk2523@gmail.com">
+                <a href="mailto:hello@webxwhale.com">
                   hello@webxwhale.in
                   <ArrowUpRight />
                 </a>
@@ -388,7 +388,7 @@ export default function ContactPage() {
             <a className="brand footer-brand" href="/">
               <img
                 className="brand-logo"
-                src="/webwhale_logo.png"
+                src="/webxwhale_logo.png"
                 alt="WEBXWHALE"
               />
 
@@ -404,7 +404,7 @@ export default function ContactPage() {
 
             <a
               className="footer-email"
-              href="mailto:askdnk2523@gmail.com"
+              href="mailto:hello@webxwhale.com"
             >
               hello@webxwhale.in
               <ArrowUpRight />
