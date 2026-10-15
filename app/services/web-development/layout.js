@@ -1,10 +1,10 @@
 export const metadata = {
-  title: "Website Development Services",
-  description: "Get modern, responsive website development from WEBXWHALE, including business websites, e-commerce, web applications and student project support.",
+  title: "Web Development Services in India",
+  description: "WEBXWHALE builds responsive business websites, landing pages, eCommerce stores and custom web applications for startups and businesses across India.",
   alternates: { canonical: "/services/web-development" },
   openGraph: {
-    title: "Website Development Services | WEBXWHALE",
-    description: "Build responsive business websites, e-commerce stores and web applications with WEBXWHALE.",
+    title: "Web Development Services in India | WEBXWHALE",
+    description: "Explore business websites, eCommerce stores and custom web application development from WEBXWHALE.",
     url: "/services/web-development",
     siteName: "WEBXWHALE",
     type: "website",
@@ -13,8 +13,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Website Development Services | WEBXWHALE",
-    description: "Modern, responsive websites and web applications by WEBXWHALE.",
+    title: "Web Development Services in India | WEBXWHALE",
+    description: "Business websites, eCommerce stores and custom web applications built by WEBXWHALE.",
     images: ["/webwhale_logo.png"],
   },
 };
