@@ -3440,6 +3440,8 @@ export default function ServicesPage() {
 
           .process-step,
           .process-step:first-of-type {
+            z-index: 2;
+
             padding:
               0
               0
