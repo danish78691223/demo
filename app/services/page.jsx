@@ -249,6 +249,44 @@ export default function ServicesPage() {
   const [activeService, setActiveService] = useState(null);
 
   /* -------------------------------------------------------
+     MOBILE PROCESS TIMELINE PROGRESS
+  ------------------------------------------------------- */
+
+  useEffect(() => {
+    const section = document.querySelector(".process-section");
+    const timeline = document.querySelector(".process-line");
+
+    if (!section || !timeline) return;
+
+    const updateProgress = () => {
+      if (window.matchMedia("(min-width: 651px)").matches) {
+        timeline.style.setProperty("--process-scroll-progress", "0%");
+        return;
+      }
+
+      const rect = timeline.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      const start = viewportHeight * 0.72;
+      const end = -rect.height + viewportHeight * 0.28;
+      const progress = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+
+      timeline.style.setProperty(
+        "--process-scroll-progress",
+        `${(progress * 100).toFixed(2)}%`
+      );
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
+
+  /* -------------------------------------------------------
      SCROLL REVEAL
   ------------------------------------------------------- */
 
@@ -761,6 +799,10 @@ export default function ServicesPage() {
         <div className="process-line">
 
           <div className="process-progress" />
+          <div className="process-mobile-track" aria-hidden="true">
+            <div className="process-mobile-fill" />
+            <span className="process-mobile-arrow" />
+          </div>
 
           <div className="process-step service-reveal">
 
@@ -2331,6 +2373,10 @@ export default function ServicesPage() {
             rgba(255,255,255,.15);
         }
 
+        .process-mobile-track {
+          display: none;
+        }
+
         .process-progress {
           position: absolute;
 
@@ -3337,8 +3383,65 @@ export default function ServicesPage() {
             display: none;
           }
 
+          .process-line {
+            --process-scroll-progress: 0%;
+            border-left: 0;
+          }
+
+          .process-line::before {
+            content: "";
+            position: absolute;
+            left: -1px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255,255,255,.14);
+            pointer-events: none;
+          }
+
+          .process-mobile-track {
+            display: block;
+            position: absolute;
+            z-index: 1;
+            left: -2px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            pointer-events: none;
+          }
+
+          .process-mobile-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: var(--process-scroll-progress);
+            background: linear-gradient(
+              180deg,
+              var(--service-cyan),
+              #55eaff
+            );
+            box-shadow: 0 0 12px rgba(18,200,232,.55);
+            transition: height .08s linear;
+          }
+
+          .process-mobile-arrow {
+            position: absolute;
+            left: 50%;
+            top: var(--process-scroll-progress);
+            width: 9px;
+            height: 9px;
+            border-right: 2px solid #55eaff;
+            border-bottom: 2px solid #55eaff;
+            transform: translate(-50%, -55%) rotate(45deg);
+            filter: drop-shadow(0 0 4px rgba(18,200,232,.7));
+            transition: top .08s linear;
+          }
+
           .process-step,
           .process-step:first-of-type {
+            z-index: 2;
+
             padding:
               0
               0
