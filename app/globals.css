@@ -3788,3 +3788,13 @@ footer p {
   /* Avoid a blank page when animations are intentionally disabled by the OS. */
   .intro-experience.intro-is-booting > :not(.intro-boot-screen) { visibility: visible !important; }
 }
+
+/* Keep the GIF's own animation; disable the older CSS logo-reveal/glow effects. */
+.intro-experience.intro-is-booting .intro-boot-mark,
+.intro-experience.intro-is-booting .intro-boot-gif {
+  animation: none !important;
+  opacity: 1 !important;
+  clip-path: none !important;
+  filter: none !important;
+  transform: none !important;
+}
