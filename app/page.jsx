@@ -32,7 +32,7 @@ export default function IntroPage() {
   return (
     <main className={`intro-experience ${leaving ? "intro-experience-leaving" : ""} ${booting ? "intro-is-booting" : "intro-boot-complete"}`}>
       {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark intro-boot-gif"><img
-          src="/animated-logo.gif"
+          src="/animated-logo-transparent.gif"
           alt="WEBXWHALE animated logo"
           onError={(event) => {
             const image = event.currentTarget;
