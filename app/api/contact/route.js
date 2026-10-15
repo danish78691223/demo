@@ -43,6 +43,7 @@ export async function POST(request) {
         "software",
         "ai-ml",
         "consulting",
+        "payment",
         "collaboration",
         "other",
       ].includes(service) ||
