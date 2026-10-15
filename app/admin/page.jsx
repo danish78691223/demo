@@ -12,6 +12,7 @@ const SERVICE_LABELS = {
   software: "Software / Product",
   "ai-ml": "AI / Machine Learning",
   consulting: "Consulting",
+  payment: "Payment related Issues",
   collaboration: "Collaboration",
   other: "Other",
 };
