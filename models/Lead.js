@@ -23,6 +23,7 @@ const LeadSchema = new mongoose.Schema(
         "software",
         "ai-ml",
         "consulting",
+        "payment",
         "collaboration",
         "other",
       ],
