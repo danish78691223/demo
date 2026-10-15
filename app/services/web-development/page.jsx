@@ -432,7 +432,7 @@ export default function WebDevelopmentPage() {
 
     <section className="wd-intro wd-reveal">
       <div><span className="wd-label">WEB DEVELOPMENT</span><h2>One page or an entire <em>digital system.</em></h2></div>
-      <p>We organise web development by what the website has to do: present, convert, manage content, connect users, process transactions or run an entire workflow.</p>
+      <p>WEBXWHALE provides web development services for startups, small businesses and growing teams across India. We build responsive business websites, conversion-focused landing pages, eCommerce stores and custom web applications, with clear project scope, performance and SEO-ready structure from the start.</p>
     </section>
 
     <section id="website-types" className="wd-catalog">
