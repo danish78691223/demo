@@ -24,9 +24,6 @@ export const metadata = {
   authors: [{ name: "WEBXWHALE" }],
   creator: "WEBXWHALE",
   publisher: "WEBXWHALE",
-  alternates: {
-    canonical: "/home",
-  },
   robots: {
     index: true,
     follow: true,
@@ -38,7 +35,6 @@ export const metadata = {
     title: "WEBXWHALE | Web Development, Digital Products & SQL Learning",
     description:
       "Explore SQLwhale, digital products and modern website development services from WEBXWHALE.",
-    url: "/home",
     siteName: "WEBXWHALE",
     type: "website",
     locale: "en_IN",
