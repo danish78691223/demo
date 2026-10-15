@@ -2373,6 +2373,10 @@ export default function ServicesPage() {
             rgba(255,255,255,.15);
         }
 
+        .process-mobile-track {
+          display: none;
+        }
+
         .process-progress {
           position: absolute;
 
@@ -3396,6 +3400,7 @@ export default function ServicesPage() {
           }
 
           .process-mobile-track {
+            display: block;
             position: absolute;
             z-index: 1;
             left: -2px;
