@@ -31,7 +31,16 @@ export default function IntroPage() {
 
   return (
     <main className={`intro-experience ${leaving ? "intro-experience-leaving" : ""} ${booting ? "intro-is-booting" : "intro-boot-complete"}`}>
-      {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark intro-boot-gif"><img src="/animated-logo.gif" alt="WEBXWHALE animated logo" /></div><p>INITIALIZING POSSIBILITIES</p><div className="intro-boot-track"><i /></div><small>WEBXWHALE <span> / </span> EXPERIENCE ENGINE</small></div>}
+      {booting && <div className="intro-boot-screen" aria-label="Loading WEBXWHALE experience"><div className="intro-boot-mark intro-boot-gif"><img
+          src="/animated-logo.gif"
+          alt="WEBXWHALE animated logo"
+          onError={(event) => {
+            const image = event.currentTarget;
+            if (image.dataset.fallbackTried === "true") return;
+            image.dataset.fallbackTried = "true";
+            image.src = "https://raw.githubusercontent.com/danish78691223/demo/main/public/animated-logo.gif";
+          }}
+        /></div><p>INITIALIZING POSSIBILITIES</p><div className="intro-boot-track"><i /></div><small>WEBXWHALE <span> / </span> EXPERIENCE ENGINE</small></div>}
       <div className="intro-noise" aria-hidden="true" />
       <div className="intro-grid" aria-hidden="true" />
       <div className="intro-aurora intro-aurora-one" aria-hidden="true" />
