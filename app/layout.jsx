@@ -1,5 +1,6 @@
 import "./globals.css";
 import VisitorTracker from "../components/VisitorTracker";
+import SiteFooter from "../components/SiteFooter";
 
 export const metadata = {
   metadataBase: new URL("https://webxwhale.com"),
@@ -93,6 +94,7 @@ export default function RootLayout({ children }) {
     <html lang="en-IN">
       <body>
         {children}
+        <SiteFooter />
         <VisitorTracker />
         <script
           type="application/ld+json"
