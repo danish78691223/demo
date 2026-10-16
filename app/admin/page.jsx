@@ -149,8 +149,8 @@ function createExcelWorkbook(rows) {
   endView.setUint32(0, 0x06054b50, true);
   endView.setUint16(4, 0, true);
   endView.setUint16(6, 0, true);
-  endView.setUint16(8, files.length, true);
-  endView.setUint16(10, files.length, true);
+  endView.setUint16(8, localEntries.length, true);
+  endView.setUint16(10, localEntries.length, true);
   endView.setUint32(12, centralSize, true);
   endView.setUint32(16, localOffset, true);
   endView.setUint16(20, 0, true);
