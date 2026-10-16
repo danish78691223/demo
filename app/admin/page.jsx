@@ -43,6 +43,11 @@ export default function AdminPage() {
     name: "", category: "product", description: "", href: "", status: "LIVE",
     tags: "", showOnHome: true, showOnProducts: true, sortOrder: 0,
   });
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [exportMonth, setExportMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [resetPhrase, setResetPhrase] = useState("");
+  const [actionBusy, setActionBusy] = useState(false);
 
   async function loadLeads() {
     const response = await fetch("/api/admin/leads", { cache: "no-store", credentials: "include" });
@@ -110,6 +115,112 @@ export default function AdminPage() {
   }
 
   useEffect(() => { refreshAll(); }, []);
+
+  async function exportMonthly(format) {
+    const printWindow = format === "pdf" ? window.open("", "_blank") : null;
+    if (format === "pdf" && !printWindow) {
+      setError("Please allow pop-ups for WEBXWHALE to create the PDF report.");
+      return;
+    }
+
+    setActionBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/export?month=" + encodeURIComponent(exportMonth), {
+        cache: "no-store",
+        credentials: "include",
+      });
+      const report = await response.json();
+      if (response.status === 401) { printWindow?.close(); router.push("/login?redirect=/admin"); return; }
+      if (response.status === 403) { printWindow?.close(); router.push("/dashboard"); return; }
+      if (!response.ok) throw new Error(report.message || "Unable to export monthly data.");
+
+      const leads = report.leads || [];
+      const summaryRows = (report.summary || []).map((item) => [item.metric, item.value]);
+      const csvCell = (value) => {
+        let text = String(value ?? "");
+        if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+        return '"' + text.replace(/"/g, '""') + '"';
+      };
+      const sections = [
+        [["WEBXWHALE — MONTHLY ADMIN REPORT"], ["Selected month", report.month], [], ["Dashboard metric", "Value"], ...summaryRows],
+        [[], ["DAILY VISITOR TREND"], ["Date", "Visits", "Unique visitors"], ...(report.dailyTrend || []).map((item) => [item.date, item.visits, item.unique])],
+        [[], ["PAGE PERFORMANCE"], ["Page", "Visits", "Unique visitors"], ...(report.pages || []).map((item) => [item.page, item.visits, item.unique])],
+        [[], ["PRODUCT CLICKS"], ["Product", "Target ID", "Clicks"], ...(report.productClicks || []).map((item) => [item.name, item.targetId, item.clicks])],
+        [[], ["LEADS"], ["Name", "Email", "Source", "Service", "Message", "Status", "Received"], ...leads.map((lead) => [lead.name, lead.email, lead.source, lead.service, lead.message, lead.status, lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ""])],
+      ];
+      if (format === "excel") {
+        const csv = "\\uFEFF" + sections.flatMap((section) => section.map((row) => row.map(csvCell).join(","))).join("\\r\\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "WEBXWHALE-monthly-report-" + report.month + ".csv";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[char]);
+        const table = (headers, rows) => "<table><thead><tr>" + headers.map((cell) => "<th>" + escapeHtml(cell) + "</th>").join("") + "</tr></thead><tbody>" +
+          rows.map((row) => "<tr>" + row.map((cell) => "<td>" + escapeHtml(cell) + "</td>").join("") + "</tr>").join("") + "</tbody></table>";
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>WEBXWHALE Monthly Report ${escapeHtml(report.month)}</title>
+          <style>
+          body{font-family:Arial,sans-serif;color:#172522;padding:28px}h1{font-size:26px;margin-bottom:4px}h2{font-size:17px;margin:28px 0 8px;color:#087f9d}
+          p{color:#66716d;font-size:12px}table{width:100%;border-collapse:collapse;margin:10px 0 24px;font-size:10px;page-break-inside:auto}
+          th,td{border:1px solid #d7dedb;padding:7px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eaf6f8}
+          tr{page-break-inside:avoid}button{border:0;background:#078eaf;color:#fff;border-radius:20px;padding:10px 18px;cursor:pointer}
+          @media print{body{padding:0}button{display:none}h2{page-break-after:avoid}}
+          </style></head><body>
+          <h1>WEBXWHALE — Monthly Admin Report</h1><p>Reporting period: ${escapeHtml(report.month)} · Generated: ${escapeHtml(new Date().toLocaleString())}</p>
+          <h2>Dashboard metrics</h2>${table(["Metric","Value"], summaryRows)}
+          <h2>Daily visitor trend</h2>${table(["Date","Visits","Unique visitors"], (report.dailyTrend || []).map((item) => [item.date, item.visits, item.unique]))}
+          <h2>Page performance</h2>${table(["Page","Visits","Unique visitors"], (report.pages || []).map((item) => [item.page, item.visits, item.unique]))}
+          <h2>Product clicks</h2>${table(["Product","Target ID","Clicks"], (report.productClicks || []).map((item) => [item.name, item.targetId, item.clicks]))}
+          <h2>Lead details (${leads.length})</h2>${table(["Name","Email","Source","Service","Message","Status","Received"], leads.map((lead) => [lead.name, lead.email, lead.source, lead.service, lead.message, lead.status, lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ""]))}
+          <p>Live product records are not part of this report export operation.</p>
+          <button onclick="window.print()">Print / Save as PDF</button></body></html>`;
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+        setTimeout(() => { printWindow.focus(); printWindow.print(); }, 350);
+      }
+      setExportModalOpen(false);
+    } catch (err) {
+      printWindow?.close();
+      setError(err.message || "Unable to export monthly data.");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  async function resetDashboardData() {
+    if (resetPhrase !== "RESET") return;
+    setActionBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/analytics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ scope: "all" }),
+      });
+      const result = await response.json();
+      if (response.status === 401) { router.push("/login?redirect=/admin"); return; }
+      if (response.status === 403) { router.push("/dashboard"); return; }
+      if (!response.ok) throw new Error(result.message || "Unable to reset dashboard data.");
+      setResetModalOpen(false);
+      setResetPhrase("");
+      await refreshAll();
+      setError("Dashboard data reset complete. " + (result.deleted?.analyticsEvents || 0) + " analytics events and " + (result.deleted?.leads || 0) + " leads removed. Live products were preserved.");
+    } catch (err) {
+      setError(err.message || "Unable to reset dashboard data.");
+    } finally {
+      setActionBusy(false);
+    }
+  }
 
   const resetProductForm = () => {
     setProductForm({
@@ -244,7 +355,11 @@ export default function AdminPage() {
               <h1>{section === "overview" ? <>Control <em>center.</em></> : NAV_ITEMS.find((item) => item.id === section)?.label}</h1>
               <p>{section === "leads" ? "Review enquiries, inspect complete lead details and move prospects through your sales pipeline." : "Manage your WebXWhale operations from one workspace."}</p>
             </div>
-            <button className="admin-refresh" onClick={refreshAll}>Refresh all ↻</button>
+            <div className="admin-header-actions">
+              <button className="admin-refresh" onClick={refreshAll}>Refresh all ↻</button>
+              <button className="admin-secondary-action" onClick={() => setExportModalOpen(true)}>Export data ↓</button>
+              <button className="admin-danger-action" onClick={() => { setResetPhrase(""); setResetModalOpen(true); }}>Reset data ↺</button>
+            </div>
           </header>
 
           {error && <div className="admin-alert">{error}</div>}
@@ -278,6 +393,58 @@ export default function AdminPage() {
           {section === "analytics" && <AnalyticsSection analytics={analytics} />}
         </div>
       </div>
+
+      {exportModalOpen && (
+        <div className="admin-action-backdrop" onClick={() => !actionBusy && setExportModalOpen(false)}>
+          <section className="admin-action-modal" role="dialog" aria-modal="true" aria-labelledby="admin-export-title" onClick={(event) => event.stopPropagation()}>
+            <button className="admin-action-close" onClick={() => setExportModalOpen(false)} aria-label="Close export dialog">×</button>
+            <p className="eyebrow">REPORTS & DOWNLOADS</p>
+            <h2 id="admin-export-title">Export monthly data.</h2>
+            <p className="admin-action-description">Choose a month to export analytics, page performance, product clicks and lead details.</p>
+            <label className="admin-month-field">Reporting month
+              <input type="month" value={exportMonth} onChange={(event) => setExportMonth(event.target.value)} max={new Date().toISOString().slice(0, 7)} />
+            </label>
+            <div className="admin-export-includes">
+              <strong>Included in the report</strong>
+              <span>Unique visitors · Visits · Today's visitors*</span>
+              <span>Total leads · New leads · Lead details</span>
+              <span>Daily trend · Page performance · Product clicks</span>
+              <small>*Today's visitors is shown for the current month. Historical reports mark it as not applicable.</small>
+            </div>
+            <div className="admin-action-buttons">
+              <button className="admin-refresh" disabled={actionBusy || !exportMonth} onClick={() => exportMonthly("excel")}>{actionBusy ? "Preparing…" : "Download Excel CSV"}</button>
+              <button className="admin-secondary-action" disabled={actionBusy || !exportMonth} onClick={() => exportMonthly("pdf")}>Print / Save as PDF</button>
+            </div>
+            <p className="admin-action-footnote">Excel CSV opens in Microsoft Excel. PDF opens in your browser's print dialog; choose “Save as PDF”.</p>
+          </section>
+        </div>
+      )}
+
+      {resetModalOpen && (
+        <div className="admin-action-backdrop" onClick={() => !actionBusy && setResetModalOpen(false)}>
+          <section className="admin-action-modal admin-reset-modal" role="dialog" aria-modal="true" aria-labelledby="admin-reset-title" onClick={(event) => event.stopPropagation()}>
+            <button className="admin-action-close" onClick={() => setResetModalOpen(false)} aria-label="Close reset dialog">×</button>
+            <p className="eyebrow">DESTRUCTIVE ACTION</p>
+            <h2 id="admin-reset-title">Reset dashboard data?</h2>
+            <p className="admin-action-description">This permanently deletes all recorded visitor analytics and all lead records, so the dashboard metrics start from zero.</p>
+            <div className="admin-reset-list">
+              <span>✓ Unique visitors and visit history</span>
+              <span>✓ Today's visitors and traffic charts</span>
+              <span>✓ Total leads, new leads and lead pipeline records</span>
+              <span className="admin-preserved">✓ Live products and product settings will NOT be changed</span>
+              <span className="admin-preserved">✓ Feedback records will NOT be changed</span>
+            </div>
+            <label className="admin-month-field">Type RESET to confirm
+              <input value={resetPhrase} onChange={(event) => setResetPhrase(event.target.value)} placeholder="Type RESET" autoComplete="off" />
+            </label>
+            <div className="admin-action-buttons">
+              <button className="admin-danger-action" disabled={actionBusy || resetPhrase !== "RESET"} onClick={resetDashboardData}>{actionBusy ? "Resetting…" : "Reset dashboard data"}</button>
+              <button className="admin-secondary-action" disabled={actionBusy} onClick={() => setResetModalOpen(false)}>Cancel</button>
+            </div>
+            <p className="admin-action-footnote">This action cannot be undone. Export a monthly report first if you need a copy.</p>
+          </section>
+        </div>
+      )}
 
       {selectedLead && (
         <LeadDetail lead={selectedLead} onClose={() => setSelectedLead(null)} onStatusChange={updateStatus} />
