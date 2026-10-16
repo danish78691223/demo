@@ -111,10 +111,7 @@ export default function IntroPage() {
         </div>
       </section>
 
-      <footer className="intro-footer">
-        <span>BUILD. LEARN. CREATE. EVOLVE.</span>
-        <span>MADE FOR THE CURIOUS <b>✳</b></span>
-      </footer>
+      
     </main>
   );
 }
