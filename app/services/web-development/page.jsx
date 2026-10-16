@@ -392,24 +392,7 @@ export default function WebDevelopmentPage() {
       <a href="/contact" className="wd-primary">Get a project discussion <ArrowUpRight/></a>
     </section>
 
-    <footer className="wd-footer">
-      <div className="wd-footer-brand">
-        <span className="wd-footer-logo">W<span>×</span></span>
-        <strong>WEBXWHALE.</strong>
-        <p>Websites, web apps and digital systems built around what your business needs to do.</p>
-      </div>
-      <div className="wd-footer-links">
-        <a href="/home">Home</a>
-        <a href="/services">Services</a>
-        <a href="/products">Products</a>
-        <a href="/aboutus">About us</a>
-        <a href="/contact">Contact</a>
-      </div>
-      <div className="wd-footer-bottom">
-        <span>WEB DEVELOPMENT / WEBXWHALE</span>
-        <span>All Rights reserved WEBXWHALE</span>
-      </div>
-    </footer>
+    
 
     {selected && <div className="wd-modal-backdrop" onClick={() => setSelected(null)}>
       <section className="wd-detail-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={selected.type}>
