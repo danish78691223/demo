@@ -139,7 +139,7 @@ export default function AdminPage() {
       const summaryRows = (report.summary || []).map((item) => [item.metric, item.value]);
       const csvCell = (value) => {
         let text = String(value ?? "");
-        if (/^[=+@\\-\\t\\r]/.test(text)) text = "'" + text;
+        if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
         return '"' + text.replace(/"/g, '""') + '"';
       };
       const sections = [
