@@ -1,7 +1,36 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "../../../../lib/mongodb";
 import Visitor from "../../../../models/Visitor";
+import Lead from "../../../../models/Lead";
 import { requireAdmin } from "../../../../lib/admin";
+
+export async function POST(request) {
+  const { user, response } = await requireAdmin(request);
+  if (!user) return response;
+
+  try {
+    await connectToDatabase();
+    const body = await request.json().catch(() => ({}));
+    const start = body.startDate ? new Date(body.startDate) : null;
+    const end = body.endDate ? new Date(body.endDate) : null;
+    if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
+      return NextResponse.json({ message: "A valid date range is required." }, { status: 400 });
+    }
+
+    // Clear only analytics events in the selected period. Product records are never modified.
+    const visitorResult = await Visitor.deleteMany({ createdAt: { $gte: start, $lt: end } });
+    // Leads are included in the dashboard reset and can be reset for the selected date range.
+    const leadResult = await Lead.deleteMany({ createdAt: { $gte: start, $lt: end } });
+
+    return NextResponse.json({
+      success: true,
+      deleted: { analyticsEvents: visitorResult.deletedCount || 0, leads: leadResult.deletedCount || 0 },
+    });
+  } catch (error) {
+    console.error("Analytics reset error:", error);
+    return NextResponse.json({ message: "Unable to reset dashboard data." }, { status: 500 });
+  }
+}
 
 export async function GET(request) {
   const auth = await requireAdmin(request);
