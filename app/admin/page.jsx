@@ -563,7 +563,7 @@ export default function AdminPage() {
             <p className="admin-action-description">This permanently deletes all recorded visitor analytics and all lead records, so the dashboard metrics start from zero.</p>
             <div className="admin-reset-list">
               <span>✓ Unique visitors and visit history</span>
-              <span>✓ Today's visitors and traffic charts</span>
+              <span>✓ Today's visitors, daily trends, page views and product-click analytics</span>
               <span>✓ Total leads, new leads and lead pipeline records</span>
               <span className="admin-preserved">✓ Live products and product settings will NOT be changed</span>
               <span className="admin-preserved">✓ Feedback records will NOT be changed</span>
