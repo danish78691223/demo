@@ -496,7 +496,7 @@ export default function AdminPage() {
             </div>
           </header>
 
-          {error && <div className="admin-alert">{error}</div>}
+          {error && <div className={error.startsWith("Dashboard data reset complete.") ? "admin-success" : "admin-alert"} role="status">{error}</div>}
 
           {section === "overview" && (
             <Overview analytics={analytics} data={data} activeProducts={activeProducts} products={products} onNavigate={setSection} />
