@@ -3798,3 +3798,45 @@ footer p {
   filter: none !important;
   transform: none !important;
 }
+
+
+/* Admin dashboard export and reset controls */
+.admin-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;flex-shrink:0}
+.admin-header-actions .admin-refresh,.admin-secondary-action,.admin-danger-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 16px;border:1px solid var(--ink);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:12px;font-weight:700;line-height:1.2;cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease}
+.admin-header-actions .admin-refresh:hover,.admin-secondary-action:hover{background:#e8f6f8;border-color:#078eaf}
+.admin-danger-action{border-color:#b94747;color:#a33131;background:#fffafa}
+.admin-danger-action:hover{background:#fff0f0;border-color:#a33131}
+.admin-header-actions button:disabled,.admin-action-buttons button:disabled{opacity:.45;cursor:not-allowed}
+.admin-action-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(15,27,25,.58);backdrop-filter:blur(5px)}
+.admin-action-modal{position:relative;width:min(100%,560px);max-height:min(88vh,850px);overflow:auto;padding:32px;background:#f8f6f0;border:1px solid #d9dedb;box-shadow:0 24px 90px rgba(0,0,0,.24);color:#172522}
+.admin-action-modal h2{margin:10px 40px 12px 0;font-size:clamp(29px,4vw,40px);line-height:1;letter-spacing:-.045em}
+.admin-action-close{position:absolute;right:18px;top:16px;width:36px;height:36px;border:1px solid #cdd4d0;border-radius:50%;background:transparent;color:#172522;font-size:23px;cursor:pointer}
+.admin-action-description{margin:0 0 22px;color:#68736f;font-size:13px;line-height:1.65}
+.admin-month-field{display:flex;flex-direction:column;gap:8px;margin:16px 0;font-size:12px;font-weight:700}
+.admin-month-field input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #cdd4d0;background:#fff;color:#172522;font:inherit;font-size:14px;border-radius:3px}
+.admin-export-includes,.admin-reset-list{display:flex;flex-direction:column;gap:9px;margin:18px 0;padding:16px;border:1px solid #d8dedb;background:#fff;font-size:12px;line-height:1.5}
+.admin-export-includes strong{margin-bottom:2px;font-size:13px}
+.admin-export-includes small{color:#75817c;font-size:11px}
+.admin-reset-list span{display:block}
+.admin-reset-list .admin-preserved{color:#137a63}
+.admin-action-buttons{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.admin-action-buttons .admin-refresh,.admin-action-buttons .admin-secondary-action,.admin-action-buttons .admin-danger-action{min-height:42px;padding:12px 17px}
+.admin-action-footnote{margin:15px 0 0;color:#75817c;font-size:11px;line-height:1.55}
+.admin-reset-modal .admin-action-description{margin-bottom:15px}
+@media(max-width:1100px){
+  .admin-main-header{align-items:flex-start}
+  .admin-header-actions{max-width:300px}
+}
+@media(max-width:850px){
+  .admin-main-header{flex-direction:column;align-items:stretch;gap:18px}
+  .admin-header-actions{justify-content:flex-start;max-width:none}
+}
+@media(max-width:520px){
+  .admin-header-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .admin-header-actions .admin-refresh{grid-column:1/-1}
+  .admin-header-actions .admin-refresh,.admin-secondary-action,.admin-danger-action{width:100%;padding:10px 11px;font-size:11px}
+  .admin-action-backdrop{padding:12px;align-items:flex-end}
+  .admin-action-modal{padding:25px 20px;max-height:92vh}
+  .admin-action-buttons{display:grid;grid-template-columns:1fr}
+  .admin-action-buttons button{width:100%}
+}
