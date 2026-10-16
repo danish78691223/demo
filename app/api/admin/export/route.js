@@ -5,7 +5,7 @@ import Lead from "../../../../models/Lead";
 import { requireAdmin } from "../../../../lib/admin";
 
 function monthRange(value) {
-  if (typeof value !== "string" || !/^\\d{4}-(0[1-9]|1[0-2])$/.test(value)) return null;
+  if (typeof value !== "string" || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) return null;
   const start = new Date(value + "-01T00:00:00.000Z");
   const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
   return { start, end, month: value };
