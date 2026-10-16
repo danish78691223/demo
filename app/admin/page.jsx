@@ -150,7 +150,7 @@ export default function AdminPage() {
         [[], ["LEADS"], ["Name", "Email", "Source", "Service", "Message", "Status", "Received"], ...leads.map((lead) => [lead.name, lead.email, lead.source, lead.service, lead.message, lead.status, lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ""])],
       ];
       if (format === "excel") {
-        const csv = "\\uFEFF" + sections.flatMap((section) => section.map((row) => row.map(csvCell).join(","))).join("\\r\\n");
+        const csv = "\uFEFF" + sections.flatMap((section) => section.map((row) => row.map(csvCell).join(","))).join("\r\n");
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
