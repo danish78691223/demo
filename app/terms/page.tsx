@@ -893,27 +893,7 @@ export default function Terms() {
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer>
-        <a className="brand footer-brand" href="/">
-          <img
-            className="brand-logo"
-            src="/webwhale_logo.png"
-            alt="WEBXWHALE"
-          />
-
-          <span className="brand-name">
-            WEBXWHALE<span className="brand-dot">.</span>
-          </span>
-        </a>
-
-        <p>
-          Learning, tools and support for forward thinkers.
-        </p>
-
-        <span>
-          © {new Date().getFullYear()} WEBXWHALE
-        </span>
-      </footer>
+      
     </main>
   );
 }
