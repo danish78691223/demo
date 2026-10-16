@@ -136,42 +136,35 @@ export default function WebDevelopmentPage() {
   const spiralLastRef = useRef(0);
 
   const moveSpiral = (direction) => {
-    const current = Math.round(spiralLastRef.current);
-    const next = Math.min(services.length - 1, Math.max(0, current + direction));
+    const next = Math.min(services.length - 1, Math.max(0, Math.round(spiralTargetRef.current) + direction));
     spiralTargetRef.current = next;
-    const stage = spiralRef.current;
-    const catalog = stage?.closest(".wd-catalog");
-    if (catalog && stage) {
-      const stickyTop = parseFloat(window.getComputedStyle(stage).top) || 0;
-      const start = catalog.getBoundingClientRect().top + window.scrollY + stage.offsetTop - stickyTop;
-      const end = Math.max(start + 1, catalog.getBoundingClientRect().top + window.scrollY + catalog.offsetHeight - stage.offsetHeight - stickyTop);
-      const progress = services.length > 1 ? next / (services.length - 1) : 0;
-      window.scrollTo({ top: start + (end - start) * progress, behavior: "smooth" });
-    }
   };
 
   useEffect(() => {
     const stage = spiralRef.current;
-    const catalog = stage?.closest(".wd-catalog");
-    if (!stage || !catalog) return;
+    if (!stage) return;
 
     let frame = 0;
     let lastTime = performance.now();
+    let lastWheelTime = 0;
     let touchStartX = 0;
     let touchStartY = 0;
 
-    const catalogTop = () => catalog.getBoundingClientRect().top + window.scrollY;
-    const scrollRange = () => {
-      const stickyTop = parseFloat(window.getComputedStyle(stage).top) || 0;
-      const start = catalogTop() + stage.offsetTop - stickyTop;
-      const end = catalogTop() + catalog.offsetHeight - stage.offsetHeight - stickyTop;
-      return { start, end: Math.max(start + 1, end) };
-    };
+    const onWheel = (event) => {
+      if (event.ctrlKey || Math.abs(event.deltaY) < 2) return;
 
-    const syncFromScroll = () => {
-      const { start, end } = scrollRange();
-      const progress = Math.max(0, Math.min(1, (window.scrollY - start) / (end - start)));
-      spiralTargetRef.current = progress * (services.length - 1);
+      const current = Math.round(spiralTargetRef.current);
+      const direction = event.deltaY > 0 ? 1 : -1;
+      const next = Math.min(services.length - 1, Math.max(0, current + direction));
+
+      // Let the normal page scroll continue once the user reaches either end.
+      if (next === current) return;
+
+      event.preventDefault();
+      const now = performance.now();
+      if (now - lastWheelTime < 240) return;
+      lastWheelTime = now;
+      spiralTargetRef.current = next;
     };
 
     const onTouchStart = (event) => {
@@ -186,11 +179,12 @@ export default function WebDevelopmentPage() {
       if (!touch) return;
       const dx = touchStartX - touch.clientX;
       const dy = touchStartY - touch.clientY;
-      // Allow direct horizontal swipes, while regular vertical swipes scroll the page.
-      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-        const next = Math.min(services.length - 1, Math.max(0, Math.round(spiralLastRef.current) + (dx > 0 ? 1 : -1)));
-        moveSpiral(next - Math.round(spiralLastRef.current));
-      }
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+
+      const direction = dx > 0 ? 1 : -1;
+      const current = Math.round(spiralTargetRef.current);
+      const next = Math.min(services.length - 1, Math.max(0, current + direction));
+      spiralTargetRef.current = next;
     };
 
     const tick = (time) => {
@@ -209,16 +203,13 @@ export default function WebDevelopmentPage() {
       frame = requestAnimationFrame(tick);
     };
 
-    syncFromScroll();
-    window.addEventListener("scroll", syncFromScroll, { passive: true });
-    window.addEventListener("resize", syncFromScroll);
+    stage.addEventListener("wheel", onWheel, { passive: false });
     stage.addEventListener("touchstart", onTouchStart, { passive: true });
     stage.addEventListener("touchend", onTouchEnd, { passive: true });
     frame = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("scroll", syncFromScroll);
-      window.removeEventListener("resize", syncFromScroll);
+      stage.removeEventListener("wheel", onWheel);
       stage.removeEventListener("touchstart", onTouchStart);
       stage.removeEventListener("touchend", onTouchEnd);
       cancelAnimationFrame(frame);
@@ -447,8 +438,8 @@ export default function WebDevelopmentPage() {
 .wd-hero h1{margin:0;max-width:1050px;font-size:clamp(64px,9.5vw,150px);line-height:.78;letter-spacing:-.09em}.wd-hero h1 span,.wd-hero h1 em,.wd-hero h1 strong{display:block}.wd-hero h1 span{animation:wdUp .9s .1s both}.wd-hero h1 em{font:400 clamp(68px,10vw,155px)/.78 "Playfair Display",serif;color:var(--wd-cyan);margin-left:8vw;animation:wdUp .9s .25s both}.wd-hero h1 strong{font:600 clamp(52px,7.2vw,112px)/.9 "DM Sans",sans-serif;margin-left:16vw;color:#fff;animation:wdUp .9s .4s both}.wd-hero-inner>p{max-width:560px;color:rgba(255,255,255,.62);line-height:1.7;font-size:15px;margin:65px 0 30px 16vw;animation:wdUp .9s .6s both}.wd-hero-actions{margin-left:16vw;display:flex;align-items:center;gap:20px;animation:wdUp .9s .72s both}
 .wd-primary,.wd-secondary{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:14px 19px;font-weight:600;font-size:13px;transition:.3s}.wd-primary{background:#fff;color:#06151a}.wd-primary:hover{transform:translateY(-3px);background:var(--wd-cyan)}.wd-secondary{color:#fff;border:1px solid rgba(255,255,255,.25)}.wd-secondary:hover{border-color:var(--wd-cyan);color:var(--wd-cyan)}.wd-primary svg,.wd-secondary svg,.wd-card-bottom svg,.wd-system-list svg,.wd-close svg{width:17px;height:17px}.wd-hero-index{position:absolute;right:28px;bottom:32px;font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.32)}
 .wd-intro{padding:135px clamp(24px,8vw,120px);display:grid;grid-template-columns:1.25fr .75fr;gap:90px;align-items:end;background:var(--wd-cream)}.wd-label{color:#75817b}.wd-intro h2,.wd-catalog-head h2,.wd-system-copy h2,.wd-pricing-note h2,.wd-cta h2{font-size:clamp(48px,6vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0 0}.wd-intro h2 em,.wd-catalog-head h2 em,.wd-system-copy h2 em,.wd-pricing-note h2 em,.wd-cta h2 em{font:400 1em/1 "Playfair Display",serif;color:#087c9a}.wd-intro>p{max-width:460px;color:#68726d;line-height:1.75;font-size:15px;margin:0}
-.wd-catalog{position:relative;padding:125px 0 150px;background:radial-gradient(circle at 50% 42%,rgba(18,200,232,.055),transparent 32%),linear-gradient(180deg,#03090c 0%,#06151a 48%,#03080b 100%);color:#fff;overflow:hidden}.wd-catalog:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(18,200,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(18,200,232,.12) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 78%)}.wd-catalog:after{content:"";position:absolute;width:720px;height:720px;left:50%;top:38%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.1),transparent 65%);filter:blur(20px);pointer-events:none}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end;position:relative;z-index:2}.wd-catalog-head>p{color:rgba(255,255,255,.58);font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.4);font:500 9px "DM Mono",monospace;letter-spacing:.12em;position:relative;z-index:2}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.025);color:#fff;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:var(--wd-cyan);color:#031116;border-color:var(--wd-cyan)}.wd-catalog{padding-bottom:clamp(150px,18vh,230px);min-height:490vh;overflow:clip}
-.wd-horizontal-stage{height:clamp(390px,55vh,560px);position:sticky;top:100px;margin:28px 0 0;z-index:1;overflow:hidden}
+.wd-catalog{position:relative;padding:125px 0 150px;background:radial-gradient(circle at 50% 42%,rgba(18,200,232,.055),transparent 32%),linear-gradient(180deg,#03090c 0%,#06151a 48%,#03080b 100%);color:#fff;overflow:hidden}.wd-catalog:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(18,200,232,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(18,200,232,.12) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 78%)}.wd-catalog:after{content:"";position:absolute;width:720px;height:720px;left:50%;top:38%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(18,200,232,.1),transparent 65%);filter:blur(20px);pointer-events:none}.wd-catalog-head{max-width:1120px;margin:0 auto 60px;display:grid;grid-template-columns:1fr .65fr;gap:90px;align-items:end;position:relative;z-index:2}.wd-catalog-head>p{color:rgba(255,255,255,.58);font-size:14px;line-height:1.7;margin:0}.wd-catalog-controls{max-width:1120px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.4);font:500 9px "DM Mono",monospace;letter-spacing:.12em;position:relative;z-index:2}.wd-catalog-controls>div{display:flex;gap:8px}.wd-catalog-controls button{width:42px;height:42px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.025);color:#fff;cursor:pointer;font-size:17px;transition:.25s}.wd-catalog-controls button:hover{background:var(--wd-cyan);color:#031116;border-color:var(--wd-cyan)}.wd-catalog{padding-bottom:clamp(100px,12vh,150px);overflow:hidden}
+.wd-horizontal-stage{height:clamp(390px,55vh,560px);position:relative;top:auto;margin:28px 0 0;z-index:1;overflow:hidden}
 .wd-horizontal-stage .wd-spiral-slider{height:100%;min-height:0;perspective:1500px;touch-action:pan-y;overflow:hidden}
 .wd-horizontal-stage .wd-spiral-vignette{background:linear-gradient(90deg,rgba(2,7,10,.88),transparent 10%,transparent 90%,rgba(2,7,10,.88)),linear-gradient(180deg,rgba(2,7,10,.56),transparent 22%,transparent 78%,rgba(2,7,10,.72))}
 .wd-horizontal-track{position:absolute;inset:0;transform-style:preserve-3d}
@@ -456,8 +447,8 @@ export default function WebDevelopmentPage() {
 .wd-horizontal-card strong{font-size:clamp(24px,2.3vw,31px)}
 .wd-horizontal-card:hover{transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y) - 4px),var(--z)) scale(var(--scale))}
 .wd-horizontal-stage .wd-spiral-hint{bottom:16px}
-@media(max-width:900px){.wd-catalog{min-height:464vh}.wd-horizontal-stage{top:82px;height:430px}.wd-horizontal-card{width:min(410px,78vw);height:280px}}
-@media(max-width:620px){.wd-catalog{padding-bottom:115px;min-height:412vh}.wd-horizontal-stage{top:78px;height:360px;margin-top:18px}.wd-horizontal-card{width:min(330px,82vw);height:255px;padding:22px}.wd-horizontal-card strong{font-size:23px}.wd-horizontal-stage .wd-spiral-vignette{background:linear-gradient(90deg,rgba(2,7,10,.64),transparent 7%,transparent 93%,rgba(2,7,10,.64)),linear-gradient(180deg,rgba(2,7,10,.4),transparent 20%,transparent 80%,rgba(2,7,10,.68))}}
+@media(max-width:900px){.wd-horizontal-stage{height:430px}.wd-horizontal-card{width:min(410px,78vw);height:280px}}
+@media(max-width:620px){.wd-catalog{padding-bottom:90px}.wd-horizontal-stage{height:360px;margin-top:18px}.wd-horizontal-card{width:min(330px,82vw);height:255px;padding:22px}.wd-horizontal-card strong{font-size:23px}.wd-horizontal-stage .wd-spiral-vignette{background:linear-gradient(90deg,rgba(2,7,10,.64),transparent 7%,transparent 93%,rgba(2,7,10,.64)),linear-gradient(180deg,rgba(2,7,10,.4),transparent 20%,transparent 80%,rgba(2,7,10,.68))}}
 .wd-spiral-stage{height:calc(100vh - 120px);min-height:600px;position:relative;max-width:none;margin:15px 0 0;z-index:1}.wd-spiral-slider{position:relative;top:auto;width:100%;height:100%;min-height:600px;overflow:hidden;perspective:1500px;background:radial-gradient(circle at 50% 50%,rgba(18,200,232,.13),transparent 38%),linear-gradient(180deg,rgba(2,7,10,.55),rgba(6,21,27,.72) 52%,rgba(2,7,10,.65));border:0;box-shadow:inset 0 0 140px rgba(0,0,0,.45);touch-action:none;overscroll-behavior:contain}.wd-spiral-vignette{position:absolute;inset:0;z-index:30;pointer-events:none;background:linear-gradient(90deg,rgba(2,7,10,.92),transparent 14%,transparent 86%,rgba(2,7,10,.92)),linear-gradient(180deg,rgba(2,7,10,.72),transparent 20%,transparent 80%,rgba(2,7,10,.82))}.wd-spiral-axis{position:absolute;left:50%;top:50%;width:3px;height:76%;transform:translate(-50%,-50%);background:linear-gradient(180deg,transparent,var(--wd-cyan) 30%,rgba(18,200,232,.15) 70%,transparent);filter:blur(5px);opacity:.24;pointer-events:none}.wd-spiral-axis:after{content:"";position:absolute;inset:-50px;width:110px;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(18,200,232,.2),transparent 70%);filter:blur(18px)}.wd-spiral-cards{position:absolute;inset:0;transform-style:preserve-3d}.wd-spiral-card{position:absolute;left:50%;top:50%;width:min(470px,70vw);height:300px;transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));transform-style:preserve-3d;opacity:var(--opacity);filter:blur(var(--blur));z-index:var(--order);appearance:none;text-align:left;padding:28px 31px;background:linear-gradient(145deg,rgba(9,31,39,.98),rgba(3,12,16,.98));color:#fff;border:1px solid rgba(18,200,232,.19);box-shadow:0 32px 80px rgba(0,0,0,.42),inset 0 0 35px rgba(18,200,232,.035);cursor:pointer;transition:transform .42s cubic-bezier(.16,1,.3,1),opacity .35s ease,filter .35s ease,border-color .25s,box-shadow .25s}.wd-spiral-card:hover{border-color:rgba(18,200,232,.7);box-shadow:0 38px 100px rgba(0,0,0,.5),0 0 45px rgba(18,200,232,.12)}.wd-spiral-card:focus-visible{outline:2px solid var(--wd-cyan);outline-offset:4px}.wd-spiral-card-glow{position:absolute;inset:0;background:radial-gradient(circle at 78% 18%,rgba(18,200,232,.22),transparent 35%);pointer-events:none}.wd-spiral-card-index,.wd-spiral-card-level,.wd-spiral-card-number,.wd-spiral-card-desc,.wd-spiral-card-footer{position:relative;z-index:1}.wd-spiral-card-index{font:400 9px "DM Mono",monospace;color:rgba(255,255,255,.44)}.wd-spiral-card-level{float:right;font:500 9px "DM Mono",monospace;color:var(--wd-cyan);letter-spacing:.1em}.wd-spiral-card-number{display:block;font:400 54px/.9 "DM Mono",monospace;color:rgba(18,200,232,.2);margin-top:35px}.wd-spiral-card strong{display:block;position:relative;z-index:1;font-size:31px;letter-spacing:-.055em;line-height:.98;max-width:370px;margin-top:7px}.wd-spiral-card-desc{display:block;color:rgba(255,255,255,.48);font-size:11px;line-height:1.55;max-width:390px;margin-top:14px}.wd-spiral-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;color:var(--wd-cyan);font:500 10px "DM Mono",monospace}.wd-spiral-card-footer svg{width:17px;height:17px;transition:.25s}.wd-spiral-card:hover .wd-spiral-card-footer svg{transform:translateX(6px)}.wd-spiral-hint{position:absolute;left:50%;bottom:19px;z-index:40;transform:translateX(-50%);display:flex;gap:10px;align-items:center;color:rgba(255,255,255,.35);font:500 8px "DM Mono",monospace;letter-spacing:.14em;pointer-events:none;white-space:nowrap}.wd-spiral-hint i{font-style:normal;color:var(--wd-cyan);font-size:16px;animation:wdSpiralHint 1.5s ease-in-out infinite}
 @keyframes wdSpiralHint{50%{transform:translateY(5px);opacity:.45}}
 .wd-systems{padding:125px clamp(24px,8vw,120px);background:#03070a;color:#fff;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}.wd-system-copy{max-width:650px}.wd-system-copy h2{font-size:clamp(50px,6vw,86px)}.wd-system-copy p{max-width:560px;color:#aab7ba;line-height:1.7;margin:28px 0 0;font-size:14px}.wd-system-list{border-top:1px solid rgba(255,255,255,.15)}.wd-system-list>div{display:flex;align-items:center;gap:20px;padding:23px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:16px}.wd-system-list b{font:400 9px "DM Mono",monospace;color:var(--wd-cyan)}.wd-system-list span{flex:1}.wd-system-list svg{color:var(--wd-cyan);transition:.3s}.wd-system-list>div:hover svg{transform:translateX(5px)}
