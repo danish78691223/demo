@@ -11,16 +11,21 @@ export async function POST(request) {
   try {
     await connectToDatabase();
     const body = await request.json().catch(() => ({}));
-    const start = body.startDate ? new Date(body.startDate) : null;
-    const end = body.endDate ? new Date(body.endDate) : null;
-    if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
-      return NextResponse.json({ message: "A valid date range is required." }, { status: 400 });
+    let visitorFilter = {};
+    let leadFilter = {};
+    if (body.scope !== "all") {
+      const start = body.startDate ? new Date(body.startDate) : null;
+      const end = body.endDate ? new Date(body.endDate) : null;
+      if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
+        return NextResponse.json({ message: "A valid date range is required." }, { status: 400 });
+      }
+      visitorFilter = { createdAt: { $gte: start, $lt: end } };
+      leadFilter = { createdAt: { $gte: start, $lt: end } };
     }
 
-    // Clear only analytics events in the selected period. Product records are never modified.
-    const visitorResult = await Visitor.deleteMany({ createdAt: { $gte: start, $lt: end } });
-    // Leads are included in the dashboard reset and can be reset for the selected date range.
-    const leadResult = await Lead.deleteMany({ createdAt: { $gte: start, $lt: end } });
+    // Reset visitor and lead records only. Product records are deliberately never queried or modified.
+    const visitorResult = await Visitor.deleteMany(visitorFilter);
+    const leadResult = await Lead.deleteMany(leadFilter);
 
     return NextResponse.json({
       success: true,
@@ -33,8 +38,8 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
-  const auth = await requireAdmin(request);
-  if (auth.error) return auth.error;
+  const { user, response } = await requireAdmin(request);
+  if (!user) return response;
 
   try {
     await connectToDatabase();
