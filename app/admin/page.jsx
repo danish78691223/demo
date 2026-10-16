@@ -25,6 +25,145 @@ const NAV_ITEMS = [
   { id: "analytics", label: "Analytics", icon: "↗" },
 ];
 
+function excelColumn(index) {
+  let number = index + 1;
+  let column = "";
+  while (number > 0) {
+    const remainder = (number - 1) % 26;
+    column = String.fromCharCode(65 + remainder) + column;
+    number = Math.floor((number - 1) / 26);
+  }
+  return column;
+}
+
+function escapeXml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;",
+  })[char]);
+}
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i += 1) {
+    crc ^= bytes[i];
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+// Build a small standards-compliant XLSX workbook without adding a runtime dependency.
+function createExcelWorkbook(rows) {
+  const worksheetRows = rows.map((row, rowIndex) => {
+    const cells = row.map((value, columnIndex) => {
+      if (value === null || value === undefined || value === "") return "";
+      const reference = excelColumn(columnIndex) + (rowIndex + 1);
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return '<c r="' + reference + '" t="n"><v>' + value + "</v></c>";
+      }
+      return '<c r="' + reference + '" t="inlineStr"><is><t xml:space="preserve">' +
+        escapeXml(value) + "</t></is></c>";
+    }).join("");
+    return '<row r="' + (rowIndex + 1) + '">' + cells + "</row>";
+  }).join("");
+
+  const files = {
+    "[Content_Types].xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+      "</Types>",
+    "_rels/.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      "</Relationships>",
+    "xl/workbook.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<sheets><sheet name="Monthly Report" sheetId="1" r:id="rId1"/></sheets></workbook>',
+    "xl/_rels/workbook.xml.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+      "</Relationships>",
+    "xl/worksheets/sheet1.xml": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' +
+      worksheetRows + "</sheetData></worksheet>",
+  };
+
+  const encoder = new TextEncoder();
+  const localEntries = [];
+  const centralEntries = [];
+  let localOffset = 0;
+
+  Object.entries(files).forEach(([filename, source]) => {
+    const name = encoder.encode(filename);
+    const data = encoder.encode(source);
+    const checksum = crc32(data);
+
+    const local = new Uint8Array(30 + name.length + data.length);
+    const localView = new DataView(local.buffer);
+    localView.setUint32(0, 0x04034b50, true);
+    localView.setUint16(4, 20, true);
+    localView.setUint16(6, 0, true);
+    localView.setUint16(8, 0, true);
+    localView.setUint16(10, 0, true);
+    localView.setUint16(12, 33, true);
+    localView.setUint32(14, checksum, true);
+    localView.setUint32(18, data.length, true);
+    localView.setUint32(22, data.length, true);
+    localView.setUint16(26, name.length, true);
+    localView.setUint16(28, 0, true);
+    local.set(name, 30);
+    local.set(data, 30 + name.length);
+    localEntries.push(local);
+
+    const central = new Uint8Array(46 + name.length);
+    const centralView = new DataView(central.buffer);
+    centralView.setUint32(0, 0x02014b50, true);
+    centralView.setUint16(4, 20, true);
+    centralView.setUint16(6, 20, true);
+    centralView.setUint16(8, 0, true);
+    centralView.setUint16(10, 0, true);
+    centralView.setUint16(12, 0, true);
+    centralView.setUint16(14, 33, true);
+    centralView.setUint32(16, checksum, true);
+    centralView.setUint32(20, data.length, true);
+    centralView.setUint32(24, data.length, true);
+    centralView.setUint16(28, name.length, true);
+    centralView.setUint16(30, 0, true);
+    centralView.setUint16(32, 0, true);
+    centralView.setUint16(34, 0, true);
+    centralView.setUint16(36, 0, true);
+    centralView.setUint32(38, 0, true);
+    centralView.setUint32(42, localOffset, true);
+    central.set(name, 46);
+    centralEntries.push(central);
+    localOffset += local.length;
+  });
+
+  const centralSize = centralEntries.reduce((total, entry) => total + entry.length, 0);
+  const end = new Uint8Array(22);
+  const endView = new DataView(end.buffer);
+  endView.setUint32(0, 0x06054b50, true);
+  endView.setUint16(4, 0, true);
+  endView.setUint16(6, 0, true);
+  endView.setUint16(8, files.length, true);
+  endView.setUint16(10, files.length, true);
+  endView.setUint32(12, centralSize, true);
+  endView.setUint32(16, localOffset, true);
+  endView.setUint16(20, 0, true);
+
+  const archive = new Uint8Array(localOffset + centralSize + end.length);
+  let offset = 0;
+  [...localEntries, ...centralEntries, end].forEach((entry) => {
+    archive.set(entry, offset);
+    offset += entry.length;
+  });
+  return archive;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [section, setSection] = useState("overview");
@@ -137,11 +276,6 @@ export default function AdminPage() {
 
       const leads = report.leads || [];
       const summaryRows = (report.summary || []).map((item) => [item.metric, item.value]);
-      const csvCell = (value) => {
-        let text = String(value ?? "");
-        if (/^[=+@\-\t\r]/.test(text)) text = "'" + text;
-        return '"' + text.replace(/"/g, '""') + '"';
-      };
       const sections = [
         [["WEBXWHALE — MONTHLY ADMIN REPORT"], ["Selected month", report.month], [], ["Dashboard metric", "Value"], ...summaryRows],
         [[], ["DAILY VISITOR TREND"], ["Date", "Visits", "Unique visitors"], ...(report.dailyTrend || []).map((item) => [item.date, item.visits, item.unique])],
@@ -150,16 +284,16 @@ export default function AdminPage() {
         [[], ["LEADS"], ["Name", "Email", "Source", "Service", "Message", "Status", "Received"], ...leads.map((lead) => [lead.name, lead.email, lead.source, lead.service, lead.message, lead.status, lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ""])],
       ];
       if (format === "excel") {
-        const csv = "\uFEFF" + sections.flatMap((section) => section.map((row) => row.map(csvCell).join(","))).join("\r\n");
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const workbook = createExcelWorkbook(sections.flatMap((section) => section));
+        const blob = new Blob([workbook], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement("a");
         anchor.href = url;
-        anchor.download = "WEBXWHALE-monthly-report-" + report.month + ".csv";
+        anchor.download = "WEBXWHALE-monthly-report-" + report.month + ".xlsx";
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
-        URL.revokeObjectURL(url);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       } else {
         const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
           "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -412,10 +546,10 @@ export default function AdminPage() {
               <small>*Today's visitors is shown for the current month. Historical reports mark it as not applicable.</small>
             </div>
             <div className="admin-action-buttons">
-              <button className="admin-refresh" disabled={actionBusy || !exportMonth} onClick={() => exportMonthly("excel")}>{actionBusy ? "Preparing…" : "Download Excel CSV"}</button>
+              <button className="admin-refresh" disabled={actionBusy || !exportMonth} onClick={() => exportMonthly("excel")}>{actionBusy ? "Preparing…" : "Download Excel (.xlsx)"}</button>
               <button className="admin-secondary-action" disabled={actionBusy || !exportMonth} onClick={() => exportMonthly("pdf")}>Print / Save as PDF</button>
             </div>
-            <p className="admin-action-footnote">Excel CSV opens in Microsoft Excel. PDF opens in your browser's print dialog; choose “Save as PDF”.</p>
+            <p className="admin-action-footnote">Excel workbook (.xlsx) downloads directly. PDF opens in your browser's print dialog; choose “Save as PDF”.</p>
           </section>
         </div>
       )}
