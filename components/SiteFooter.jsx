@@ -36,6 +36,15 @@ export default function SiteFooter() {
                   hello@webxwhale.in
                   <ArrowUpRight />
                 </a>
+
+                <div className="footer-social-block">
+                  <p className="footer-heading">FOLLOW WEBXWHALE</p>
+                  <a className="footer-social-link" href="https://www.instagram.com/webxwhale/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="WEBXWHALE on Instagram">
+                    <i className="ri-instagram-line" aria-hidden="true" />
+                    <span>Instagram</span>
+                    <ArrowUpRight />
+                  </a>
+                </div>
               </div>
     
               {/* Products */}
