@@ -1676,6 +1676,65 @@ footer p {
   transform: translateY(-2px);
 }
 
+.footer-social-block {
+  margin-top: 26px;
+}
+
+.footer-social-block .footer-heading,
+.footer-featured-block .footer-heading {
+  margin: 0 0 13px;
+}
+
+.footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  line-height: 1.4;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-social-link:hover {
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.footer-social-link > svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.footer-social-link > .footer-instagram-icon {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
+.footer-featured-block {
+  margin-top: 28px;
+}
+
+.footer-producthunt-badge {
+  display: inline-flex;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.footer-producthunt-badge:hover {
+  transform: translateY(-2px);
+}
+
+.footer-producthunt-badge img {
+  display: block;
+  width: 250px;
+  max-width: 100%;
+  height: auto;
+}
+
 /* -----------------------------------------
    FOOTER COLUMNS
 ----------------------------------------- */
