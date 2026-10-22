@@ -49,6 +49,25 @@ export default function SiteFooter() {
                     <ArrowUpRight />
                   </a>
                 </div>
+
+                <div className="footer-featured-block">
+                  <p className="footer-heading">FEATURED ON</p>
+                  <a
+                    className="footer-producthunt-badge"
+                    href="https://www.producthunt.com/products/webxwhale?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-webxwhale"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WEBXWHALE on Product Hunt"
+                  >
+                    <img
+                      src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1288754&amp;theme=dark&amp;t=1792649648947"
+                      alt="WEBXWHALE - Learn, Build &amp; Explore the Future of Technology | Product Hunt"
+                      width="250"
+                      height="54"
+                      loading="lazy"
+                    />
+                  </a>
+                </div>
               </div>
     
               {/* Products */}
