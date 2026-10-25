@@ -3901,3 +3901,38 @@ footer p {
 }
 
 .admin-success{padding:14px 17px;border:1px solid #a9d8c9;background:#effaf6;color:#176e59;margin-bottom:20px;font-size:13px;line-height:1.55}
+
+
+/* Admin Control Center — company expense ledger */
+.admin-expense-stats{margin-bottom:20px}
+.admin-expense-stats>div{min-width:0}
+.admin-expense-stats>div strong{font-size:clamp(16px,1.7vw,24px);overflow-wrap:anywhere}
+.admin-expense-form-panel{padding:clamp(18px,2.5vw,30px);margin-bottom:22px}
+.admin-expense-hint{max-width:760px;color:#68736f;font-size:13px;line-height:1.65;margin:-3px 0 22px}
+.admin-expense-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.admin-expense-form>label{display:flex;flex-direction:column;gap:7px;min-width:0;color:#4e5b56;font-size:11px;font-weight:700;letter-spacing:.025em}
+.admin-expense-form input,.admin-expense-form select,.admin-expense-form textarea,.admin-expense-filters input,.admin-expense-filters select{box-sizing:border-box;width:100%;min-width:0;border:1px solid #d4dbd7;background:#fff;color:#172522;border-radius:4px;padding:11px 12px;min-height:43px;font:inherit;font-size:13px;letter-spacing:normal;outline-offset:2px}
+.admin-expense-form textarea{resize:vertical;line-height:1.5}
+.admin-expense-form input:focus,.admin-expense-form select:focus,.admin-expense-form textarea:focus,.admin-expense-filters input:focus,.admin-expense-filters select:focus{border-color:#078eaf;outline:2px solid rgba(7,142,175,.12)}
+.admin-expense-notes{grid-column:1/-1}
+.admin-expense-form-actions{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:2px}
+.admin-expense-form-actions .admin-refresh,.admin-expense-form-actions .admin-secondary-action,.admin-expense-filters .admin-secondary-action{display:inline-flex;align-items:center;justify-content:center;min-height:41px;padding:10px 16px;border:1px solid #172522;border-radius:999px;background:#172522;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.admin-expense-form-actions .admin-secondary-action,.admin-expense-filters .admin-secondary-action{background:transparent;color:#172522}
+.admin-expense-form-actions button:disabled,.admin-expense-filters button:disabled{opacity:.5;cursor:not-allowed}
+.admin-expense-records{min-width:0}
+.admin-expense-filters{display:grid;grid-template-columns:minmax(180px,1.5fr) minmax(135px,.8fr) minmax(150px,1fr) minmax(150px,1fr) auto auto;gap:9px;margin:20px 0}
+.admin-expense-filters button{white-space:nowrap}
+.admin-expense-table td{vertical-align:middle}
+.admin-expense-table td strong{display:block}
+.admin-expense-row-notes,.admin-expense-method{display:block;margin-top:5px;max-width:260px;color:#748079;font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+.admin-expense-amount{white-space:nowrap;color:#172522}
+.admin-expense-status{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:800;text-transform:capitalize}
+.admin-expense-status-paid{background:#e6f6ef;color:#167352}
+.admin-expense-status-pending{background:#fff3dc;color:#94610b}
+.admin-expense-actions{display:flex;gap:6px;align-items:center}
+.admin-expense-actions .admin-edit,.admin-expense-actions .admin-delete{padding:7px 10px;font-size:11px}
+.admin-expense-actions .admin-delete:disabled{opacity:.5;cursor:not-allowed}
+.admin-expense-footnote{margin:15px 0 0;color:#748079;font-size:11px;line-height:1.6}
+@media(max-width:1250px){.admin-expense-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-expense-filters input:first-child{grid-column:span 2}}
+@media(max-width:900px){.admin-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-expense-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.admin-expense-form{grid-template-columns:1fr}.admin-expense-notes,.admin-expense-form-actions{grid-column:auto}.admin-expense-filters{grid-template-columns:1fr 1fr}.admin-expense-filters input:first-child{grid-column:1/-1}.admin-expense-filters button{white-space:normal}.admin-expense-stats>div strong{font-size:17px}.admin-expense-form-actions{display:grid;grid-template-columns:1fr}.admin-expense-form-actions button{width:100%}.admin-expense-actions{flex-wrap:wrap}}
