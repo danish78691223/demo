@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { id: "leads", label: "Leads", icon: "◉" },
   { id: "feedback", label: "Feedback", icon: "✦" },
   { id: "analytics", label: "Analytics", icon: "↗" },
+  { id: "expenses", label: "Expenses", icon: "₹" },
 ];
 
 function excelColumn(index) {
@@ -171,6 +172,18 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [feedback, setFeedback] = useState({ items: [], summary: {} });
+  const [expenses, setExpenses] = useState([]);
+  const [expenseSummary, setExpenseSummary] = useState({ allTime: {}, currentMonth: {}, filteredCount: 0 });
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [expenseMonth, setExpenseMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState("all");
+  const [expenseStatusFilter, setExpenseStatusFilter] = useState("all");
+  const [expenseSearch, setExpenseSearch] = useState("");
+  const [expenseForm, setExpenseForm] = useState({
+    title: "", amount: "", category: "software",
+    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+    paymentMethod: "upi", vendor: "", reference: "", notes: "", status: "paid",
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingProduct, setEditingProduct] = useState(null);
@@ -224,6 +237,118 @@ export default function AdminPage() {
     }));
   }
 
+  async function loadExpenses() {
+    const params = new URLSearchParams();
+    if (expenseMonth) params.set("month", expenseMonth);
+    if (expenseCategoryFilter !== "all") params.set("category", expenseCategoryFilter);
+    if (expenseStatusFilter !== "all") params.set("status", expenseStatusFilter);
+    if (expenseSearch.trim()) params.set("q", expenseSearch.trim());
+    const response = await fetch("/api/admin/expenses?" + params.toString(), {
+      cache: "no-store",
+      credentials: "include",
+    });
+    const result = await response.json();
+    if (response.status === 401) { router.push("/login?redirect=/admin"); return false; }
+    if (response.status === 403) { router.push("/dashboard"); return false; }
+    if (!response.ok) throw new Error(result.message || "Unable to load expenses.");
+    setExpenses(result.expenses || []);
+    setExpenseSummary(result.summary || { allTime: {}, currentMonth: {}, filteredCount: 0 });
+    return true;
+  }
+
+  function resetExpenseForm() {
+    setEditingExpense(null);
+    setExpenseForm({
+      title: "", amount: "", category: "software",
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
+      paymentMethod: "upi", vendor: "", reference: "", notes: "", status: "paid",
+    });
+  }
+
+  async function saveExpense(event) {
+    event.preventDefault();
+    setError("");
+    setActionBusy(true);
+    try {
+      const response = await fetch(editingExpense ? "/api/admin/expenses/" + editingExpense : "/api/admin/expenses", {
+        method: editingExpense ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...expenseForm, amount: Number(expenseForm.amount) }),
+      });
+      const result = await response.json();
+      if (response.status === 401) { router.push("/login?redirect=/admin"); return; }
+      if (response.status === 403) { router.push("/dashboard"); return; }
+      if (!response.ok) throw new Error(result.message || "Unable to save expense.");
+      resetExpenseForm();
+      await loadExpenses();
+      setError(editingExpense ? "Expense updated successfully." : "Expense saved successfully.");
+    } catch (err) {
+      setError(err.message || "Unable to save expense.");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  function startEditExpense(expense) {
+    setEditingExpense(expense._id);
+    setExpenseForm({
+      title: expense.title || "",
+      amount: String(expense.amount ?? ""),
+      category: expense.category || "other",
+      date: expense.date ? new Date(expense.date).toISOString().slice(0, 10) : "",
+      paymentMethod: expense.paymentMethod || "other",
+      vendor: expense.vendor || "",
+      reference: expense.reference || "",
+      notes: expense.notes || "",
+      status: expense.status || "paid",
+    });
+    setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function deleteExpense(expense) {
+    if (!window.confirm("Delete expense “" + expense.title + "”? This cannot be undone.")) return;
+    setActionBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/expenses/" + expense._id, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (response.status === 401) { router.push("/login?redirect=/admin"); return; }
+      if (response.status === 403) { router.push("/dashboard"); return; }
+      if (!response.ok) throw new Error(result.message || "Unable to delete expense.");
+      if (editingExpense === expense._id) resetExpenseForm();
+      await loadExpenses();
+      setError("Expense deleted successfully.");
+    } catch (err) {
+      setError(err.message || "Unable to delete expense.");
+    } finally {
+      setActionBusy(false);
+    }
+  }
+
+  function exportExpensesCsv() {
+    const headers = ["Date", "Expense", "Category", "Amount (INR)", "Status", "Payment method", "Vendor", "Reference", "Notes"];
+    const rows = expenses.map((expense) => [
+      expense.date ? new Date(expense.date).toISOString().slice(0, 10) : "",
+      expense.title, expense.category, expense.amount, expense.status, expense.paymentMethod,
+      expense.vendor, expense.reference, expense.notes,
+    ]);
+    const csvValue = (value) => '"' + String(value ?? "").replace(/"/g, '""') + '"';
+    const csv = [headers, ...rows].map((row) => row.map(csvValue).join(",")).join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "WEBXWHALE-expenses-" + (expenseMonth || "all") + ".csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function loadAdminData() {
     await fetch("/api/admin/products/seed", { method: "POST", credentials: "include" });
     const [productsResponse, analyticsResponse] = await Promise.all([
@@ -245,7 +370,7 @@ export default function AdminPage() {
       const auth = await authApi.me();
       if (!auth?.user) { router.push("/login?redirect=/admin"); return; }
       if (auth.user.role !== "admin") { router.push("/dashboard"); return; }
-      await Promise.all([loadLeads(), loadAdminData(), loadFeedback()]);
+      await Promise.all([loadLeads(), loadAdminData(), loadFeedback(), loadExpenses()]);
     } catch (err) {
       setError(err.message || "Unable to load admin data.");
     } finally {
@@ -525,6 +650,31 @@ export default function AdminPage() {
           )}
 
           {section === "analytics" && <AnalyticsSection analytics={analytics} />}
+
+          {section === "expenses" && (
+            <ExpensesSection
+              expenses={expenses}
+              summary={expenseSummary}
+              form={expenseForm}
+              setForm={setExpenseForm}
+              editingExpense={editingExpense}
+              saveExpense={saveExpense}
+              resetExpenseForm={resetExpenseForm}
+              startEditExpense={startEditExpense}
+              deleteExpense={deleteExpense}
+              month={expenseMonth}
+              setMonth={setExpenseMonth}
+              categoryFilter={expenseCategoryFilter}
+              setCategoryFilter={setExpenseCategoryFilter}
+              statusFilter={expenseStatusFilter}
+              setStatusFilter={setExpenseStatusFilter}
+              search={expenseSearch}
+              setSearch={setExpenseSearch}
+              onExport={exportExpensesCsv}
+              busy={actionBusy}
+              onRefresh={loadExpenses}
+            />
+          )}
         </div>
       </div>
 
@@ -642,6 +792,130 @@ function ProductsSection({ products, productForm, setProductForm, editingProduct
             <div className="admin-product-actions"><button onClick={() => moveProduct(product, -1)} className="admin-icon-button">↑</button><button onClick={() => moveProduct(product, 1)} className="admin-icon-button">↓</button><button onClick={() => startEdit(product)} className="admin-edit">Edit</button><button onClick={() => deleteProduct(product._id)} className="admin-delete">Delete</button></div>
           </div>
         ))}</div>
+      </section>
+    </div>
+  );
+}
+
+const EXPENSE_CATEGORIES = [
+  ["hosting", "Hosting & cloud"],
+  ["domain", "Domain & email"],
+  ["marketing", "Marketing & ads"],
+  ["software", "Software & subscriptions"],
+  ["development", "Development & services"],
+  ["hardware", "Hardware & equipment"],
+  ["operations", "Operations & office"],
+  ["travel", "Travel"],
+  ["other", "Other"],
+];
+
+const PAYMENT_METHODS = [
+  ["upi", "UPI"], ["card", "Card"], ["bank_transfer", "Bank transfer"],
+  ["cash", "Cash"], ["wallet", "Wallet"], ["other", "Other"],
+];
+
+function formatINR(value) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency", currency: "INR", maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
+}
+
+function ExpensesSection({
+  expenses, summary, form, setForm, editingExpense, saveExpense, resetExpenseForm,
+  startEditExpense, deleteExpense, month, setMonth, categoryFilter, setCategoryFilter,
+  statusFilter, setStatusFilter, search, setSearch, onExport, busy, onRefresh,
+}) {
+  const allTime = summary.allTime || {};
+  const currentMonth = summary.currentMonth || {};
+  const totalLogged = (allTime.paid?.amount || 0) + (allTime.pending?.amount || 0);
+  const paidTotal = allTime.paid?.amount || 0;
+  const pendingTotal = allTime.pending?.amount || 0;
+  const monthTotal = (currentMonth.paid?.amount || 0) + (currentMonth.pending?.amount || 0);
+
+  return (
+    <div className="admin-content admin-expenses-content">
+      <section className="admin-stats admin-expense-stats">
+        <Stat label="Total recorded" value={formatINR(totalLogged)} />
+        <Stat label="Paid expenses" value={formatINR(paidTotal)} />
+        <Stat label="Pending payments" value={formatINR(pendingTotal)} />
+        <Stat label="This month" value={formatINR(monthTotal)} />
+      </section>
+
+      <section className="admin-panel admin-expense-form-panel">
+        <div className="admin-section-title">
+          <div><p className="eyebrow">FINANCE TRACKER</p><h2>{editingExpense ? "Edit expense." : "Record a new expense."}</h2></div>
+          <span>{editingExpense ? "Update record" : "WEBXWHALE costs"}</span>
+        </div>
+        <p className="admin-expense-hint">Record hosting, domains, tools, marketing, development and any other company spending. Records are stored securely in the database.</p>
+        <form className="admin-expense-form" onSubmit={saveExpense}>
+          <label>Expense title *
+            <input maxLength={160} required placeholder="e.g. Vercel Pro subscription" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
+          </label>
+          <label>Amount (₹) *
+            <input required type="number" min="0.01" step="0.01" inputMode="decimal" placeholder="0.00" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} />
+          </label>
+          <label>Expense date *
+            <input required type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} />
+          </label>
+          <label>Category *
+            <select required value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}>{EXPENSE_CATEGORIES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+          </label>
+          <label>Payment method
+            <select value={form.paymentMethod} onChange={(event) => setForm({ ...form, paymentMethod: event.target.value })}>{PAYMENT_METHODS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+          </label>
+          <label>Payment status
+            <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}><option value="paid">Paid</option><option value="pending">Pending</option></select>
+          </label>
+          <label>Vendor / paid to
+            <input maxLength={120} placeholder="e.g. Hostinger" value={form.vendor} onChange={(event) => setForm({ ...form, vendor: event.target.value })} />
+          </label>
+          <label>Transaction / invoice ID
+            <input maxLength={120} placeholder="Optional reference number" value={form.reference} onChange={(event) => setForm({ ...form, reference: event.target.value })} />
+          </label>
+          <label className="admin-expense-notes">Notes
+            <textarea maxLength={1000} rows={3} placeholder="Purpose, billing period or other details…" value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} />
+          </label>
+          <div className="admin-expense-form-actions">
+            <button className="admin-refresh" type="submit" disabled={busy}>{busy ? "Saving…" : editingExpense ? "Save changes" : "＋ Add expense"}</button>
+            {editingExpense && <button className="admin-secondary-action" type="button" disabled={busy} onClick={resetExpenseForm}>Cancel edit</button>}
+          </div>
+        </form>
+      </section>
+
+      <section className="admin-leads admin-leads-modern admin-expense-records">
+        <div className="admin-section-title">
+          <div><p className="eyebrow">EXPENSE LEDGER</p><h2>Company spending.</h2></div>
+          <span>{expenses.length} records shown</span>
+        </div>
+        <div className="admin-expense-filters">
+          <input aria-label="Search expenses" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search title, vendor or reference…" />
+          <input aria-label="Filter by month" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          <select aria-label="Filter category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">All categories</option>{EXPENSE_CATEGORIES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+          <select aria-label="Filter payment status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All payment statuses</option><option value="paid">Paid</option><option value="pending">Pending</option></select>
+          <button type="button" className="admin-secondary-action" onClick={onRefresh}>Apply / refresh</button>
+          <button type="button" className="admin-secondary-action" onClick={onExport} disabled={!expenses.length}>Export CSV ↓</button>
+        </div>
+        {expenses.length === 0 ? (
+          <div className="admin-empty"><strong>No expenses found.</strong><p>Add your first expense or adjust the date, category and search filters.</p></div>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table lead-table admin-expense-table">
+              <thead><tr><th>Date</th><th>Expense</th><th>Category</th><th>Amount</th><th>Payment</th><th>Vendor / reference</th><th>Actions</th></tr></thead>
+              <tbody>{expenses.map((expense) => (
+                <tr key={expense._id}>
+                  <td>{expense.date ? new Date(expense.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}</td>
+                  <td><strong>{expense.title}</strong>{expense.notes && <small className="admin-expense-row-notes">{expense.notes}</small>}</td>
+                  <td>{EXPENSE_CATEGORIES.find(([value]) => value === expense.category)?.[1] || expense.category}</td>
+                  <td><strong className="admin-expense-amount">{formatINR(expense.amount)}</strong></td>
+                  <td><span className={"admin-expense-status admin-expense-status-" + expense.status}>{expense.status === "paid" ? "Paid" : "Pending"}</span><small className="admin-expense-method">{PAYMENT_METHODS.find(([value]) => value === expense.paymentMethod)?.[1] || expense.paymentMethod}</small></td>
+                  <td>{expense.vendor || "—"}{expense.reference && <small className="admin-expense-row-notes">Ref: {expense.reference}</small>}</td>
+                  <td><div className="admin-expense-actions"><button type="button" className="admin-edit" onClick={() => startEditExpense(expense)}>Edit</button><button type="button" className="admin-delete" disabled={busy} onClick={() => deleteExpense(expense)}>Delete</button></div></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+        )}
+        <p className="admin-expense-footnote">Summary cards show all saved expenses. The ledger filters do not alter or delete any records. Resetting website analytics will not remove this expense ledger.</p>
       </section>
     </div>
   );
