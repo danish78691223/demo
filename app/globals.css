@@ -3936,3 +3936,10 @@ footer p {
 @media(max-width:1250px){.admin-expense-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-expense-filters input:first-child{grid-column:span 2}}
 @media(max-width:900px){.admin-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-expense-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.admin-expense-form{grid-template-columns:1fr}.admin-expense-notes,.admin-expense-form-actions{grid-column:auto}.admin-expense-filters{grid-template-columns:1fr 1fr}.admin-expense-filters input:first-child{grid-column:1/-1}.admin-expense-filters button{white-space:normal}.admin-expense-stats>div strong{font-size:17px}.admin-expense-form-actions{display:grid;grid-template-columns:1fr}.admin-expense-form-actions button{width:100%}.admin-expense-actions{flex-wrap:wrap}}
+
+.admin-expense-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.admin-expense-month-filter{display:flex;gap:6px;min-width:0}
+.admin-expense-month-filter input{flex:1;min-width:0}
+.admin-expense-all-months{flex-shrink:0;padding:7px 10px;border:1px solid #d4dbd7;border-radius:4px;background:#fff;color:#172522;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+@media(max-width:900px){.admin-expense-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-expense-month-filter{grid-column:span 1}}
+@media(max-width:600px){.admin-expense-month-filter{grid-column:1/-1}.admin-expense-month-filter input{flex:1}}
