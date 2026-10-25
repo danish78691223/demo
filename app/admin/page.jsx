@@ -621,7 +621,7 @@ export default function AdminPage() {
             </div>
           </header>
 
-          {error && <div className={error.startsWith("Dashboard data reset complete.") ? "admin-success" : "admin-alert"} role="status">{error}</div>}
+          {error && <div className={(error.startsWith("Dashboard data reset complete.") || error.startsWith("Expense saved successfully.") || error.startsWith("Expense updated successfully.") || error.startsWith("Expense deleted successfully.")) ? "admin-success" : "admin-alert"} role="status">{error}</div>}
 
           {section === "overview" && (
             <Overview analytics={analytics} data={data} activeProducts={activeProducts} products={products} onNavigate={setSection} />
@@ -759,6 +759,7 @@ function Overview({ analytics, data, activeProducts, products, onNavigate }) {
             <button onClick={() => onNavigate("products")}><b>＋</b><span>Add / manage products</span><small>Control homepage and product visibility</small></button>
             <button onClick={() => onNavigate("leads")}><b>◉</b><span>Review incoming leads</span><small>Open a lead for full details</small></button>
             <button onClick={() => onNavigate("analytics")}><b>↗</b><span>Open analytics</span><small>Visitors, pages and product clicks</small></button>
+            <button onClick={() => onNavigate("expenses")}><b>₹</b><span>Record an expense</span><small>Track company costs and payments</small></button>
           </div>
         </div>
       </div>
@@ -889,7 +890,7 @@ function ExpensesSection({
         </div>
         <div className="admin-expense-filters">
           <input aria-label="Search expenses" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search title, vendor or reference…" />
-          <input aria-label="Filter by month" type="month" value={month} onChange={(event) => setMonth(event.target.value)} />
+          <div className="admin-expense-month-filter"><input aria-label="Filter by month" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /><button type="button" className="admin-expense-all-months" onClick={() => setMonth("")}>All months</button></div>
           <select aria-label="Filter category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">All categories</option>{EXPENSE_CATEGORIES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
           <select aria-label="Filter payment status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All payment statuses</option><option value="paid">Paid</option><option value="pending">Pending</option></select>
           <button type="button" className="admin-secondary-action" onClick={onRefresh}>Apply / refresh</button>
