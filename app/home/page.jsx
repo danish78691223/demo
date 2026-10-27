@@ -373,8 +373,9 @@ export default function Home() {
             About us
           </a>
 
-
-
+          <a href="#contact" onClick={closeMenu}>
+            Contact
+          </a>
         </div>
       </nav>
 
