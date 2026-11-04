@@ -5,6 +5,45 @@ import { rateLimit } from "@/lib/security";
 
 const CATEGORIES = ["learning", "bug", "ui", "feature", "other"];
 
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const product = searchParams.get("product")?.trim() || "";
+    if (!product || product.length > 80) {
+      return NextResponse.json({ success: false, message: "A product is required." }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const feedback = await Feedback.find({
+      product: { $regex: "^" + product.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\export async function POST(request) {") + "$", $options: "i" },
+      status: "reviewed",
+      isPublic: true,
+    })
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .select("name rating category message createdAt")
+      .lean();
+
+    return NextResponse.json(
+      {
+        success: true,
+        feedback: feedback.map((item) => ({
+          id: String(item._id),
+          name: item.name || "SQLWhale learner",
+          rating: item.rating,
+          category: item.category,
+          message: item.message,
+          createdAt: item.createdAt,
+        })),
+      },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
+  } catch (error) {
+    console.error("Public feedback GET error:", error);
+    return NextResponse.json({ success: false, message: "Unable to load feedback." }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   const limited = rateLimit(request, "feedback", 5, 30 * 60 * 1000);
   if (limited) return limited;
@@ -19,6 +58,7 @@ export async function POST(request) {
     const page = typeof body.page === "string" ? body.page.trim() : "";
     const rating = Number(body.rating);
     const category = typeof body.category === "string" ? body.category : "learning";
+    const isPublic = body.isPublic === true;
 
     if (!product || product.length > 80 || !message || message.length > 3000) {
       return NextResponse.json({ success: false, message: "Product and feedback message are required." }, { status: 400 });
@@ -34,7 +74,7 @@ export async function POST(request) {
 
     await connectToDatabase();
     const feedback = await Feedback.create({
-      product, userId, name: name || "SQLWhale user", email, rating, category, message, page,
+      product, userId, name: name || "SQLWhale user", email, rating, category, message, page, isPublic,
     });
 
     return NextResponse.json({ success: true, feedback: { id: feedback._id } }, { status: 201 });
