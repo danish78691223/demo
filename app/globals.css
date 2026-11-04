@@ -3943,3 +3943,19 @@ footer p {
 .admin-expense-all-months{flex-shrink:0;padding:7px 10px;border:1px solid #d4dbd7;border-radius:4px;background:#fff;color:#172522;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
 @media(max-width:900px){.admin-expense-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-expense-month-filter{grid-column:span 1}}
 @media(max-width:600px){.admin-expense-month-filter{grid-column:1/-1}.admin-expense-month-filter input{flex:1}}
+
+
+/* Public testimonial consent indicator in feedback moderation. */
+.feedback-public-yes,
+.feedback-public-no{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 8px;
+  border:1px solid rgba(128,128,128,.28);
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.feedback-public-yes{background:rgba(16,185,129,.1);color:#087b5a;border-color:rgba(16,185,129,.28)}
+.feedback-public-no{background:rgba(120,120,130,.08);color:inherit}
