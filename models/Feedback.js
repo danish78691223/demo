@@ -15,6 +15,7 @@ const FeedbackSchema = new mongoose.Schema(
     },
     message: { type: String, required: true, trim: true, maxlength: 3000 },
     page: { type: String, trim: true, maxlength: 500, default: "" },
+    isPublic: { type: Boolean, default: false, index: true },
     status: {
       type: String,
       enum: ["new", "reviewed", "archived"],
