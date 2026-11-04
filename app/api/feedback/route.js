@@ -15,7 +15,36 @@ export async function GET(request) {
 
     await connectToDatabase();
     const feedback = await Feedback.find({
-      product: { $regex: "^" + product.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\export async function POST(request) {") + "$", $options: "i" },
+      product,
+      status: "reviewed",
+      isPublic: true,
+    })
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .select("name rating category message createdAt")
+      .lean();
+
+    return NextResponse.json(
+      {
+        success: true,
+        feedback: feedback.map((item) => ({
+          id: String(item._id),
+          name: item.name || "SQLWhale learner",
+          rating: item.rating,
+          category: item.category,
+          message: item.message,
+          createdAt: item.createdAt,
+        })),
+      },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
+  } catch (error) {
+    console.error("Public feedback GET error:", error);
+    return NextResponse.json({ success: false, message: "Unable to load feedback." }, { status: 500 });
+  }
+}
+
+export async function POST(request) {") + "$", $options: "i" },
       status: "reviewed",
       isPublic: true,
     })
