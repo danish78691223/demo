@@ -9,11 +9,16 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const product = searchParams.get("product")?.trim() || "";
+
     if (!product || product.length > 80) {
-      return NextResponse.json({ success: false, message: "A product is required." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "A product is required." },
+        { status: 400 }
+      );
     }
 
     await connectToDatabase();
+
     const feedback = await Feedback.find({
       product,
       status: "reviewed",
@@ -40,36 +45,10 @@ export async function GET(request) {
     );
   } catch (error) {
     console.error("Public feedback GET error:", error);
-    return NextResponse.json({ success: false, message: "Unable to load feedback." }, { status: 500 });
-  }
-}
-
-export async function POST(request) {") + "$", $options: "i" },
-      status: "reviewed",
-      isPublic: true,
-    })
-      .sort({ createdAt: -1 })
-      .limit(12)
-      .select("name rating category message createdAt")
-      .lean();
-
     return NextResponse.json(
-      {
-        success: true,
-        feedback: feedback.map((item) => ({
-          id: String(item._id),
-          name: item.name || "SQLWhale learner",
-          rating: item.rating,
-          category: item.category,
-          message: item.message,
-          createdAt: item.createdAt,
-        })),
-      },
-      { headers: { "Cache-Control": "no-store, max-age=0" } }
+      { success: false, message: "Unable to load feedback." },
+      { status: 500 }
     );
-  } catch (error) {
-    console.error("Public feedback GET error:", error);
-    return NextResponse.json({ success: false, message: "Unable to load feedback." }, { status: 500 });
   }
 }
 
@@ -90,25 +69,48 @@ export async function POST(request) {
     const isPublic = body.isPublic === true;
 
     if (!product || product.length > 80 || !message || message.length > 3000) {
-      return NextResponse.json({ success: false, message: "Product and feedback message are required." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Product and feedback message are required." },
+        { status: 400 }
+      );
     }
 
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-      return NextResponse.json({ success: false, message: "Please provide a rating from 1 to 5." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Please provide a rating from 1 to 5." },
+        { status: 400 }
+      );
     }
 
     if (!CATEGORIES.includes(category)) {
-      return NextResponse.json({ success: false, message: "Invalid feedback category." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Invalid feedback category." },
+        { status: 400 }
+      );
     }
 
     await connectToDatabase();
     const feedback = await Feedback.create({
-      product, userId, name: name || "SQLWhale user", email, rating, category, message, page, isPublic,
+      product,
+      userId,
+      name: name || "SQLWhale user",
+      email,
+      rating,
+      category,
+      message,
+      page,
+      isPublic,
     });
 
-    return NextResponse.json({ success: true, feedback: { id: feedback._id } }, { status: 201 });
+    return NextResponse.json(
+      { success: true, feedback: { id: feedback._id } },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Feedback POST error:", error);
-    return NextResponse.json({ success: false, message: "Unable to submit feedback." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Unable to submit feedback." },
+      { status: 500 }
+    );
   }
 }
