@@ -995,13 +995,14 @@ function FeedbackSection({ feedback, updateFeedbackStatus }) {
           <Stat label="Reviewed" value={feedback.summary.reviewed || 0} />
           <Stat label="Archived" value={feedback.summary.archived || 0} />
         </div>
+        <p className="admin-muted">Homepage visibility requires both user permission (“Consent given”) and the status “reviewed”. Private feedback remains internal.</p>
 
         {feedback.items.length === 0 ? (
           <div className="admin-empty"><strong>No feedback yet.</strong><p>Feedback submitted from SQLWhale will appear here.</p></div>
         ) : (
           <div className="admin-table-wrap">
             <table className="admin-table lead-table">
-              <thead><tr><th>User</th><th>Rating</th><th>Category</th><th>Feedback</th><th>Page</th><th>Status</th><th>Received</th></tr></thead>
+              <thead><tr><th>User</th><th>Rating</th><th>Category</th><th>Feedback</th><th>Public display</th><th>Page</th><th>Status</th><th>Received</th></tr></thead>
               <tbody>
                 {feedback.items.map((item) => (
                   <tr key={item._id}>
@@ -1009,6 +1010,7 @@ function FeedbackSection({ feedback, updateFeedbackStatus }) {
                     <td><strong>{"★".repeat(item.rating)}{"☆".repeat(5 - item.rating)}</strong></td>
                     <td>{categoryLabels[item.category] || item.category}</td>
                     <td className="admin-message">{item.message}</td>
+                    <td><span className={item.isPublic ? "feedback-public-yes" : "feedback-public-no"}>{item.isPublic ? "Consent given" : "Private"}</span></td>
                     <td>{item.page || "—"}</td>
                     <td>
                       <select value={item.status} onChange={(e) => updateFeedbackStatus(item._id, e.target.value)} className="lead-status">
