@@ -68,7 +68,7 @@ const defaultCardGroups = [
         copy: "Master data skills through hands-on SQL practice.",
         status: "Explore",
         accent: "blue",
-        href: "https://sqlwhalefrontend.vercel.app/",
+        href: "https://sqlwhale.webxwhale.com/",
       },
       {
         title: "Programming",
@@ -282,7 +282,7 @@ export default function Home() {
 
                 <a
                   className="sqlwhale-launch-cta"
-                  href="https://sqlwhalefrontend.vercel.app/"
+                  href="https://sqlwhale.webxwhale.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={openSqlwhalePopup}
