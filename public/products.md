@@ -6,7 +6,7 @@ WEBXWHALE showcases digital tools and learning platforms. Product status, featur
 
 ## Products
 
-- **SQLwhale:** Hands-on SQL learning and practice. https://sqlwhalefrontend.vercel.app/
+- **SQLwhale:** Hands-on SQL learning and practice. https://sqlwhale.webxwhale.com/
 - **Resume Analyzer:** Resume analysis tool. https://t.me/ScanMyResumeBot
 - **AI 8D Audio Converter:** Audio conversion product. https://project911-flame.vercel.app/
 - **Webchat:** Web-based chat product. https://webwhalechat.netlify.app/
