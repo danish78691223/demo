@@ -233,7 +233,7 @@ const defaultCurrentProducts = [
     ],
     accent: "cyan",
     featured: true,
-    href: "https://sqlwhalefrontend.vercel.app/",
+    href: "https://sqlwhale.webxwhale.com/",
   },
   {
     id: "02",
