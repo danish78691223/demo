@@ -19,7 +19,15 @@ export async function GET(request) {
       .sort({ sortOrder: 1, createdAt: 1 })
       .lean();
 
-    return NextResponse.json({ products });
+    // Always serve SQLwhale's current canonical domain, even when an older
+    // URL is still stored in the products collection.
+    const normalizedProducts = products.map((product) =>
+      product.name?.trim().toLowerCase() === "sqlwhale"
+        ? { ...product, href: "https://sqlwhale.webxwhale.com/" }
+        : product
+    );
+
+    return NextResponse.json({ products: normalizedProducts });
   } catch (error) {
     console.error("Products GET error:", error);
     return NextResponse.json({ message: "Unable to load products." }, { status: 500 });
