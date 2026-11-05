@@ -28,7 +28,7 @@ Canonical website: https://webxwhale.com/
 
 ## Featured products
 
-- [SQLwhale](https://sqlwhalefrontend.vercel.app/): Hands-on SQL learning and practice.
+- [SQLwhale](https://sqlwhale.webxwhale.com/): Hands-on SQL learning and practice.
 - [Resume Analyzer bot](https://t.me/ScanMyResumeBot): Resume analysis tool.
 - [AI 8D Audio Converter](https://project911-flame.vercel.app/): Audio conversion product.
 - [Webchat](https://webwhalechat.netlify.app/): Web-based chat product.
