@@ -4,7 +4,7 @@ import Product from "../../../../../models/Product";
 import { requireAdmin } from "../../../../../lib/admin";
 
 const DEFAULTS = [
-  { name:"SQLwhale", category:"learning", description:"Master data skills through hands-on SQL practice.", status:"Explore", href:"https://sqlwhalefrontend.vercel.app/", accent:"blue", icon:"database", tags:["SQL","Database","Learning"], sortOrder:1 },
+  { name:"SQLwhale", category:"learning", description:"Master data skills through hands-on SQL practice.", status:"Explore", href:"https://sqlwhale.webxwhale.com/", accent:"blue", icon:"database", tags:["SQL","Database","Learning"], sortOrder:1 },
   { name:"Programming", category:"learning", description:"A practical programming learning path is being crafted.", status:"Coming soon", accent:"violet", icon:"spark", tags:["Programming","Learning"], sortOrder:2 },
   { name:"Data Structures", category:"learning", description:"Build stronger foundations, one pattern at a time.", status:"Coming soon", accent:"coral", icon:"spark", tags:["DSA","Learning"], sortOrder:3 },
   { name:"Resume Analyzer", category:"product", description:"Turn your resume into a clearer next opportunity.", status:"Try it", href:"https://t.me/ScanMyResumeBot", accent:"orange", icon:"resume", tags:["Career","Resume","AI"], sortOrder:4 },
