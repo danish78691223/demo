@@ -903,7 +903,7 @@ export default function ServicesPage() {
           <div className="orbit-ring ring-three" />
 
           <div className="orbit-center">
-            WEB
+            WEBX
             <br />
             WHALE
           </div>
